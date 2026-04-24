@@ -1,5 +1,9 @@
 # AnalyticBandRadiation.jl
 
+[![Docs (stable)](https://img.shields.io/badge/docs-stable-blue.svg)](https://NumericalEarth.github.io/AnalyticBandRadiation.jl/stable)
+[![Docs (dev)](https://img.shields.io/badge/docs-dev-blue.svg)](https://NumericalEarth.github.io/AnalyticBandRadiation.jl/dev)
+[![CI](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/CI.yml)
+
 Analytic-band atmospheric radiation for intermediate-complexity models.
 
 This package bundles two per-column radiation schemes:
