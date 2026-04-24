@@ -29,64 +29,85 @@ Fields are
 
 $(TYPEDFIELDS)
 """
-Base.@kwdef struct WilliamsLongwave{NF} <: AbstractLongwaveScheme
+struct AnalyticBandLongwave{NF} <: AbstractLongwaveScheme
     "Number of evenly spaced wavenumber quadrature points"
-    nwavenumber::Int = 41
-
+    nwavenumber::Int
     "Minimum wavenumber of the spectral integration range [cm⁻¹]"
-    wavenumber_min::NF = NF(10)
-
+    wavenumber_min::NF
     "Maximum wavenumber of the spectral integration range [cm⁻¹]"
-    wavenumber_max::NF = NF(2500)
-
+    wavenumber_max::NF
     "Peak absorption of the pure-rotation band κ_rot [m² kg⁻¹]"
-    κ_rot::NF = NF(37)
+    κ_rot::NF
     "e-folding decay length of the rotation band l_rot [cm⁻¹]"
-    l_rot::NF = NF(56)
+    l_rot::NF
     "Peak absorption of the vibration–rotation band κ_vr [m² kg⁻¹]"
-    κ_vr::NF = NF(5)
+    κ_vr::NF
     "e-folding length of vibration–rotation band (low-ν side) l_vr1 [cm⁻¹]"
-    l_vr1::NF = NF(37)
+    l_vr1::NF
     "e-folding length of vibration–rotation band (high-ν side) l_vr2 [cm⁻¹]"
-    l_vr2::NF = NF(52)
-
+    l_vr2::NF
     "Continuum absorption below 1700 cm⁻¹ κ_cnt1 [m² kg⁻¹]"
-    κ_cnt1::NF = NF(0.004)
+    κ_cnt1::NF
     "Continuum absorption above 1700 cm⁻¹ κ_cnt2 [m² kg⁻¹]"
-    κ_cnt2::NF = NF(0.0002)
-
+    κ_cnt2::NF
     "Include CO₂ longwave absorption"
-    do_co2::Bool = true
+    do_CO₂::Bool
     "CO₂ concentration [ppmv]"
-    co2_ppmv::NF = NF(280)
-    "Peak absorption of the CO₂ 15 μm band κ_co2 [m² kg⁻¹]"
-    κ_co2::NF = NF(110)
-    "e-folding half-width of CO₂ band l_co2 [cm⁻¹]"
-    l_co2::NF = NF(12)
-    "Centre wavenumber of CO₂ bending mode ν̃_co2 [cm⁻¹]"
-    ν̃_co2::NF = NF(667)
-
+    CO₂_ppmv::NF
+    "Peak absorption of the CO₂ 15 μm band κ_CO₂ [m² kg⁻¹]"
+    κ_CO₂::NF
+    "e-folding half-width of CO₂ band l_CO₂ [cm⁻¹]"
+    l_CO₂::NF
+    "Centre wavenumber of CO₂ bending mode ν̃_CO₂ [cm⁻¹]"
+    ν̃_CO₂::NF
     "Two-stream diffusivity factor D (Armstrong 1968)"
-    diffusivity::NF = NF(1.5)
+    diffusivity::NF
     "Reference pressure for pressure broadening [Pa]"
-    p_ref::NF = NF(50000)
+    p_ref::NF
     "Reference temperature for absorption coefficient fits [K]"
-    T_ref::NF = NF(260)
+    T_ref::NF
     "Reference saturation water-vapor pressure at T_ref [Pa]"
-    pv_ref::NF = NF(224.92)
+    pv_ref::NF
     "Temperature-scaling exponent for the continuum (Mlawer et al. 1997) [K⁻¹]"
-    σ_cont::NF = NF(0.02)
+    σ_cont::NF
 end
 
-Adapt.@adapt_structure WilliamsLongwave
+Adapt.@adapt_structure AnalyticBandLongwave
+
+function AnalyticBandLongwave{NF}(;
+        nwavenumber::Int = 41,
+        wavenumber_min = NF(10),
+        wavenumber_max = NF(2500),
+        κ_rot  = NF(37),    l_rot  = NF(56),
+        κ_vr   = NF(5),     l_vr1  = NF(37),    l_vr2 = NF(52),
+        κ_cnt1 = NF(0.004), κ_cnt2 = NF(0.0002),
+        do_CO₂::Bool = true,
+        CO₂_ppmv = NF(280),
+        κ_CO₂    = NF(110), l_CO₂  = NF(12),    ν̃_CO₂ = NF(667),
+        diffusivity = NF(1.5),
+        p_ref  = NF(50000), T_ref  = NF(260),   pv_ref = NF(224.92),
+        σ_cont = NF(0.02),
+    ) where NF
+    return AnalyticBandLongwave{NF}(
+        nwavenumber, wavenumber_min, wavenumber_max,
+        κ_rot, l_rot, κ_vr, l_vr1, l_vr2, κ_cnt1, κ_cnt2,
+        do_CO₂, CO₂_ppmv, κ_CO₂, l_CO₂, ν̃_CO₂,
+        diffusivity, p_ref, T_ref, pv_ref, σ_cont,
+    )
+end
 
 """$(TYPEDSIGNATURES)
-Construct a [`WilliamsLongwave`](@ref) with the given floating-point type.
+Construct an [`AnalyticBandLongwave`](@ref). Floating-point type defaults to
+`Float64`; pass as a positional argument (e.g. `AnalyticBandLongwave(Float32)`)
+for a different precision.
 """
-WilliamsLongwave(::Type{NF}; kwargs...) where NF = WilliamsLongwave{NF}(; kwargs...)
+AnalyticBandLongwave(::Type{NF}; kwargs...) where NF =
+    AnalyticBandLongwave{NF}(; kwargs...)
 
-Base.eltype(::WilliamsLongwave{NF}) where NF = NF
-Base.eltype(::Type{<:WilliamsLongwave{NF}}) where NF = NF
+AnalyticBandLongwave(; kwargs...) = AnalyticBandLongwave{Float64}(; kwargs...)
+
+Base.eltype(::AnalyticBandLongwave{NF}) where NF = NF
+Base.eltype(::Type{<:AnalyticBandLongwave{NF}}) where NF = NF
 
 """$(TYPEDSIGNATURES)
 Column longwave radiative transfer for the Williams (2026) Simple Spectral
@@ -98,11 +119,15 @@ downward surface flux, positive upward surface flux.
 """
 function solve_longwave!(dTdt::AbstractVector,
                          diag::LongwaveDiagnostics{NF},
-                         scheme::WilliamsLongwave{NF},
-                         profile::ColumnProfile,
-                         geometry::ColumnGeometry,
-                         surface::ColumnSurface,
-                         constants::PhysicalConstants) where NF
+                         scheme::AnalyticBandLongwave{NF},
+                         profile::AtmosphereProfile,
+                         geometry::ColumnGrid,
+                         surface::SurfaceState,
+                         constants) where NF
+    # `constants` is duck-typed: any object with `.gravity`, `.heat_capacity`,
+    # `.stefan_boltzmann`, `.solar_constant` works (PhysicalConstants is the
+    # built-in; Breeze's ThermodynamicConstants can be adapted via a thin
+    # wrapper in the Breeze extension).
 
     T  = profile.temperature
     q  = profile.humidity

@@ -12,13 +12,13 @@
 @inline flux_to_tendency(flux, surface_pressure, gravity, σ_thick_k) =
     gravity / (surface_pressure * σ_thick_k) * flux
 
-@inline flux_to_tendency(flux, profile::ColumnProfile, geometry::ColumnGeometry,
-                         constants::PhysicalConstants, k::Integer) =
+@inline flux_to_tendency(flux, profile::AtmosphereProfile, geometry::ColumnGrid,
+                         constants, k::Integer) =
     flux_to_tendency(flux, profile.surface_pressure, constants.gravity,
                      geometry.σ_thick[k])
 
-@inline surface_flux_to_tendency(flux, profile::ColumnProfile,
-                                 geometry::ColumnGeometry,
-                                 constants::PhysicalConstants) =
+@inline surface_flux_to_tendency(flux, profile::AtmosphereProfile,
+                                 geometry::ColumnGrid,
+                                 constants) =
     flux_to_tendency(flux, profile.surface_pressure, constants.gravity,
                      geometry.σ_thick[end])

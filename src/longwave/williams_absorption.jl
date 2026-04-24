@@ -4,7 +4,7 @@
 # broadening is applied in `williams_delta_tau`.
 
 """
-    h2o_line_kappa_ref(ν̃, scheme::WilliamsLongwave) -> κ  [m² kg⁻¹]
+    h2o_line_kappa_ref(ν̃, scheme::AnalyticBandLongwave) -> κ  [m² kg⁻¹]
 
 Reference H₂O line mass absorption coefficient. Piecewise-exponential fit to
 the pure-rotation (200–1000 cm⁻¹), vibration–rotation (1000–1700 cm⁻¹) and
@@ -31,24 +31,24 @@ Reference: Williams (2026), Eq. 4 and Table 1.
 end
 
 """
-    co2_kappa_ref(ν̃, scheme::WilliamsLongwave) -> κ  [m² kg⁻¹]
+    co2_kappa_ref(ν̃, scheme::AnalyticBandLongwave) -> κ  [m² kg⁻¹]
 
 Reference CO₂ absorption coefficient. A two-sided exponential (Laplace-shaped)
-wing centred on the 15 μm bending mode at ν̃_co2 ≈ 667 cm⁻¹, active only in
+wing centred on the 15 μm bending mode at ν̃_CO₂ ≈ 667 cm⁻¹, active only in
 [500, 850] cm⁻¹.
 
 Reference: Williams (2026), Eq. 5.
 """
 @inline function co2_kappa_ref(ν̃, scheme)
     NF = typeof(ν̃)
-    (; κ_co2, l_co2, ν̃_co2) = scheme
+    (; κ_CO₂, l_CO₂, ν̃_CO₂) = scheme
     return ifelse(ν̃ > 500 && ν̃ < 850,
-                  NF(κ_co2 * exp(-abs(ν̃ - ν̃_co2) / l_co2)),
+                  NF(κ_CO₂ * exp(-abs(ν̃ - ν̃_CO₂) / l_CO₂)),
                   zero(NF))
 end
 
 """
-    h2o_cont_kappa_ref(ν̃, scheme::WilliamsLongwave) -> κ  [m² kg⁻¹]
+    h2o_cont_kappa_ref(ν̃, scheme::AnalyticBandLongwave) -> κ  [m² kg⁻¹]
 
 Reference H₂O continuum absorption. Two gray values split at 1700 cm⁻¹
 (stronger in the main atmospheric window below).
@@ -67,16 +67,16 @@ end
 
 Optical depth increment through layer `k` at wavenumber `ν̃`. Combines H₂O
 line absorption (Williams 2026, Eq. 7), H₂O continuum (Eq. 8) and, if
-`scheme.do_co2 == true`, CO₂ (Eq. 9). The result already includes the
+`scheme.do_CO₂ == true`, CO₂ (Eq. 9). The result already includes the
 two-stream diffusivity factor `D ≈ 1.5` (Armstrong 1968).
 
 `temperature` and `humidity` are length-`nlayers` column vectors; `geometry`
-is a [`ColumnGeometry`](@ref).
+is a [`ColumnGrid`](@ref).
 """
 @inline function williams_delta_tau(k::Integer, ν̃::NF,
                                      temperature::AbstractVector, humidity::AbstractVector,
                                      surface_pressure::Real,
-                                     geometry::ColumnGeometry,
+                                     geometry::ColumnGrid,
                                      scheme, gravity::Real) where NF
     σ_full  = geometry.σ_full
     σ_half  = geometry.σ_half
@@ -105,12 +105,12 @@ is a [`ColumnGeometry`](@ref).
     # For a well-mixed gas with κ ∝ p / p_ref the column integral from the TOA
     # to pressure p gives τ = D κ q_CO₂ p² / (2 g p_ref). The layer increment
     # is the difference of τ at the two bounding half levels.
-    Δτ_co2 = if scheme.do_co2
-        q_co2 = NF(scheme.co2_ppmv * 1e-6 * 44 / 29)
-        κ_co2_v = co2_kappa_ref(ν̃, scheme)
+    Δτ_co2 = if scheme.do_CO₂
+        q_co2 = NF(scheme.CO₂_ppmv * 1e-6 * 44 / 29)
+        κ_CO₂_v = co2_kappa_ref(ν̃, scheme)
         p_half_k   = NF(σ_half[k])   * pₛ
         p_half_kp1 = NF(σ_half[k+1]) * pₛ
-        κ_co2_v * q_co2 * (p_half_kp1^2 - p_half_k^2) / (2 * g * NF(scheme.p_ref))
+        κ_CO₂_v * q_co2 * (p_half_kp1^2 - p_half_k^2) / (2 * g * NF(scheme.p_ref))
     else
         zero(NF)
     end

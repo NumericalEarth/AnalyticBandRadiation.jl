@@ -1,7 +1,7 @@
 @testset "planck: Stefan-Boltzmann recovery" begin
     # π ∫ B(T, ν̃) dν̃ from 10 to 2510 cm⁻¹ must be within ~1% of σ T⁴ at 300 K.
     T = 300.0f0
-    lw = WilliamsLongwave(Float32)
+    lw = AnalyticBandLongwave(Float32)
     nν = lw.nwavenumber
     dν̃ = (lw.wavenumber_max - lw.wavenumber_min) / (nν - 1)
     pi_B = sum(Float32(π) * planck_wavenumber(T, lw.wavenumber_min + (iv-1)*dν̃) * dν̃

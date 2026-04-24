@@ -7,14 +7,14 @@ using DocStringExtensions
 export AbstractRadiationScheme, AbstractLongwaveScheme, AbstractShortwaveScheme
 export AbstractShortwaveTransmissivity, AbstractShortwaveClouds
 
-export ColumnProfile, ColumnGeometry, ColumnSurface
+export AtmosphereProfile, ColumnGrid, SurfaceState
 export PhysicalConstants, ThermodynamicConstants, default_earth_constants
 
 export LongwaveDiagnostics, ShortwaveDiagnostics
 
 export planck_wavenumber
 
-export WilliamsLongwave
+export AnalyticBandLongwave
 export h2o_line_kappa_ref, h2o_cont_kappa_ref, co2_kappa_ref
 export williams_delta_tau
 
@@ -25,6 +25,8 @@ export OneBandShortwaveRadiativeTransfer
 export saturation_humidity
 
 export solve_longwave!, solve_shortwave!
+
+export RadiativeTransferColumn, reset!
 
 export solar_declination, equation_of_time, cosine_solar_zenith
 
@@ -39,5 +41,6 @@ include("shortwave/clouds.jl")
 include("shortwave/transmissivity.jl")
 include("shortwave/transparent_shortwave.jl")
 include("shortwave/one_band_shortwave.jl")
+include("radiative_transfer_column.jl")
 
 end # module

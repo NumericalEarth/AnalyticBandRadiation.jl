@@ -1,6 +1,6 @@
 # Longwave: Williams (2026) Simple Spectral Model
 
-The [`WilliamsLongwave`](@ref) solver advances Schwarzschild's two-stream
+The [`AnalyticBandLongwave`](@ref) solver advances Schwarzschild's two-stream
 equations
 
 ```math
@@ -19,7 +19,7 @@ The scheme represents three analytic sources of clear-sky absorption:
 using AnalyticBandRadiation
 using CairoMakie
 
-lw = WilliamsLongwave(Float64)
+lw = AnalyticBandLongwave(Float64)
 ν̃  = range(lw.wavenumber_min, lw.wavenumber_max, length = 500)
 
 # Replace zeros with NaN so the log-y plot shows gaps where a band is inactive.
@@ -27,7 +27,7 @@ nan_zero(v) = [x == 0 ? NaN : x for x in v]
 
 κ_h2o_line = nan_zero([h2o_line_kappa_ref(ν, lw) for ν in ν̃])
 κ_h2o_cont =          [h2o_cont_kappa_ref(ν, lw) for ν in ν̃]
-κ_co2      = nan_zero([co2_kappa_ref(ν, lw)      for ν in ν̃])
+κ_CO₂      = nan_zero([co2_kappa_ref(ν, lw)      for ν in ν̃])
 
 fig = Figure(size = (760, 440))
 ax  = Axis(fig[1, 1];
@@ -37,7 +37,7 @@ ax  = Axis(fig[1, 1];
            title  = "Williams (2026) reference absorption (T = 260 K, p = 500 hPa)")
 lines!(ax, ν̃, κ_h2o_line; label = "H₂O line",      linewidth = 2)
 lines!(ax, ν̃, κ_h2o_cont; label = "H₂O continuum", linewidth = 2)
-lines!(ax, ν̃, κ_co2;      label = "CO₂ 15 μm",      linewidth = 2, linestyle = :dash)
+lines!(ax, ν̃, κ_CO₂;      label = "CO₂ 15 μm",      linewidth = 2, linestyle = :dash)
 axislegend(ax; position = :rt)
 save("absorption.png", fig); nothing # hide
 ```
@@ -63,15 +63,15 @@ using CairoMakie
 
 nlayers = 32
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
-geom    = ColumnGeometry(σ_half)
+geom    = ColumnGrid(σ_half)
 
-profile = ColumnProfile(
+profile = AtmosphereProfile(
     temperature      = collect(range(220.0, 295.0, length = nlayers)),
     humidity         = fill(0.005, nlayers),
     geopotential     = zeros(nlayers),
     surface_pressure = 100_000.0,
 )
-surface   = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
+surface   = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                    land_surface_temperature = 285.0,
                                    land_fraction = 0.3)
 constants = PhysicalConstants{Float64}()
@@ -80,7 +80,7 @@ constants = PhysicalConstants{Float64}()
 co2s = [50.0, 100.0, 200.0, 280.0, 400.0, 560.0, 800.0, 1120.0]
 olrs = Float64[]
 for c in co2s
-    lw  = WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = c)
+    lw  = AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = c)
     dT  = zeros(nlayers)
     dg  = LongwaveDiagnostics{Float64}()
     solve_longwave!(dT, dg, lw, profile, geom, surface, constants)

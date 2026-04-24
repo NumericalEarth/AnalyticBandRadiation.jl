@@ -80,13 +80,14 @@ large-scale condensation; pass `length(profile.temperature) + 1` if none.
 function solve_shortwave!(dTdt::AbstractVector,
                           diag::ShortwaveDiagnostics{NF},
                           scheme::OneBandShortwave,
-                          profile::ColumnProfile,
-                          geometry::ColumnGeometry,
-                          surface::ColumnSurface,
-                          constants::PhysicalConstants,
-                          thermodynamic::ThermodynamicConstants;
+                          profile::AtmosphereProfile,
+                          geometry::ColumnGrid,
+                          surface::SurfaceState,
+                          constants,
+                          thermodynamic;
                           transmissivity_scratch::AbstractVector = similar(profile.temperature),
                           cloud_top_convective::Integer = length(profile.temperature) + 1) where NF
+    # `constants` and `thermodynamic` are duck-typed; see `solve_longwave!`.
 
     clouds = diagnose_clouds(scheme.clouds, profile, geometry, surface,
                               constants, thermodynamic, cloud_top_convective)

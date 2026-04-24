@@ -35,22 +35,26 @@ Pkg.add(url="https://github.com/NumericalEarth/AnalyticBandRadiation.jl")
 
 ## Standalone usage (single column)
 
+Bundle the grid, profile, surface, schemes, constants, and pre-allocated
+buffers into a single [`RadiativeTransferColumn`](@ref) and call the solvers
+with one argument:
+
 ```julia
 using AnalyticBandRadiation
 
 nlayers = 8
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
-geom    = ColumnGeometry(σ_half)
+grid    = ColumnGrid(σ_half)
 
 # Lapse-rate profile: top of atmosphere (k=1) cold, surface (k=nlayers) warm.
-profile = ColumnProfile(
+profile = AtmosphereProfile(
     temperature      = collect(range(220.0, 295.0, length = nlayers)),
     humidity         = fill(0.005, nlayers),
     geopotential     = zeros(nlayers),
     surface_pressure = 100_000.0,
 )
 
-surface   = ColumnSurface{Float64}(
+surface = SurfaceState(
     sea_surface_temperature  = 295.0,
     land_surface_temperature = 285.0,
     land_fraction            = 0.3,
@@ -58,26 +62,31 @@ surface   = ColumnSurface{Float64}(
     land_albedo              = 0.25,
     cos_zenith               = 0.5,
 )
-constants = PhysicalConstants{Float64}()
 
-# Longwave
-lw   = WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = 280.0)
-dTdt = zeros(nlayers)
-diag = LongwaveDiagnostics{Float64}()
-solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
+# Schemes, constants, and output buffers all wrap up here.
+rtm = RadiativeTransferColumn(; grid, profile, surface,
+    longwave_scheme = AnalyticBandLongwave(do_CO₂ = true, CO₂_ppmv = 280.0))
 
-@show diag.outgoing_longwave      # W m⁻²
-@show diag.surface_longwave_down  # W m⁻²
+solve_longwave!(rtm)
+solve_shortwave!(rtm)
 
-# Shortwave
-sw    = OneBandShortwave(Float64)
-dTdt  = zeros(nlayers)
-sdiag = ShortwaveDiagnostics{Float64}(nlayers)
-tbuf  = similar(profile.temperature)
-thermo = ThermodynamicConstants{Float64}()
-solve_shortwave!(dTdt, sdiag, sw, profile, geom, surface, constants, thermo;
-                 transmissivity_scratch = tbuf)
+@show rtm.longwave_diagnostics.outgoing_longwave        # W m⁻²
+@show rtm.longwave_diagnostics.surface_longwave_down    # W m⁻²
+@show rtm.shortwave_diagnostics.surface_shortwave_down  # W m⁻²
+@show rtm.temperature_tendency                           # K s⁻¹ per layer
 ```
+
+For the low-level kernel form (what hosts like SpeedyWeather / Breeze extensions
+call internally), `solve_longwave!` and `solve_shortwave!` accept the
+flattened `(dTdt, diagnostics, scheme, profile, grid, surface, constants, …)`
+signature directly, and the `constants` argument is duck-typed — any struct
+or NamedTuple carrying `gravity`, `heat_capacity`, `stefan_boltzmann`,
+`solar_constant` properties works.
+
+All floating-point types default to `Float64`. To run in `Float32` (useful for
+GPU kernels), pass the type as a positional argument to the scheme
+constructors: `AnalyticBandLongwave(Float32; do_CO₂ = true)`,
+`OneBandShortwave(Float32)`, etc.
 
 ## With SpeedyWeather.jl
 

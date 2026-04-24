@@ -59,9 +59,9 @@ stratocumulus_cover, stratocumulus_albedo)`.
 For `NoClouds`, `cloud_top = nlayers + 1` (below the surface) so downstream
 shortwave code skips the cloud-reflection branch.
 """
-@inline function diagnose_clouds(::NoClouds, profile::ColumnProfile,
-                                  geometry::ColumnGeometry,
-                                  surface::ColumnSurface,
+@inline function diagnose_clouds(::NoClouds, profile::AtmosphereProfile,
+                                  geometry::ColumnGrid,
+                                  surface::SurfaceState,
                                   constants::PhysicalConstants,
                                   thermodynamic::ThermodynamicConstants,
                                   cloud_top_convective::Integer)
@@ -77,9 +77,9 @@ shortwave code skips the cloud-reflection branch.
 end
 
 @inline function diagnose_clouds(clouds::DiagnosticClouds{NF},
-                                  profile::ColumnProfile,
-                                  geometry::ColumnGeometry,
-                                  surface::ColumnSurface,
+                                  profile::AtmosphereProfile,
+                                  geometry::ColumnGrid,
+                                  surface::SurfaceState,
                                   constants::PhysicalConstants,
                                   thermodynamic::ThermodynamicConstants,
                                   cloud_top_convective::Integer) where NF

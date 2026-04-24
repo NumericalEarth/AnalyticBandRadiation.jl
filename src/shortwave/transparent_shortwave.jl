@@ -15,11 +15,11 @@ Column transparent-atmosphere shortwave.
 function solve_shortwave!(dTdt::AbstractVector,
                           diag::ShortwaveDiagnostics{NF},
                           ::TransparentShortwave,
-                          profile::ColumnProfile,
-                          geometry::ColumnGeometry,
-                          surface::ColumnSurface,
-                          constants::PhysicalConstants,
-                          thermodynamic::ThermodynamicConstants;
+                          profile::AtmosphereProfile,
+                          geometry::ColumnGrid,
+                          surface::SurfaceState,
+                          constants,
+                          thermodynamic;
                           cloud_top_convective::Integer = length(profile.temperature) + 1) where NF
     S₀ = NF(constants.solar_constant)
     cos_zenith = NF(surface.cos_zenith)

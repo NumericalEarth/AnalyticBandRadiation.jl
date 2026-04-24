@@ -1,11 +1,18 @@
 # API reference
 
+## Umbrella
+
+```@docs
+RadiativeTransferColumn
+reset!
+```
+
 ## Column inputs
 
 ```@docs
-ColumnProfile
-ColumnGeometry
-ColumnSurface
+AtmosphereProfile
+ColumnGrid
+SurfaceState
 PhysicalConstants
 ThermodynamicConstants
 default_earth_constants
@@ -16,7 +23,7 @@ ShortwaveDiagnostics
 ## Longwave
 
 ```@docs
-WilliamsLongwave
+AnalyticBandLongwave
 solve_longwave!
 planck_wavenumber
 h2o_line_kappa_ref

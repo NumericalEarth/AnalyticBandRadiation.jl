@@ -8,4 +8,5 @@ using Dates
     include("test_williams_longwave.jl")
     include("test_shortwave.jl")
     include("test_zenith.jl")
+    include("test_rtc.jl")
 end

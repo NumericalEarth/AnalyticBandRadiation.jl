@@ -5,8 +5,8 @@ using Breeze
 using Oceananigans
 using KernelAbstractions
 
-import AnalyticBandRadiation: WilliamsLongwave, OneBandShortwave, OneBandGreyShortwave,
-    TransparentShortwave, ColumnProfile, ColumnGeometry, ColumnSurface,
+import AnalyticBandRadiation: AnalyticBandLongwave, OneBandShortwave, OneBandGreyShortwave,
+    TransparentShortwave, AtmosphereProfile, ColumnGrid, SurfaceState,
     PhysicalConstants, ThermodynamicConstants, LongwaveDiagnostics,
     ShortwaveDiagnostics, solve_longwave!, solve_shortwave!
 
@@ -60,7 +60,7 @@ be replaced with any [`AnalyticBandRadiation.AbstractLongwaveScheme`](@ref) and
 function Breeze.AtmosphereModels.RadiativeTransferModel(grid::Oceananigans.AbstractGrid,
         ::SpectralOptics,
         constants;
-        longwave_scheme = WilliamsLongwave(eltype(grid)),
+        longwave_scheme = AnalyticBandLongwave(eltype(grid)),
         shortwave_scheme = OneBandShortwave(eltype(grid)),
         thermodynamic_constants = ThermodynamicConstants{eltype(grid)}(),
         solar_constant = 1361.0,
@@ -81,7 +81,7 @@ function Breeze.AtmosphereModels.RadiativeTransferModel(grid::Oceananigans.Abstr
     AnalyticBandRadiationBreezeExt: the Breeze-side column launch is a scaffold.
     The next step is to allocate ZFaceField flux arrays, package
     AnalyticBandAtmosphericState, and write the `:xy` kernel that builds a
-    per-column ColumnProfile/Geometry/Surface from Breeze state and calls
+    per-column AtmosphereProfile/Geometry/Surface from Breeze state and calls
     `AnalyticBandRadiation.solve_longwave!` / `solve_shortwave!`. See
     `ext/BreezeRRTMGPExt/gray_radiative_transfer_model.jl` in Breeze for the
     reference pattern.
@@ -94,7 +94,7 @@ end
                                                   reference_pressure,
                                                   land_fraction, surface_temperature)
     i, j = @index(Global, NTuple)
-    # Pack (i, j) column into ColumnProfile, ColumnGeometry, ColumnSurface,
+    # Pack (i, j) column into AtmosphereProfile, ColumnGrid, SurfaceState,
     # then call AnalyticBandRadiation.solve_longwave! and write fluxes into
     # rtm.upwelling_longwave_flux[i, j, k] / downwelling_longwave_flux[i, j, k].
 end

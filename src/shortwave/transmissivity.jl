@@ -24,9 +24,9 @@ Layer transmissivities under the constant-transmissivity model. Writes into
 """
 @inline function compute_transmissivity!(t::AbstractVector,
                                           cst::ConstantShortwaveTransmissivity,
-                                          clouds, profile::ColumnProfile,
-                                          geometry::ColumnGeometry,
-                                          surface::ColumnSurface)
+                                          clouds, profile::AtmosphereProfile,
+                                          geometry::ColumnGrid,
+                                          surface::SurfaceState)
     NF = eltype(t)
     nlayers = length(t)
     τ = -log(NF(cst.transmissivity))
@@ -77,9 +77,9 @@ BackgroundShortwaveTransmissivity(::Type{NF}; kwargs...) where NF =
 
 @inline function compute_transmissivity!(t::AbstractVector,
                                           transmissivity::BackgroundShortwaveTransmissivity,
-                                          clouds, profile::ColumnProfile,
-                                          geometry::ColumnGeometry,
-                                          surface::ColumnSurface)
+                                          clouds, profile::AtmosphereProfile,
+                                          geometry::ColumnGrid,
+                                          surface::SurfaceState)
     NF = eltype(t)
     nlayers = length(t)
 

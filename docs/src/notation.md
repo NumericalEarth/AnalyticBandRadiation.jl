@@ -21,18 +21,18 @@ convention), but the mapping to the symbolic notation is always unambiguous.
 
 | Math | Code | Description |
 |:-----|:-----|:------------|
-| `T` | `ColumnProfile.temperature` | Layer air temperature (K) |
-| `q` | `ColumnProfile.humidity` | Specific humidity (kg kg⁻¹) |
-| `p` | `ColumnProfile.surface_pressure`; `ColumnGeometry.σ_*·pₛ` in-code | Pressure (Pa) |
-| `α` | `ColumnSurface.ocean_albedo`, `land_albedo` | Surface albedo |
-| `ϵ` | `ColumnSurface.ocean_emissivity`, `land_emissivity` | Surface emissivity |
+| `T` | `AtmosphereProfile.temperature` | Layer air temperature (K) |
+| `q` | `AtmosphereProfile.humidity` | Specific humidity (kg kg⁻¹) |
+| `p` | `AtmosphereProfile.surface_pressure`; `ColumnGrid.σ_*·pₛ` in-code | Pressure (Pa) |
+| `α` | `SurfaceState.ocean_albedo`, `land_albedo` | Surface albedo |
+| `ϵ` | `SurfaceState.ocean_emissivity`, `land_emissivity` | Surface emissivity |
 | `σ` (Stefan–Boltzmann) | `PhysicalConstants.stefan_boltzmann` | W m⁻² K⁻⁴ |
 | `g` | `PhysicalConstants.gravity` | m s⁻² |
 | `cₚ` | `PhysicalConstants.heat_capacity` | Isobaric specific heat (J kg⁻¹ K⁻¹) |
 
 ## Sigma-coordinate vertical grid
 
-The vertical grid is stored in [`ColumnGeometry`](@ref) using the
+The vertical grid is stored in [`ColumnGrid`](@ref) using the
 pressure-normalized `σ = p / pₛ` convention inherited from SpeedyWeather.
 
 | Math | Code | Description |
@@ -55,7 +55,7 @@ Local variables in the solvers disambiguate with `σ_SB`.
 | `κ_cnt^ref(ν̃)` | [`h2o_cont_kappa_ref`](@ref) | Reference H₂O continuum absorption |
 | `κ_CO₂^ref(ν̃)` | [`co2_kappa_ref`](@ref) | Reference CO₂ absorption |
 | `τ(p)` | integrated internally | Optical depth |
-| `D` | `WilliamsLongwave.diffusivity` | Two-stream diffusivity factor (≈ 1.5) |
+| `D` | `AnalyticBandLongwave.diffusivity` | Two-stream diffusivity factor (≈ 1.5) |
 
 Loop-internal scalar accumulators in [`solve_longwave!`](@ref) use compact
 names `U` and `D` for `ℐꜛ` and `ℐꜜ` in the spectral sweep. Comments in the

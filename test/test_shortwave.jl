@@ -1,10 +1,10 @@
 function _test_sw_column(::Type{NF}, nlayers; q = 0.005) where NF
     σ_half = collect(NF.(range(0, 1, length = nlayers + 1)))
-    geom   = ColumnGeometry(σ_half)
+    geom   = ColumnGrid(σ_half)
     T      = NF.(collect(220 .+ 9 .* (0:(nlayers - 1))))
     qv     = fill(NF(q), nlayers)
     Φ      = zeros(NF, nlayers)
-    profile = ColumnProfile(temperature = T, humidity = qv, geopotential = Φ,
+    profile = AtmosphereProfile(temperature = T, humidity = qv, geopotential = Φ,
                             surface_pressure = NF(100_000))
     return profile, geom
 end
@@ -13,7 +13,7 @@ end
     NF = Float32
     nlayers = 4
     profile, geom = _test_sw_column(NF, nlayers)
-    surface = ColumnSurface{NF}(sea_surface_temperature = NF(295),
+    surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                 land_surface_temperature = NF(NaN),
                                 land_fraction = NF(0),
                                 ocean_albedo = NF(0.2),
@@ -34,7 +34,7 @@ end
     NF = Float32
     nlayers = 8
     profile, geom = _test_sw_column(NF, nlayers)
-    surface = ColumnSurface{NF}(sea_surface_temperature = NF(295),
+    surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                 land_surface_temperature = NF(NaN),
                                 land_fraction = NF(0),
                                 ocean_albedo = NF(0.1),
@@ -60,12 +60,12 @@ end
     NF = Float32
     nlayers = 8
     profile, geom = _test_sw_column(NF, nlayers; q = 0.01)
-    profile = ColumnProfile(temperature = profile.temperature,
+    profile = AtmosphereProfile(temperature = profile.temperature,
                             humidity = profile.humidity,
                             geopotential = profile.geopotential,
                             surface_pressure = profile.surface_pressure,
                             rain_rate = NF(1e-6))                 # ~0.09 mm/day
-    surface = ColumnSurface{NF}(sea_surface_temperature = NF(295),
+    surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                 land_surface_temperature = NF(285),
                                 land_fraction = NF(0.3),
                                 ocean_albedo = NF(0.07),

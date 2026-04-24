@@ -13,15 +13,15 @@ using CairoMakie
 
 nlayers = 32
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
-geom    = ColumnGeometry(σ_half)
+geom    = ColumnGrid(σ_half)
 
-profile = ColumnProfile(
+profile = AtmosphereProfile(
     temperature      = collect(range(220.0, 295.0, length = nlayers)),
     humidity         = fill(0.008, nlayers),
     geopotential     = zeros(nlayers),
     surface_pressure = 100_000.0,
 )
-surface = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
+surface = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                  land_surface_temperature = NaN,
                                  land_fraction = 0.0,
                                  ocean_albedo = 0.07,
@@ -30,8 +30,8 @@ surface = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
 constants = PhysicalConstants{Float64}()
 thermo    = ThermodynamicConstants{Float64}()
 
-function run(co2_ppmv)
-    lw = WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = co2_ppmv)
+function run(CO₂_ppmv)
+    lw = AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = CO₂_ppmv)
     sw = OneBandShortwave(Float64)
 
     dT_lw = zeros(nlayers)

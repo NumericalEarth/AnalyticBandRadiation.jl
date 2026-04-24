@@ -5,7 +5,7 @@
 # builds one atmospheric column with Breeze's `AnelasticDynamics` + RRTMGP
 # `ClearSkyOptics`, extracts T(z) and qᵥ(z) from the initialized model,
 # converts height-centered layers into sigma coordinates, then runs
-# `AnalyticBandRadiation.WilliamsLongwave` on the same profile and plots
+# `AnalyticBandRadiation.AnalyticBandLongwave` on the same profile and plots
 # both heating-rate profiles together.
 #
 # Run from the package root with
@@ -97,21 +97,21 @@ for k in 2:Nz
 end
 
 σ_half = reverse(p_half) ./ surface_pressure   # top-down, monotonically 0 → 1
-geometry = ABR.ColumnGeometry(σ_half)
+geometry = ABR.ColumnGrid(σ_half)
 
-profile = ABR.ColumnProfile(
+profile = ABR.AtmosphereProfile(
     temperature      = T_top_down,
     humidity         = qᵛ_top_down,
     geopotential     = zeros(Nz),
     surface_pressure = surface_pressure,
 )
 
-surface = ABR.ColumnSurface{Float64}(sea_surface_temperature  = surface_temperature,
+surface = ABR.SurfaceState{Float64}(sea_surface_temperature  = surface_temperature,
                                       land_surface_temperature = NaN,
                                       land_fraction            = 0.0)
 pc = ABR.PhysicalConstants{Float64}(heat_capacity = cₚ)
 
-lw_williams = ABR.WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = 420.0)
+lw_williams = ABR.AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = 420.0)
 dT_williams = zeros(Nz)
 diag = ABR.LongwaveDiagnostics{Float64}()
 ABR.solve_longwave!(dT_williams, diag, lw_williams, profile, geometry, surface, pc)

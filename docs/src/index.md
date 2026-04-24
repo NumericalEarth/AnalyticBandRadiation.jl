@@ -4,7 +4,7 @@ Analytic-band atmospheric radiation for intermediate-complexity models.
 
 This package bundles two per-column radiation schemes:
 
-- [`WilliamsLongwave`](@ref) — 41-wavenumber clear-sky two-stream Schwarzschild
+- [`AnalyticBandLongwave`](@ref) — 41-wavenumber clear-sky two-stream Schwarzschild
   solver using analytic H₂O line, H₂O continuum and CO₂ absorption coefficients
   after Williams (2026), *J. Adv. Model. Earth Syst.*,
   doi:[10.1029/2025MS005405](https://doi.org/10.1029/2025MS005405).
@@ -36,7 +36,7 @@ using AnalyticBandRadiation
 using CairoMakie
 
 T = 300.0
-lw = WilliamsLongwave(Float64)
+lw = AnalyticBandLongwave(Float64)
 ν̃  = range(lw.wavenumber_min, lw.wavenumber_max, length = lw.nwavenumber)
 πB = [π * planck_wavenumber(T, ν) for ν in ν̃]
 

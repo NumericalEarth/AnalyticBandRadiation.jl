@@ -13,9 +13,9 @@ using CairoMakie
 
 nlayers = 32
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
-geom    = ColumnGeometry(σ_half)
+geom    = ColumnGrid(σ_half)
 
-profile = ColumnProfile(
+profile = AtmosphereProfile(
     temperature      = collect(range(220.0, 295.0, length = nlayers)),
     humidity         = fill(0.005, nlayers),
     geopotential     = zeros(nlayers),
@@ -34,7 +34,7 @@ ax  = Axis(fig[1, 1];
            title  = "Shortwave heating rate vs zenith angle")
 
 for μ in cos_zeniths
-    surface = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
+    surface = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                      land_surface_temperature = NaN,
                                      land_fraction = 0.0,
                                      ocean_albedo = 0.07,
@@ -69,14 +69,14 @@ using CairoMakie
 
 nlayers = 16
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
-geom    = ColumnGeometry(σ_half)
-base_profile = ColumnProfile(
+geom    = ColumnGrid(σ_half)
+base_profile = AtmosphereProfile(
     temperature      = collect(range(220.0, 295.0, length = nlayers)),
     humidity         = fill(0.008, nlayers),
     geopotential     = zeros(nlayers),
     surface_pressure = 100_000.0,
 )
-surface = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
+surface = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                  land_surface_temperature = NaN,
                                  land_fraction = 0.0,
                                  ocean_albedo = 0.07,
@@ -90,7 +90,7 @@ ssr   = Float64[]
 olw_r = Float64[]
 covers = Float64[]
 for r in rain_rates
-    profile = ColumnProfile(temperature = base_profile.temperature,
+    profile = AtmosphereProfile(temperature = base_profile.temperature,
                             humidity    = base_profile.humidity,
                             geopotential = base_profile.geopotential,
                             surface_pressure = base_profile.surface_pressure,
