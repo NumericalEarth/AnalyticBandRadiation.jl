@@ -58,12 +58,12 @@ end
 axislegend(ax_lw; position = :rb)</code></pre><p><img src="../single_column.png" alt/></p><p>The longwave panel shows the characteristic cooling-to-space signature with stronger cooling where water vapour is most abundant. The shortwave panel shows the ozone bump near the top of the model and the warming contribution from water-vapour near-IR absorption in the lower troposphere. Doubling CO₂ reduces outgoing longwave (more negative LW heating is damped) and leaves the shortwave essentially unchanged.</p><h2 id="TOA-energy-budget"><a class="docs-heading-anchor" href="#TOA-energy-budget">TOA energy budget</a><a id="TOA-energy-budget-1"></a><a class="docs-heading-anchor-permalink" href="#TOA-energy-budget" title="Permalink"></a></h2><p>Print the fluxes for each experiment:</p><pre><code class="language-julia hljs">for (label, c) in ((&quot;280 ppmv&quot;, baseline), (&quot;560 ppmv&quot;, doubled))
     @info label olr = c.lw_d.outgoing_longwave surface_lw_down = c.lw_d.surface_longwave_down toa_sw_up = c.sw_d.outgoing_shortwave surface_sw_down = c.sw_d.surface_shortwave_down
 end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌ Info: 280 ppmv
-│   olr = 217.61456450109958
-│   surface_lw_down = 348.33421998877003
+│   olr = 217.65902626281527
+│   surface_lw_down = 348.33360995188474
 │   toa_sw_up = 82.02504015011455
 └   surface_sw_down = 213.51439326531658
 ┌ Info: 560 ppmv
-│   olr = 215.83352629682804
-│   surface_lw_down = 349.89097985868625
+│   olr = 215.769400645381
+│   surface_lw_down = 350.11440371247846
 │   toa_sw_up = 82.02504015011455
 └   surface_sw_down = 213.51439326531658</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../shortwave/">« Shortwave</a><a class="docs-footer-nextpage" href="../api/">API reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 24 April 2026 18:25">Friday 24 April 2026</span>. Using Julia version 1.11.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

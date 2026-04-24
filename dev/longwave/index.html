@@ -4,21 +4,24 @@
 using CairoMakie
 
 lw = WilliamsLongwave(Float64)
-ν̃  = range(lw.wavenumber_min, lw.wavenumber_max, length = 400)
+ν̃  = range(lw.wavenumber_min, lw.wavenumber_max, length = 500)
 
-κ_h2o_line = [h2o_line_kappa_ref(ν, lw) for ν in ν̃]
-κ_h2o_cont = [h2o_cont_kappa_ref(ν, lw) for ν in ν̃]
-κ_co2      = [co2_kappa_ref(ν, lw)      for ν in ν̃]
+# Replace zeros with NaN so the log-y plot shows gaps where a band is inactive.
+nan_zero(v) = [x == 0 ? NaN : x for x in v]
+
+κ_h2o_line = nan_zero([h2o_line_kappa_ref(ν, lw) for ν in ν̃])
+κ_h2o_cont =          [h2o_cont_kappa_ref(ν, lw) for ν in ν̃]
+κ_co2      = nan_zero([co2_kappa_ref(ν, lw)      for ν in ν̃])
 
 fig = Figure(size = (760, 440))
 ax  = Axis(fig[1, 1];
            xlabel = &quot;Wavenumber ν̃ [cm⁻¹]&quot;,
            ylabel = &quot;κ [m² kg⁻¹]&quot;,
            yscale = log10,
-           title  = &quot;Williams (2026) reference absorption coefficients&quot;)
-lines!(ax, ν̃, max.(κ_h2o_line, 1e-4); label = &quot;H₂O line&quot;, linewidth = 2)
-lines!(ax, ν̃, max.(κ_h2o_cont, 1e-4); label = &quot;H₂O continuum&quot;, linewidth = 2)
-lines!(ax, ν̃, max.(κ_co2,      1e-4); label = &quot;CO₂ 15 μm&quot;, linewidth = 2)
+           title  = &quot;Williams (2026) reference absorption (T = 260 K, p = 500 hPa)&quot;)
+lines!(ax, ν̃, κ_h2o_line; label = &quot;H₂O line&quot;,      linewidth = 2)
+lines!(ax, ν̃, κ_h2o_cont; label = &quot;H₂O continuum&quot;, linewidth = 2)
+lines!(ax, ν̃, κ_co2;      label = &quot;CO₂ 15 μm&quot;,      linewidth = 2, linestyle = :dash)
 axislegend(ax; position = :rt)</code></pre><p><img src="../absorption.png" alt/></p><p>All three curves are evaluated at the paper&#39;s reference state <code>(T, p, RH) = (260 K, 500 hPa, 100 %)</code>. At runtime <a href="../api/#AnalyticBandRadiation.williams_delta_tau"><code>williams_delta_tau</code></a> applies pressure broadening (<code>κ ∝ p / p_ref</code>), continuum temperature scaling (<code>exp(σ_cont (T_ref − T))</code>, Mlawer et al. 1997), and the two-stream diffusivity factor <code>D = 1.5</code> (Armstrong 1968).</p><h2 id="2-CO-clear-sky-forcing"><a class="docs-heading-anchor" href="#2-CO-clear-sky-forcing">2 × CO₂ clear-sky forcing</a><a id="2-CO-clear-sky-forcing-1"></a><a class="docs-heading-anchor-permalink" href="#2-CO-clear-sky-forcing" title="Permalink"></a></h2><p>A standard clear-sky CO₂-doubling benchmark. The column is a lapse-rate atmosphere from 220 K at the top to 295 K at the surface with constant specific humidity <code>q = 5 g kg⁻¹</code> and surface pressure 1000 hPa.</p><pre><code class="language-julia hljs">using AnalyticBandRadiation
 using CairoMakie
 
@@ -48,16 +51,25 @@ for c in co2s
     push!(olrs, dg.outgoing_longwave)
 end
 
-fig = Figure(size = (760, 360))
-ax  = Axis(fig[1, 1];
+fig = Figure(size = (820, 360))
+ax1 = Axis(fig[1, 1];
            xlabel = &quot;CO₂ [ppmv]&quot;,
            ylabel = &quot;OLR [W m⁻²]&quot;,
            xscale = log10,
            title  = &quot;Clear-sky outgoing longwave vs CO₂&quot;)
-scatter!(ax, co2s, olrs; markersize = 10, color = :black)
-lines!(ax, co2s, olrs;   color = :black, linestyle = :dash)
+lines!(ax1, co2s, olrs;   color = :black, linestyle = :dash)
+scatter!(ax1, co2s, olrs; markersize = 10, color = :black)
 
-# Forcing markers
+ax2 = Axis(fig[1, 2];
+           xlabel = &quot;CO₂ [ppmv]&quot;,
+           ylabel = &quot;OLR(280) − OLR(CO₂) [W m⁻²]&quot;,
+           xscale = log10,
+           title  = &quot;Clear-sky CO₂ radiative forcing&quot;)
+lines!(ax2, co2s, olrs[4] .- olrs; color = :crimson, linewidth = 2)
+scatter!(ax2, co2s, olrs[4] .- olrs; markersize = 10, color = :crimson)
+vlines!(ax2, 560; color = :gray70, linestyle = :dot)
+hlines!(ax2, 0;   color = :gray70)
+
 forcing_280_560 = olrs[4] - olrs[6]
-Label(fig[2, 1], &quot;2× CO₂ forcing (280 → 560 ppmv) = $(round(forcing_280_560, digits = 2)) W m⁻²&quot;;
+Label(fig[2, 1:2], &quot;2× CO₂ forcing (280 → 560 ppmv) = $(round(forcing_280_560, digits = 2)) W m⁻²&quot;;
       tellwidth = false, fontsize = 12)</code></pre><p><img src="../forcing.png" alt/></p><p>The forcing of <code>OLR(280) − OLR(560)</code> is in the physically plausible range for clear-sky 2×CO₂ (2–5 W m⁻², cf. IPCC AR6 WG1 Ch. 7).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../shortwave/">Shortwave »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 24 April 2026 18:25">Friday 24 April 2026</span>. Using Julia version 1.11.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
