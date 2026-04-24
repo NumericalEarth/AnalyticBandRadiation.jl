@@ -90,7 +90,7 @@ end
 fig = Figure(size = (820, 360))
 ax1 = Axis(fig[1, 1];
            xlabel = "CO₂ [ppmv]",
-           ylabel = "OLR [W m⁻²]",
+           ylabel = "ℐꜛˡʷ at TOA [W m⁻²]",
            xscale = log10,
            title  = "Clear-sky outgoing longwave vs CO₂")
 lines!(ax1, co2s, olrs;   color = :black, linestyle = :dash)
@@ -98,7 +98,7 @@ scatter!(ax1, co2s, olrs; markersize = 10, color = :black)
 
 ax2 = Axis(fig[1, 2];
            xlabel = "CO₂ [ppmv]",
-           ylabel = "OLR(280) − OLR(CO₂) [W m⁻²]",
+           ylabel = "ℐꜛˡʷ(280) − ℐꜛˡʷ(CO₂) [W m⁻²]",
            xscale = log10,
            title  = "Clear-sky CO₂ radiative forcing")
 lines!(ax2, co2s, olrs[4] .- olrs; color = :crimson, linewidth = 2)

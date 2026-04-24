@@ -110,8 +110,8 @@ ax  = Axis(fig[1, 1];
            xlabel = "Diagnosed cloud cover",
            ylabel = "Flux [W m⁻²]",
            title  = "Cloud-cover response of SW fluxes")
-scatter!(ax, covers, ssr;   label = "Surface SW down",   markersize = 10)
-scatter!(ax, covers, olw_r; label = "TOA SW up (outgoing)", markersize = 10)
+scatter!(ax, covers, ssr;   label = "ℐꜜˢʷ at surface",    markersize = 10)
+scatter!(ax, covers, olw_r; label = "ℐꜛˢʷ at TOA",         markersize = 10)
 axislegend(ax; position = :rb)
 save("sw_clouds.png", fig); nothing # hide
 ```

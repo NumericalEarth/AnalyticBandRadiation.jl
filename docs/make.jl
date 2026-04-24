@@ -15,6 +15,7 @@ makedocs(
         "Longwave" => "longwave.md",
         "Shortwave" => "shortwave.md",
         "Single-column examples" => "single_column.md",
+        "Notation" => "notation.md",
         "API reference" => "api.md",
     ],
     warnonly = [:missing_docs, :cross_references],

@@ -6,11 +6,13 @@ radiative transfer.
 
 The scheme solves Schwarzschild's two-stream equations
 
-    dF↑/dτ = F↑ − πB(T)
-    dF↓/dτ = πB(T) − F↓
+    dℐꜛ/dτ = ℐꜛ − πB(T)
+    dℐꜜ/dτ = πB(T) − ℐꜜ
 
-at each of `nwavenumber` evenly spaced wavenumbers between `wavenumber_min`
-and `wavenumber_max`, with analytic mass absorption coefficients for H₂O
+for the upwelling (`ℐꜛˡʷ`) and downwelling (`ℐꜜˡʷ`) spectral longwave
+fluxes at each of `nwavenumber` evenly spaced wavenumbers between
+`wavenumber_min` and `wavenumber_max`, with analytic mass absorption
+coefficients for H₂O
 line (rotation + vibration–rotation + combination bands, [`h2o_line_kappa_ref`](@ref)),
 a two-band H₂O continuum ([`h2o_cont_kappa_ref`](@ref)) and a Lorentzian CO₂
 15 μm bending mode ([`co2_kappa_ref`](@ref)). All reference constants are at
@@ -135,13 +137,14 @@ function solve_longwave!(dTdt::AbstractVector,
         B_sfc_ocean = ifelse(isfinite(sst), planck_wavenumber(sst, ν̃), zero(NF))
         B_sfc_land  = ifelse(isfinite(lst), planck_wavenumber(lst, ν̃), zero(NF))
 
-        # Hemispherical (π·B) spectral surface flux [W m⁻²], land-sea weighted.
+        # Hemispherical surface flux πB(T_sfc), land–sea weighted by emissivity ϵ.
+        # ℐꜛˡʷ (surface, spectral bin) [W m⁻²]:
         U_spec::NF = dν̃ * NF(π) * (
             (1 - land_fraction) * ϵ_ocean * B_sfc_ocean +
              land_fraction      * ϵ_land  * B_sfc_land
         )
 
-        # ---- Upward sweep: k = nlayers → 1 ------------------------------
+        # ---- Upward sweep: k = nlayers → 1 (ℐꜛ) --------------------------
         U::NF = U_spec
         # Surface upward flux enters the bottom of the lowest layer.
         dTdt[nlayers] += surface_flux_to_tendency(U / cₚ, profile, geometry, constants)
@@ -164,8 +167,8 @@ function solve_longwave!(dTdt::AbstractVector,
             U = U_new
         end
 
-        # ---- Downward sweep: k = 1 → nlayers ----------------------------
-        # TOA boundary: no longwave incoming from space.
+        # ---- Downward sweep: k = 1 → nlayers (ℐꜜ) ------------------------
+        # TOA boundary: ℐꜜˡʷ(TOA) = 0 (no longwave from space).
         D::NF = zero(NF)
 
         for k in 1:(nlayers - 1)
