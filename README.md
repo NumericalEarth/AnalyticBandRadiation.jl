@@ -1,8 +1,8 @@
 # AnalyticBandRadiation.jl
 
-[![Docs (stable)](https://img.shields.io/badge/docs-stable-blue.svg)](https://NumericalEarth.github.io/AnalyticBandRadiation.jl/stable)
-[![Docs (dev)](https://img.shields.io/badge/docs-dev-blue.svg)](https://NumericalEarth.github.io/AnalyticBandRadiation.jl/dev)
+[![Docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://NumericalEarth.github.io/AnalyticBandRadiation.jl/dev/)
 [![CI](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/CI.yml)
+[![Documenter](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/Documenter.yml/badge.svg)](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/Documenter.yml)
 
 Analytic-band atmospheric radiation for intermediate-complexity models.
 
