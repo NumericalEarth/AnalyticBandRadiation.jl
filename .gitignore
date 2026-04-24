@@ -1,0 +1,8 @@
+Manifest.toml
+/docs/build/
+/docs/site/
+*.jl.*.cov
+*.jl.cov
+*.jl.mem
+.DS_Store
+.vscode/

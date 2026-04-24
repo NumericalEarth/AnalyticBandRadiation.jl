@@ -1,0 +1,35 @@
+name = "AnalyticBandRadiation"
+uuid = "cd8119b0-1744-44d6-9ede-6ad1ad750b26"
+authors = ["NumericalEarth organization (github.com/NumericalEarth) and contributors"]
+version = "0.1.0"
+
+[deps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+
+[weakdeps]
+Breeze = "660aa2fb-d4c8-4359-a52c-9c057bc511da"
+KernelAbstractions = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
+Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
+SpeedyWeather = "9e226e20-d153-4fed-8a5b-493def4f21a9"
+
+[extensions]
+AnalyticBandRadiationBreezeExt = ["Breeze", "KernelAbstractions", "Oceananigans"]
+AnalyticBandRadiationSpeedyWeatherExt = "SpeedyWeather"
+
+[compat]
+Adapt = "4"
+Breeze = "0.4"
+Dates = "1"
+DocStringExtensions = "0.9"
+KernelAbstractions = "0.9"
+Oceananigans = "0.107"
+SpeedyWeather = "0.19"
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
