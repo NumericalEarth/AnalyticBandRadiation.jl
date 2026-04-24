@@ -4,15 +4,15 @@ using CairoMakie
 
 nlayers = 32
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
-geom    = ColumnGeometry(σ_half)
+geom    = ColumnGrid(σ_half)
 
-profile = ColumnProfile(
+profile = AtmosphereProfile(
     temperature      = collect(range(220.0, 295.0, length = nlayers)),
     humidity         = fill(0.008, nlayers),
     geopotential     = zeros(nlayers),
     surface_pressure = 100_000.0,
 )
-surface = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
+surface = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                  land_surface_temperature = NaN,
                                  land_fraction = 0.0,
                                  ocean_albedo = 0.07,
@@ -21,8 +21,8 @@ surface = ColumnSurface{Float64}(sea_surface_temperature = 295.0,
 constants = PhysicalConstants{Float64}()
 thermo    = ThermodynamicConstants{Float64}()
 
-function run(co2_ppmv)
-    lw = WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = co2_ppmv)
+function run(CO₂_ppmv)
+    lw = AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = CO₂_ppmv)
     sw = OneBandShortwave(Float64)
 
     dT_lw = zeros(nlayers)
@@ -66,4 +66,4 @@ end</code></pre><pre class="documenter-example-output"><code class="nohighlight 
 │   olr = 215.769400645381
 │   surface_lw_down = 350.11440371247846
 │   toa_sw_up = 82.02504015011455
-└   surface_sw_down = 213.51439326531658</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../shortwave/">« Shortwave</a><a class="docs-footer-nextpage" href="../notation/">Notation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 24 April 2026 20:13">Friday 24 April 2026</span>. Using Julia version 1.11.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+└   surface_sw_down = 213.51439326531658</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../shortwave/">« Shortwave</a><a class="docs-footer-nextpage" href="../notation/">Notation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Friday 24 April 2026 20:24">Friday 24 April 2026</span>. Using Julia version 1.11.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
