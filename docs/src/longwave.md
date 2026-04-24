@@ -20,21 +20,24 @@ using AnalyticBandRadiation
 using CairoMakie
 
 lw = WilliamsLongwave(Float64)
-ν̃  = range(lw.wavenumber_min, lw.wavenumber_max, length = 400)
+ν̃  = range(lw.wavenumber_min, lw.wavenumber_max, length = 500)
 
-κ_h2o_line = [h2o_line_kappa_ref(ν, lw) for ν in ν̃]
-κ_h2o_cont = [h2o_cont_kappa_ref(ν, lw) for ν in ν̃]
-κ_co2      = [co2_kappa_ref(ν, lw)      for ν in ν̃]
+# Replace zeros with NaN so the log-y plot shows gaps where a band is inactive.
+nan_zero(v) = [x == 0 ? NaN : x for x in v]
+
+κ_h2o_line = nan_zero([h2o_line_kappa_ref(ν, lw) for ν in ν̃])
+κ_h2o_cont =          [h2o_cont_kappa_ref(ν, lw) for ν in ν̃]
+κ_co2      = nan_zero([co2_kappa_ref(ν, lw)      for ν in ν̃])
 
 fig = Figure(size = (760, 440))
 ax  = Axis(fig[1, 1];
            xlabel = "Wavenumber ν̃ [cm⁻¹]",
            ylabel = "κ [m² kg⁻¹]",
            yscale = log10,
-           title  = "Williams (2026) reference absorption coefficients")
-lines!(ax, ν̃, max.(κ_h2o_line, 1e-4); label = "H₂O line", linewidth = 2)
-lines!(ax, ν̃, max.(κ_h2o_cont, 1e-4); label = "H₂O continuum", linewidth = 2)
-lines!(ax, ν̃, max.(κ_co2,      1e-4); label = "CO₂ 15 μm", linewidth = 2)
+           title  = "Williams (2026) reference absorption (T = 260 K, p = 500 hPa)")
+lines!(ax, ν̃, κ_h2o_line; label = "H₂O line",      linewidth = 2)
+lines!(ax, ν̃, κ_h2o_cont; label = "H₂O continuum", linewidth = 2)
+lines!(ax, ν̃, κ_co2;      label = "CO₂ 15 μm",      linewidth = 2, linestyle = :dash)
 axislegend(ax; position = :rt)
 save("absorption.png", fig); nothing # hide
 ```
@@ -84,18 +87,27 @@ for c in co2s
     push!(olrs, dg.outgoing_longwave)
 end
 
-fig = Figure(size = (760, 360))
-ax  = Axis(fig[1, 1];
+fig = Figure(size = (820, 360))
+ax1 = Axis(fig[1, 1];
            xlabel = "CO₂ [ppmv]",
            ylabel = "OLR [W m⁻²]",
            xscale = log10,
            title  = "Clear-sky outgoing longwave vs CO₂")
-scatter!(ax, co2s, olrs; markersize = 10, color = :black)
-lines!(ax, co2s, olrs;   color = :black, linestyle = :dash)
+lines!(ax1, co2s, olrs;   color = :black, linestyle = :dash)
+scatter!(ax1, co2s, olrs; markersize = 10, color = :black)
 
-# Forcing markers
+ax2 = Axis(fig[1, 2];
+           xlabel = "CO₂ [ppmv]",
+           ylabel = "OLR(280) − OLR(CO₂) [W m⁻²]",
+           xscale = log10,
+           title  = "Clear-sky CO₂ radiative forcing")
+lines!(ax2, co2s, olrs[4] .- olrs; color = :crimson, linewidth = 2)
+scatter!(ax2, co2s, olrs[4] .- olrs; markersize = 10, color = :crimson)
+vlines!(ax2, 560; color = :gray70, linestyle = :dot)
+hlines!(ax2, 0;   color = :gray70)
+
 forcing_280_560 = olrs[4] - olrs[6]
-Label(fig[2, 1], "2× CO₂ forcing (280 → 560 ppmv) = $(round(forcing_280_560, digits = 2)) W m⁻²";
+Label(fig[2, 1:2], "2× CO₂ forcing (280 → 560 ppmv) = $(round(forcing_280_560, digits = 2)) W m⁻²";
       tellwidth = false, fontsize = 12)
 save("forcing.png", fig); nothing # hide
 ```

@@ -22,7 +22,9 @@ end
     lw = WilliamsLongwave(Float32)
     @test h2o_cont_kappa_ref(1000f0, lw) == lw.κ_cnt1
     @test h2o_cont_kappa_ref(2000f0, lw) == lw.κ_cnt2
-    @test h2o_cont_kappa_ref(1700f0, lw) == lw.κ_cnt1
+    # Paper convention: 1700 cm⁻¹ belongs to the upper (weaker) band.
+    @test h2o_cont_kappa_ref(1700f0, lw) == lw.κ_cnt2
+    @test h2o_cont_kappa_ref(1699f0, lw) == lw.κ_cnt1
     @test lw.κ_cnt1 > lw.κ_cnt2
 end
 

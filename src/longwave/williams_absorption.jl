@@ -33,8 +33,9 @@ end
 """
     co2_kappa_ref(ν̃, scheme::WilliamsLongwave) -> κ  [m² kg⁻¹]
 
-Reference CO₂ absorption coefficient. Lorentzian (exponential in wavenumber)
-centred at the 15 μm bending mode near 667 cm⁻¹, active only in [500, 850] cm⁻¹.
+Reference CO₂ absorption coefficient. A two-sided exponential (Laplace-shaped)
+wing centred on the 15 μm bending mode at ν̃_co2 ≈ 667 cm⁻¹, active only in
+[500, 850] cm⁻¹.
 
 Reference: Williams (2026), Eq. 5.
 """
@@ -56,7 +57,8 @@ Reference: Williams (2026), Eq. 6.
 """
 @inline function h2o_cont_kappa_ref(ν̃, scheme)
     NF = typeof(ν̃)
-    return ν̃ <= 1700 ? NF(scheme.κ_cnt1) : NF(scheme.κ_cnt2)
+    # Paper convention: [10, 1700) → κ_cnt1, [1700, 2500] → κ_cnt2.
+    return ν̃ < 1700 ? NF(scheme.κ_cnt1) : NF(scheme.κ_cnt2)
 end
 
 """

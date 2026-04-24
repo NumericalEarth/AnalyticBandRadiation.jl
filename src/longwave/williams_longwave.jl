@@ -35,7 +35,7 @@ Base.@kwdef struct WilliamsLongwave{NF} <: AbstractLongwaveScheme
     wavenumber_min::NF = NF(10)
 
     "Maximum wavenumber of the spectral integration range [cm⁻¹]"
-    wavenumber_max::NF = NF(2510)
+    wavenumber_max::NF = NF(2500)
 
     "Peak absorption of the pure-rotation band κ_rot [m² kg⁻¹]"
     κ_rot::NF = NF(37)
