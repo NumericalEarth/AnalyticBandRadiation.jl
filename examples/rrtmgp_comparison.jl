@@ -12,9 +12,11 @@
 #     julia --project=examples examples/rrtmgp_comparison.jl
 # (the `examples/Project.toml` brings in Breeze, RRTMGP, NCDatasets, etc.)
 
-using AnalyticBandRadiation
+import AnalyticBandRadiation as ABR
 using Breeze
+using Oceananigans
 using Oceananigans.Units
+using Oceananigans.Grids: znodes
 using NCDatasets
 using RRTMGP
 using ClimaComms
@@ -62,17 +64,17 @@ set!(model; θ = θ₀, qᵗ = qᵗᵢ)
 
 # RRTMGP flux divergence → heating rate via -dF/dz / (ρ cₚ). Breeze stores the
 # pre-computed flux_divergence on cell centers in W/m³.
-ρ_ref = Array(reference_state.density[1, 1, 1:Nz])
-cₚ    = constants.cp_d
-flux_div_rrtmgp = Array(radiation_rrtmgp.flux_divergence[1, 1, 1:Nz])
+ρ_ref = Array(interior(reference_state.density, 1, 1, :))
+cₚ    = constants.dry_air.heat_capacity
+flux_div_rrtmgp = Array(interior(radiation_rrtmgp.flux_divergence, 1, 1, :))
 heating_rate_rrtmgp = flux_div_rrtmgp ./ (ρ_ref .* cₚ) .* 86400   # K/day
 
 # Temperature and humidity at cell centers (height coordinate).
-T      = Array(model.temperature[1, 1, 1:Nz])
+T      = Array(interior(model.temperature, 1, 1, :))
 qᵛ_field = specific_humidity(model)
-qᵛ     = Array(qᵛ_field[1, 1, 1:Nz])
-p_ref  = Array(reference_state.pressure[1, 1, 1:Nz])
-z_full = Array(grid.zᵃᵃᶜ[1:Nz])
+qᵛ     = Array(interior(qᵛ_field, 1, 1, :))
+p_ref  = Array(interior(reference_state.pressure, 1, 1, :))
+z_full = znodes(grid, Center())
 
 # Ordering convention: AnalyticBandRadiation uses top-down (k=1 is TOA). Breeze
 # uses bottom-up (k=1 is surface). Reverse now.
@@ -95,24 +97,24 @@ for k in 2:Nz
 end
 
 σ_half = reverse(p_half) ./ surface_pressure   # top-down, monotonically 0 → 1
-geometry = ColumnGeometry(σ_half)
+geometry = ABR.ColumnGeometry(σ_half)
 
-profile = ColumnProfile(
+profile = ABR.ColumnProfile(
     temperature      = T_top_down,
     humidity         = qᵛ_top_down,
     geopotential     = zeros(Nz),
     surface_pressure = surface_pressure,
 )
 
-surface = ColumnSurface{Float64}(sea_surface_temperature  = surface_temperature,
-                                  land_surface_temperature = NaN,
-                                  land_fraction            = 0.0)
-pc = PhysicalConstants{Float64}(heat_capacity = cₚ)
+surface = ABR.ColumnSurface{Float64}(sea_surface_temperature  = surface_temperature,
+                                      land_surface_temperature = NaN,
+                                      land_fraction            = 0.0)
+pc = ABR.PhysicalConstants{Float64}(heat_capacity = cₚ)
 
-lw_williams = WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = 420.0)
+lw_williams = ABR.WilliamsLongwave(Float64; do_co2 = true, co2_ppmv = 420.0)
 dT_williams = zeros(Nz)
-diag = LongwaveDiagnostics{Float64}()
-solve_longwave!(dT_williams, diag, lw_williams, profile, geometry, surface, pc)
+diag = ABR.LongwaveDiagnostics{Float64}()
+ABR.solve_longwave!(dT_williams, diag, lw_williams, profile, geometry, surface, pc)
 
 heating_rate_williams = reverse(dT_williams) .* 86400   # flip back to bottom-up
 
@@ -141,11 +143,12 @@ save(joinpath(@__DIR__, "rrtmgp_comparison.png"), fig)
 # ---------------------------------------------------------------------------
 
 # TOA outgoing LW from RRTMGP = upwelling flux at the model top.
-olr_rrtmgp  = Array(radiation_rrtmgp.upwelling_longwave_flux[1, 1, Nz + 1])
+olr_rrtmgp  = Array(interior(radiation_rrtmgp.upwelling_longwave_flux, 1, 1, :))[end]
 olr_williams = diag.outgoing_longwave
 
 # Vertically integrated heating rate (K/day, mass-weighted mean).
-mass = ρ_ref .* Array(grid.Δzᵃᵃᶜ[1:Nz])
+Δz_c = diff(znodes(grid, Face()))
+mass = ρ_ref .* Δz_c
 mean_hr_rrtmgp  = sum(heating_rate_rrtmgp  .* mass) / sum(mass)
 mean_hr_williams = sum(heating_rate_williams .* mass) / sum(mass)
 

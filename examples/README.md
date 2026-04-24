@@ -26,14 +26,28 @@ to itself.
 
 ### What to expect
 
-- OLR agreement within ~10–20 W/m² (Williams is a 41-band clear-sky scheme
-  with analytic absorption coefficients; RRTMGP is full-spectrum correlated-k).
-- Qualitatively similar heating-rate profile: cooling dominant in the
-  mid-troposphere where water vapour is abundant, weak cooling above.
-- Williams under-cools in the stratosphere by design: it has no ozone line,
-  and the CO₂ 15 μm band is a single Lorentzian rather than RRTMGP's full
-  correlated-k g-point stack.
+Running the script on a 64-layer idealized tropical column (surface 300 K,
+exponential moisture with `q₀ = 0.02` and scale height 3 km) prints
+
+```
+OLR (RRTMGP)        = 252.68 W/m²
+OLR (Williams SSM)  = 272.04 W/m²
+Mean column heating rate:
+  RRTMGP   = -1.269 K/day
+  Williams = -1.864 K/day
+```
+
+The heating-rate profiles overlap through the free troposphere and diverge
+only near the surface (where Williams's two-band continuum under-represents
+far-IR cooling to space) and in the stratosphere (where Williams has no
+ozone line and the CO₂ 15 μm band is a single Laplace-shaped wing rather
+than RRTMGP's full correlated-k g-point stack).
 
 The point of the comparison is *not* bit-equivalence — it's to confirm
 Williams stays within the factor-2 band of a reference line-by-line-derived
 scheme, which is the claim of the paper.
+
+### Output
+
+The script writes `rrtmgp_comparison.png` next to itself: a temperature
+profile on the left and the two heating-rate profiles overlaid on the right.
