@@ -32,7 +32,7 @@ thermo    = ThermodynamicConstants{Float64}()
 
 function run(CO₂_ppmv)
     lw = AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = CO₂_ppmv)
-    sw = OneBandShortwave(Float64)
+    sw = AnalyticBandRadiation.OneBandShortwave(Float64)
 
     dT_lw = zeros(nlayers)
     dT_sw = zeros(nlayers)

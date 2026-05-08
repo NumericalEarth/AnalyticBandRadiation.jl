@@ -35,9 +35,9 @@ AnalyticBandRadiation.williams_delta_tau
 ## Shortwave
 
 ```@docs
-TransparentShortwave
-OneBandShortwave
-OneBandGreyShortwave
+AnalyticBandRadiation.TransparentShortwave
+AnalyticBandRadiation.OneBandShortwave
+AnalyticBandRadiation.OneBandGreyShortwave
 OneBandShortwaveRadiativeTransfer
 AnalyticBandRadiation.AbstractShortwaveTransmissivity
 ConstantShortwaveTransmissivity
