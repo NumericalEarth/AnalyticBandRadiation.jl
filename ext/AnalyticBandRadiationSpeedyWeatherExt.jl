@@ -16,12 +16,14 @@ import AnalyticBandRadiation: AtmosphereProfile, ColumnGrid, SurfaceState,
 """
     SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
 
-SpeedyWeather-native wrapper around [`AnalyticBandRadiation.AnalyticBandLongwave`](@ref).
-Exposes the same per-column dispatch as the PR #1057 prototype so that a
-`PrimitiveWetModel` can be constructed with
+SpeedyWeather wrapper around [`AnalyticBandRadiation.AnalyticBandLongwave`](@ref).
 
-    model = PrimitiveWetModel(spectral_grid;
-                              longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid))
+Usage: 
+
+```julia 
+spectral_grid = SpectralGrid()
+model = PrimitiveWetModel(spectral_grid; longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid))
+```
 """
 struct SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
     scheme::AnalyticBandLongwave{NF}
