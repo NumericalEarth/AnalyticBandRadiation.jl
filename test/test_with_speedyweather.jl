@@ -1,11 +1,13 @@
 using SpeedyWeather
+const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
+                                     :AnalyticBandRadiationSpeedyWeatherExt)
 
 @testset "Model initializes and runs with SpeedyWeather" begin
     # Basic smoke test: construct, initialize, run one column.
     spectral_grid = SpectralGrid(trunc=31, nlayers=8)
 
-    @testset for do_co2 in (false, true)
-        rad   = SimpleSpectralLongwave(spectral_grid; do_co2)
+    @testset for do_CO₂ in (false, true)
+        rad   = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid; do_CO₂)
         model = PrimitiveWetModel(spectral_grid; longwave_radiation=rad)
 
         initialize!(model.longwave_radiation, model)
