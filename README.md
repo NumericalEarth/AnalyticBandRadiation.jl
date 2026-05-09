@@ -91,7 +91,7 @@ constructors: `AnalyticBandLongwave(Float32; do_CO₂ = true)`,
 ## With SpeedyWeather.jl
 
 The `AnalyticBandRadiationSpeedyWeatherExt` extension defines a
-`SpeedyWilliamsLongwave` scheme that subtypes `SpeedyWeather.AbstractLongwave`
+`SpeedyAnalyticBandLongwave` scheme that subtypes `SpeedyWeather.AbstractLongwave`
 and can be passed directly to `PrimitiveWetModel`:
 
 ```julia
@@ -100,12 +100,9 @@ const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
                                      :AnalyticBandRadiationSpeedyWeatherExt)
 
 spectral_grid = SpectralGrid(trunc = 31, nlayers = 8)
-longwave      = SpeedyExt.SpeedyWilliamsLongwave(spectral_grid; do_co2 = true)
+longwave      = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid; do_CO₂ = true)
 model         = PrimitiveWetModel(spectral_grid; longwave_radiation = longwave)
 ```
-
-The extension also exports `SimpleSpectralLongwave` as an alias of
-`SpeedyWilliamsLongwave` for drop-in compatibility with SpeedyWeather PR #1057.
 
 ## With Breeze
 
