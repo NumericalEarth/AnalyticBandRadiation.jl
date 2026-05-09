@@ -20,7 +20,6 @@ export williams_delta_tau
 
 export NoClouds, DiagnosticClouds
 export ConstantShortwaveTransmissivity, BackgroundShortwaveTransmissivity
-export TransparentShortwave, OneBandShortwave, OneBandGreyShortwave
 export OneBandShortwaveRadiativeTransfer
 export saturation_humidity
 
