@@ -62,9 +62,7 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
 
     T  = @view vars.grid.temperature_prev[ij, :]
     q  = @view vars.grid.humidity_prev[ij, :]
-    Φ  = vars.grid.geopotential isa Nothing ?
-         zeros(eltype(T), nlayers) :
-         @view vars.grid.geopotential[ij, :]
+    Φ  = @view vars.grid.geopotential[ij, :]
     pₛ = vars.grid.pressure_prev[ij]
 
     profile  = AtmosphereProfile(temperature = T, humidity = q,
