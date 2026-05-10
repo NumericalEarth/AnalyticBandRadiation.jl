@@ -10,3 +10,7 @@ using Dates
     include("test_zenith.jl")
     include("test_rtc.jl")
 end
+
+@testset "SpeedyWeather Extension" begin 
+    include("test_with_speedyweather.jl")
+end 

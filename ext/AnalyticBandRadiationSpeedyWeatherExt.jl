@@ -16,12 +16,14 @@ import AnalyticBandRadiation: AtmosphereProfile, ColumnGrid, SurfaceState,
 """
     SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
 
-SpeedyWeather-native wrapper around [`AnalyticBandRadiation.AnalyticBandLongwave`](@ref).
-Exposes the same per-column dispatch as the PR #1057 prototype so that a
-`PrimitiveWetModel` can be constructed with
+SpeedyWeather wrapper around [`AnalyticBandRadiation.AnalyticBandLongwave`](@ref).
 
-    model = PrimitiveWetModel(spectral_grid;
-                              longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid))
+Usage: 
+
+```julia 
+spectral_grid = SpectralGrid()
+model = PrimitiveWetModel(spectral_grid; longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid))
+```
 """
 struct SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
     scheme::AnalyticBandLongwave{NF}
@@ -60,9 +62,7 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
 
     T  = @view vars.grid.temperature_prev[ij, :]
     q  = @view vars.grid.humidity_prev[ij, :]
-    Φ  = vars.grid.geopotential isa Nothing ?
-         zeros(eltype(T), nlayers) :
-         @view vars.grid.geopotential[ij, :]
+    Φ  = @view vars.grid.geopotential[ij, :]
     pₛ = vars.grid.pressure_prev[ij]
 
     CO₂_ppmv = haskey(vars.prognostic.greenhouse_gas, :CO2) ? vars.prognostic.greenhouse_gas.CO2[] : zero(NF)
