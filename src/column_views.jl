@@ -35,12 +35,13 @@ struct AtmosphereProfile{NF, V<:AbstractVector{NF}}
     geopotential::V
     surface_pressure::NF
     rain_rate::NF
+    CO₂_ppmv::NF
 end
 
 AtmosphereProfile(; temperature, humidity, geopotential = similar(temperature, 0),
-              surface_pressure, rain_rate = zero(eltype(temperature))) =
+              surface_pressure, rain_rate = zero(eltype(temperature)), CO₂_ppmv = eltype(temperature)(280)) =
     AtmosphereProfile{eltype(temperature), typeof(temperature)}(
-        temperature, humidity, geopotential, surface_pressure, rain_rate)
+        temperature, humidity, geopotential, surface_pressure, rain_rate, CO₂_ppmv)
 
 """
 $(TYPEDEF)

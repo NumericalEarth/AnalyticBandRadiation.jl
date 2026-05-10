@@ -65,8 +65,12 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
          @view vars.grid.geopotential[ij, :]
     pₛ = vars.grid.pressure_prev[ij]
 
+    CO₂_ppmv = haskey(vars.prognostic.greenhouse_gas, :CO2) ? vars.prognostic.greenhouse_gas.CO2[] : zero(NF)
+
     profile  = AtmosphereProfile(temperature = T, humidity = q,
-                             geopotential = Φ, surface_pressure = pₛ)
+                             geopotential = Φ, surface_pressure = pₛ, 
+                             CO₂_ppmv = CO₂_ppmv)
+                             
     geometry = _speedy_column_geometry(model)
     surface  = SurfaceState{NF}(
         sea_surface_temperature  = vars.prognostic.ocean.sea_surface_temperature[ij],
