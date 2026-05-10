@@ -4,11 +4,13 @@ const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
 
 @testset "Model initializes and runs with SpeedyWeather" begin
     # Basic smoke test: construct, initialize, run one column.
-    spectral_grid = SpectralGrid(trunc=31, nlayers=8)
+    spectral_grid = SpectralGrid(trunc=15, nlayers=8)
 
     @testset for do_CO₂ in (false, true)
         rad   = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid; do_CO₂)
-        model = PrimitiveWetModel(spectral_grid; longwave_radiation=rad)
+
+        # use only longwave radation as the only parameterization
+        model = PrimitiveWetModel(spectral_grid; longwave_radiation=rad, parameterizations=(:longwave_radiation,))
 
         initialize!(model.longwave_radiation, model)
         vars = Variables(model)
@@ -21,10 +23,10 @@ const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
         vars.prognostic.ocean.sea_surface_temperature .= 295
         vars.prognostic.land.soil_temperature[:, 1]   .= 285
 
-        ij = rand(1:spectral_grid.npoints)
-        SpeedyWeather.parameterization!(ij, vars, model.longwave_radiation, model)
-
+        # run the parameterizations, here just longwave 
+        SpeedyWeather.column_parameterizations!(vars, model)
+ 
         # After one call, temperature tendency should be non-zero (atmosphere cools)
-        @test any(!=(zero(spectral_grid.NF)), vars.tendencies.grid.temperature[ij, :])
+        @test any(!=(zero(spectral_grid.NF)), vars.tendencies.grid.temperature)
     end
 end
