@@ -52,7 +52,9 @@ end
 @testset "AnalyticBandLongwave: CO₂ forcing" begin
     NF = Float32
     nlayers = 8
-    function _olr(CO₂_ppmv)
+
+    # CO₂ as a compile-time scheme parameter (CO₂_forcing = false).
+    function _olr_param(CO₂_ppmv)
         lw = AnalyticBandLongwave(NF; do_CO₂ = true, CO₂_ppmv = NF(CO₂_ppmv))
         profile, geom = _test_column(NF, nlayers)
         surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
@@ -64,11 +66,40 @@ end
         solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
         return diag.outgoing_longwave
     end
-    olr_280 = _olr(280)
-    olr_560 = _olr(560)
+    olr_280 = _olr_param(280)
+    olr_560 = _olr_param(560)
     @test olr_560 < olr_280
     forcing = olr_280 - olr_560
     @test 1 < forcing < 10
+
+    # CO₂ as an external input via the profile (CO₂_forcing = true).
+    # The scheme's CO₂_ppmv field is ignored and profile.CO₂_ppmv is used instead.
+    function _olr_forcing(CO₂_ppmv)
+        lw = AnalyticBandLongwave(NF; do_CO₂ = true, CO₂_forcing = true,
+                                   CO₂_ppmv = NF(0))   # set to 0 to confirm it is unused
+        profile, geom = _test_column(NF, nlayers)
+        profile = AtmosphereProfile(temperature = profile.temperature,
+                                    humidity = profile.humidity,
+                                    geopotential = profile.geopotential,
+                                    surface_pressure = profile.surface_pressure,
+                                    CO₂_ppmv = NF(CO₂_ppmv))
+        surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
+                                    land_surface_temperature = NF(285),
+                                    land_fraction = NF(0.3))
+        constants = PhysicalConstants{NF}()
+        dTdt = zeros(NF, nlayers)
+        diag = LongwaveDiagnostics{NF}()
+        solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
+        return diag.outgoing_longwave
+    end
+    olr_280_f = _olr_forcing(280)
+    olr_560_f = _olr_forcing(560)
+    @test olr_560_f < olr_280_f
+    forcing_f = olr_280_f - olr_560_f
+    @test 1 < forcing_f < 10
+    # Both code paths should yield the same OLR for the same CO₂ concentration.
+    @test olr_280 ≈ olr_280_f
+    @test olr_560 ≈ olr_560_f
 end
 
 @testset "AnalyticBandLongwave: Float32 vs Float64 compatibility" begin
