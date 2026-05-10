@@ -3,7 +3,7 @@ const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
                                      :AnalyticBandRadiationSpeedyWeatherExt)
 
 @testset "Model initializes and runs with SpeedyWeather" begin
-    # Basic smoke test: construct, initialize, run one column.
+    # Basic smoke test: construct, initialize, run one step in low resolution
     spectral_grid = SpectralGrid(trunc=15, nlayers=8)
 
     @testset for do_CO₂ in (false, true)
