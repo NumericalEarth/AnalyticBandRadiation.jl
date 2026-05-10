@@ -25,6 +25,6 @@ const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
         SpeedyWeather.parameterization!(ij, vars, model.longwave_radiation, model)
 
         # After one call, temperature tendency should be non-zero (atmosphere cools)
-        @test any(!=(0), vars.tendencies.grid.temperature[ij, :])
+        @test any(!=(zero(spectral_grid.NF)), vars.tendencies.grid.temperature[ij, :])
     end
 end
