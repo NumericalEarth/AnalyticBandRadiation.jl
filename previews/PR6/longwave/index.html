@@ -29,22 +29,23 @@ nlayers = 32
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
 geom    = ColumnGrid(σ_half)
 
-profile = AtmosphereProfile(
-    temperature      = collect(range(220.0, 295.0, length = nlayers)),
-    humidity         = fill(0.005, nlayers),
-    geopotential     = zeros(nlayers),
-    surface_pressure = 100_000.0,
-)
 surface   = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                    land_surface_temperature = 285.0,
                                    land_fraction = 0.3)
 constants = PhysicalConstants{Float64}()
+lw        = AnalyticBandLongwave(Float64)
 
 # Sweep CO₂
 co2s = [50.0, 100.0, 200.0, 280.0, 400.0, 560.0, 800.0, 1120.0]
 olrs = Float64[]
 for c in co2s
-    lw  = AnalyticBandLongwave(Float64; CO₂_concentration = c)
+    profile = AtmosphereProfile(
+        temperature      = collect(range(220.0, 295.0, length = nlayers)),
+        humidity         = fill(0.005, nlayers),
+        geopotential     = zeros(nlayers),
+        surface_pressure = 100_000.0,
+        CO₂              = c,
+    )
     dT  = zeros(nlayers)
     dg  = LongwaveDiagnostics{Float64}()
     solve_longwave!(dT, dg, lw, profile, geom, surface, constants)
@@ -72,4 +73,4 @@ hlines!(ax2, 0;   color = :gray70)
 
 forcing_280_560 = olrs[4] - olrs[6]
 Label(fig[2, 1:2], &quot;2× CO₂ forcing (280 → 560 ppmv) = $(round(forcing_280_560, digits = 2)) W m⁻²&quot;;
-      tellwidth = false, fontsize = 12)</code></pre><p><img src="../forcing.png" alt/></p><p>The forcing of <code>OLR(280) − OLR(560)</code> is in the physically plausible range for clear-sky 2×CO₂ (2–5 W m⁻², cf. IPCC AR6 WG1 Ch. 7).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../shortwave/">Shortwave »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 11 May 2026 18:03">Monday 11 May 2026</span>. Using Julia version 1.11.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+      tellwidth = false, fontsize = 12)</code></pre><p><img src="../forcing.png" alt/></p><p>The forcing of <code>OLR(280) − OLR(560)</code> is in the physically plausible range for clear-sky 2×CO₂ (2–5 W m⁻², cf. IPCC AR6 WG1 Ch. 7).</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../shortwave/">Shortwave »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 11 May 2026 19:18">Monday 11 May 2026</span>. Using Julia version 1.11.9.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
