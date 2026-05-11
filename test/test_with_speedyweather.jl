@@ -39,7 +39,7 @@ end
     spectral_grid = default_spectral_grid()
     NF = spectral_grid.NF
 
-    rad = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid; CO₂_forcing=true)
+    rad = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid)
 
     co2 = CO2(spectral_grid, 280)
 

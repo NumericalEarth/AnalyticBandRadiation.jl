@@ -73,7 +73,7 @@ The result already includes the two-stream diffusivity factor `D ≈ 1.5`
 `temperature` and `humidity` are length-`nlayers` column vectors; `geometry`
 is a [`ColumnGrid`](@ref).
 """
-@inline function williams_delta_tau(k::Integer, ν̃::NF, CO₂_concentration::NF,
+@inline function williams_delta_tau(k::Integer, ν̃::NF, CO₂::NF,
                                      temperature::AbstractVector, humidity::AbstractVector,
                                      surface_pressure::Real,
                                      geometry::ColumnGrid,
@@ -105,7 +105,7 @@ is a [`ColumnGrid`](@ref).
     # For a well-mixed gas with κ ∝ p / p_ref the column integral from the TOA
     # to pressure p gives τ = D κ q_CO₂ p² / (2 g p_ref). The layer increment
     # is the difference of τ at the two bounding half levels.    
-    q_co2 = NF(CO₂_concentration * 1e-6 * 44 / 29)
+    q_co2 = NF(CO₂ * 1e-6 * 44 / 29)
     κ_CO₂_v = co2_kappa_ref(ν̃, scheme)
     p_half_k   = NF(σ_half[k])   * pₛ
     p_half_kp1 = NF(σ_half[k+1]) * pₛ
