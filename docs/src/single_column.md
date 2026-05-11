@@ -30,18 +30,25 @@ surface = SurfaceState{Float64}(sea_surface_temperature = 295.0,
 constants = PhysicalConstants{Float64}()
 thermo    = ThermodynamicConstants{Float64}()
 
-function run(CO₂_concentration)
-    lw = AnalyticBandLongwave(Float64; CO₂_concentration = CO₂_concentration)
-    sw = AnalyticBandRadiation.OneBandShortwave(Float64)
+lw = AnalyticBandLongwave(Float64)
+sw = AnalyticBandRadiation.OneBandShortwave(Float64)
 
+function run(CO₂)
+    prof = AtmosphereProfile(
+        temperature      = profile.temperature,
+        humidity         = profile.humidity,
+        geopotential     = profile.geopotential,
+        surface_pressure = profile.surface_pressure,
+        CO₂              = CO₂,
+    )
     dT_lw = zeros(nlayers)
     dT_sw = zeros(nlayers)
     lw_d  = LongwaveDiagnostics{Float64}()
     sw_d  = ShortwaveDiagnostics{Float64}(nlayers)
-    tbuf  = similar(profile.temperature)
+    tbuf  = similar(prof.temperature)
 
-    solve_longwave!(dT_lw, lw_d, lw, profile, geom, surface, constants)
-    solve_shortwave!(dT_sw, sw_d, sw, profile, geom, surface, constants, thermo;
+    solve_longwave!(dT_lw, lw_d, lw, prof, geom, surface, constants)
+    solve_shortwave!(dT_sw, sw_d, sw, prof, geom, surface, constants, thermo;
                      transmissivity_scratch = tbuf)
     return (; dT_lw, dT_sw, lw_d, sw_d)
 end

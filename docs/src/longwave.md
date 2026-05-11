@@ -65,22 +65,23 @@ nlayers = 32
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
 geom    = ColumnGrid(σ_half)
 
-profile = AtmosphereProfile(
-    temperature      = collect(range(220.0, 295.0, length = nlayers)),
-    humidity         = fill(0.005, nlayers),
-    geopotential     = zeros(nlayers),
-    surface_pressure = 100_000.0,
-)
 surface   = SurfaceState{Float64}(sea_surface_temperature = 295.0,
                                    land_surface_temperature = 285.0,
                                    land_fraction = 0.3)
 constants = PhysicalConstants{Float64}()
+lw        = AnalyticBandLongwave(Float64)
 
 # Sweep CO₂
 co2s = [50.0, 100.0, 200.0, 280.0, 400.0, 560.0, 800.0, 1120.0]
 olrs = Float64[]
 for c in co2s
-    lw  = AnalyticBandLongwave(Float64; CO₂_concentration = c)
+    profile = AtmosphereProfile(
+        temperature      = collect(range(220.0, 295.0, length = nlayers)),
+        humidity         = fill(0.005, nlayers),
+        geopotential     = zeros(nlayers),
+        surface_pressure = 100_000.0,
+        CO₂              = c,
+    )
     dT  = zeros(nlayers)
     dg  = LongwaveDiagnostics{Float64}()
     solve_longwave!(dT, dg, lw, profile, geom, surface, constants)
