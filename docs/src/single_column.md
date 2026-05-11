@@ -30,8 +30,8 @@ surface = SurfaceState{Float64}(sea_surface_temperature = 295.0,
 constants = PhysicalConstants{Float64}()
 thermo    = ThermodynamicConstants{Float64}()
 
-function run(CO₂_ppmv)
-    lw = AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = CO₂_ppmv)
+function run(CO₂_concentration)
+    lw = AnalyticBandLongwave(Float64; CO₂_concentration = CO₂_concentration)
     sw = AnalyticBandRadiation.OneBandShortwave(Float64)
 
     dT_lw = zeros(nlayers)

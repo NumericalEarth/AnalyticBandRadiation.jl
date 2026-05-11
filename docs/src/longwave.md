@@ -80,7 +80,7 @@ constants = PhysicalConstants{Float64}()
 co2s = [50.0, 100.0, 200.0, 280.0, 400.0, 560.0, 800.0, 1120.0]
 olrs = Float64[]
 for c in co2s
-    lw  = AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = c)
+    lw  = AnalyticBandLongwave(Float64; CO₂_concentration = c)
     dT  = zeros(nlayers)
     dg  = LongwaveDiagnostics{Float64}()
     solve_longwave!(dT, dg, lw, profile, geom, surface, constants)

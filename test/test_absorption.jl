@@ -38,24 +38,23 @@ end
     pₛ = NF(100_000)
     g  = NF(9.80665)
 
-    lw_h2o = AnalyticBandLongwave(NF; do_CO₂ = false)
-    lw_co2 = AnalyticBandLongwave(NF; do_CO₂ = true)
+    lw = AnalyticBandLongwave(NF)
 
-    dν̃ = (lw_h2o.wavenumber_max - lw_h2o.wavenumber_min) / (lw_h2o.nwavenumber - 1)
+    dν̃ = (lw.wavenumber_max - lw.wavenumber_min) / (lw.nwavenumber - 1)
 
     for k in 1:nlayers
-        Δτ_win = AnalyticBandRadiation.williams_delta_tau(k, NF(1000), lw_h2o.CO₂_ppmv, T, q, pₛ, geom, lw_h2o, g)
-        Δτ_rot = AnalyticBandRadiation.williams_delta_tau(k, NF(400),  lw_h2o.CO₂_ppmv, T, q, pₛ, geom, lw_h2o, g)
-        Δτ_no_co2   = AnalyticBandRadiation.williams_delta_tau(k, NF(667), lw_h2o.CO₂_ppmv, T, q, pₛ, geom, lw_h2o, g)
-        Δτ_with_co2 = AnalyticBandRadiation.williams_delta_tau(k, NF(667), lw_co2.CO₂_ppmv, T, q, pₛ, geom, lw_co2, g)
+        Δτ_win      = AnalyticBandRadiation.williams_delta_tau(k, NF(1000), NF(0),   T, q, pₛ, geom, lw, g)
+        Δτ_rot      = AnalyticBandRadiation.williams_delta_tau(k, NF(400),  NF(0),   T, q, pₛ, geom, lw, g)
+        Δτ_no_co2   = AnalyticBandRadiation.williams_delta_tau(k, NF(667),  NF(0),   T, q, pₛ, geom, lw, g)
+        Δτ_with_co2 = AnalyticBandRadiation.williams_delta_tau(k, NF(667),  NF(280), T, q, pₛ, geom, lw, g)
 
         @test Δτ_win > 0
         @test Δτ_rot > Δτ_win
         @test Δτ_with_co2 > Δτ_no_co2
 
-        for iv in 1:lw_h2o.nwavenumber
-            ν̃ = lw_h2o.wavenumber_min + (iv - 1) * dν̃
-            @test AnalyticBandRadiation.williams_delta_tau(k, NF(ν̃), lw_h2o.CO₂_ppmv, T, q, pₛ, geom, lw_h2o, g) >= 0
+        for iv in 1:lw.nwavenumber
+            ν̃ = lw.wavenumber_min + (iv - 1) * dν̃
+            @test AnalyticBandRadiation.williams_delta_tau(k, NF(ν̃), NF(0), T, q, pₛ, geom, lw, g) >= 0
         end
     end
 end

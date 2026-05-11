@@ -66,14 +66,14 @@ end
                        geometry, scheme, gravity) -> Δτ
 
 Optical depth increment through layer `k` at wavenumber `ν̃`. Combines H₂O
-line absorption (Williams 2026, Eq. 7), H₂O continuum (Eq. 8) and, if
-`scheme.do_CO₂ == true`, CO₂ (Eq. 9). The result already includes the
-two-stream diffusivity factor `D ≈ 1.5` (Armstrong 1968).
+line absorption (Williams 2026, Eq. 7), H₂O continuum (Eq. 8) and CO₂ (Eq. 9). 
+The result already includes the two-stream diffusivity factor `D ≈ 1.5` 
+(Armstrong 1968).
 
 `temperature` and `humidity` are length-`nlayers` column vectors; `geometry`
 is a [`ColumnGrid`](@ref).
 """
-@inline function williams_delta_tau(k::Integer, ν̃::NF, CO₂_ppmv::NF,
+@inline function williams_delta_tau(k::Integer, ν̃::NF, CO₂_concentration::NF,
                                      temperature::AbstractVector, humidity::AbstractVector,
                                      surface_pressure::Real,
                                      geometry::ColumnGrid,
@@ -104,16 +104,12 @@ is a [`ColumnGrid`](@ref).
     # CO₂ (well-mixed): analytic integral across the layer.
     # For a well-mixed gas with κ ∝ p / p_ref the column integral from the TOA
     # to pressure p gives τ = D κ q_CO₂ p² / (2 g p_ref). The layer increment
-    # is the difference of τ at the two bounding half levels.
-    Δτ_co2 = if scheme.do_CO₂
-        q_co2 = NF(CO₂_ppmv * 1e-6 * 44 / 29)
-        κ_CO₂_v = co2_kappa_ref(ν̃, scheme)
-        p_half_k   = NF(σ_half[k])   * pₛ
-        p_half_kp1 = NF(σ_half[k+1]) * pₛ
-        κ_CO₂_v * q_co2 * (p_half_kp1^2 - p_half_k^2) / (2 * g * NF(scheme.p_ref))
-    else
-        zero(NF)
-    end
+    # is the difference of τ at the two bounding half levels.    
+    q_co2 = NF(CO₂_concentration * 1e-6 * 44 / 29)
+    κ_CO₂_v = co2_kappa_ref(ν̃, scheme)
+    p_half_k   = NF(σ_half[k])   * pₛ
+    p_half_kp1 = NF(σ_half[k+1]) * pₛ
+    Δτ_co2 = κ_CO₂_v * q_co2 * (p_half_kp1^2 - p_half_k^2) / (2 * g * NF(scheme.p_ref))
 
     return NF(scheme.diffusivity) * (Δτ_h2o_line + Δτ_h2o_cont + Δτ_co2)
 end

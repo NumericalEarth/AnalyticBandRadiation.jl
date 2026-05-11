@@ -14,26 +14,24 @@ end
 @testset "AnalyticBandLongwave: parameterization smoke test" begin
     NF = Float32
     nlayers = 8
-    for do_CO₂ in (false, true)
-        lw = AnalyticBandLongwave(NF; do_CO₂)
-        profile, geom = _test_column(NF, nlayers)
-        surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
-                                    land_surface_temperature = NF(285),
-                                    land_fraction = NF(0.3))
-        constants = PhysicalConstants{NF}()
-        dTdt = zeros(NF, nlayers)
-        diag = LongwaveDiagnostics{NF}()
-        solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
-        @test any(!=(0), dTdt)
-        @test isfinite(diag.outgoing_longwave)
-        @test diag.outgoing_longwave > 0
-    end
+    lw = AnalyticBandLongwave(NF)
+    profile, geom = _test_column(NF, nlayers)
+    surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
+                                land_surface_temperature = NF(285),
+                                land_fraction = NF(0.3))
+    constants = PhysicalConstants{NF}()
+    dTdt = zeros(NF, nlayers)
+    diag = LongwaveDiagnostics{NF}()
+    solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
+    @test any(!=(0), dTdt)
+    @test isfinite(diag.outgoing_longwave)
+    @test diag.outgoing_longwave > 0
 end
 
 @testset "AnalyticBandLongwave: energy conservation sanity" begin
     NF = Float32
     nlayers = 8
-    lw = AnalyticBandLongwave(NF; do_CO₂ = true)
+    lw = AnalyticBandLongwave(NF)
     profile, geom = _test_column(NF, nlayers)
     surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                 land_surface_temperature = NF(285),
@@ -54,8 +52,8 @@ end
     nlayers = 8
 
     # CO₂ as a compile-time scheme parameter (CO₂_forcing = false).
-    function _olr_param(CO₂_ppmv)
-        lw = AnalyticBandLongwave(NF; do_CO₂ = true, CO₂_ppmv = NF(CO₂_ppmv))
+    function _olr_param(CO₂_concentration)
+        lw = AnalyticBandLongwave(NF; CO₂_concentration = NF(CO₂_concentration))
         profile, geom = _test_column(NF, nlayers)
         surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                     land_surface_temperature = NF(285),
@@ -73,16 +71,16 @@ end
     @test 1 < forcing < 10
 
     # CO₂ as an external input via the profile (CO₂_forcing = true).
-    # The scheme's CO₂_ppmv field is ignored and profile.CO₂_ppmv is used instead.
-    function _olr_forcing(CO₂_ppmv)
-        lw = AnalyticBandLongwave(NF; do_CO₂ = true, CO₂_forcing = true,
-                                   CO₂_ppmv = NF(0))   # set to 0 to confirm it is unused
+    # The scheme's CO₂_concentration field is ignored and profile.CO₂_concentration is used instead.
+    function _olr_forcing(CO₂_concentration)
+        lw = AnalyticBandLongwave(NF; CO₂_forcing = true,
+                                   CO₂_concentration = NF(0))   # set to 0 to confirm it is unused
         profile, geom = _test_column(NF, nlayers)
         profile = AtmosphereProfile(temperature = profile.temperature,
                                     humidity = profile.humidity,
                                     geopotential = profile.geopotential,
                                     surface_pressure = profile.surface_pressure,
-                                    CO₂_ppmv = NF(CO₂_ppmv))
+                                    CO₂_concentration = NF(CO₂_concentration))
         surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                     land_surface_temperature = NF(285),
                                     land_fraction = NF(0.3))

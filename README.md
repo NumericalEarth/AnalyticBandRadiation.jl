@@ -65,7 +65,7 @@ surface = SurfaceState(
 
 # Schemes, constants, and output buffers all wrap up here.
 rtm = RadiativeTransferColumn(; grid, profile, surface,
-    longwave_scheme = AnalyticBandLongwave(do_CO₂ = true, CO₂_ppmv = 280.0))
+    longwave_scheme = AnalyticBandLongwave(CO₂_concentration = 280.0))
 
 solve_longwave!(rtm)
 solve_shortwave!(rtm)
@@ -85,7 +85,7 @@ or NamedTuple carrying `gravity`, `heat_capacity`, `stefan_boltzmann`,
 
 All floating-point types default to `Float64`. To run in `Float32` (useful for
 GPU kernels), pass the type as a positional argument to the scheme
-constructors: `AnalyticBandLongwave(Float32; do_CO₂ = true)`,
+constructors: `AnalyticBandLongwave(Float32)`,
 `OneBandShortwave(Float32)`, etc.
 
 ## With SpeedyWeather.jl

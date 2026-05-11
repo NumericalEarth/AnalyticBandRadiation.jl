@@ -50,12 +50,10 @@ struct AnalyticBandLongwave{NF} <: AbstractLongwaveScheme
     κ_cnt1::NF
     "Continuum absorption above 1700 cm⁻¹ κ_cnt2 [m² kg⁻¹]"
     κ_cnt2::NF
-    "Include CO₂ longwave absorption"
-    do_CO₂::Bool
-    "CO₂ concentration as input/forcing; disables `CO₂_ppmv` parameter"
+    "CO₂ concentration as input/forcing; disables `CO₂_concentration` parameter"
     CO₂_forcing::Bool
     "CO₂ concentration [ppmv]"
-    CO₂_ppmv::NF
+    CO₂_concentration::NF
     "Peak absorption of the CO₂ 15 μm band κ_CO₂ [m² kg⁻¹]"
     κ_CO₂::NF
     "e-folding half-width of CO₂ band l_CO₂ [cm⁻¹]"
@@ -83,8 +81,8 @@ function AnalyticBandLongwave{NF}(;
         κ_rot  = NF(37),    l_rot  = NF(56),
         κ_vr   = NF(5),     l_vr1  = NF(37),    l_vr2 = NF(52),
         κ_cnt1 = NF(0.004), κ_cnt2 = NF(0.0002),
-        do_CO₂::Bool = true, CO₂_forcing::Bool = false,
-        CO₂_ppmv = NF(280),
+        CO₂_forcing::Bool = false,
+        CO₂_concentration = NF(280),
         κ_CO₂    = NF(110), l_CO₂  = NF(12),    ν̃_CO₂ = NF(667),
         diffusivity = NF(1.5),
         p_ref  = NF(50000), T_ref  = NF(260),   pv_ref = NF(224.92),
@@ -93,7 +91,7 @@ function AnalyticBandLongwave{NF}(;
     return AnalyticBandLongwave{NF}(
         nwavenumber, wavenumber_min, wavenumber_max,
         κ_rot, l_rot, κ_vr, l_vr1, l_vr2, κ_cnt1, κ_cnt2,
-        do_CO₂, CO₂_forcing, CO₂_ppmv, κ_CO₂, l_CO₂, ν̃_CO₂,
+        CO₂_forcing, CO₂_concentration, κ_CO₂, l_CO₂, ν̃_CO₂,
         diffusivity, p_ref, T_ref, pv_ref, σ_cont,
     )
 end
@@ -134,7 +132,7 @@ function solve_longwave!(dTdt::AbstractVector,
     T  = profile.temperature
     q  = profile.humidity
     pₛ = NF(profile.surface_pressure)
-    CO₂_ppmv = ifelse(scheme.CO₂_forcing, profile.CO₂_ppmv, scheme.CO₂_ppmv)
+    CO₂_concentration = ifelse(scheme.CO₂_forcing, profile.CO₂_concentration, scheme.CO₂_concentration)
     nlayers = length(T)
 
     σ_SB = NF(constants.stefan_boltzmann)
@@ -178,7 +176,7 @@ function solve_longwave!(dTdt::AbstractVector,
         dTdt[nlayers] += surface_flux_to_tendency(U / cₚ, profile, geometry, constants)
 
         for k in nlayers:-1:1
-            Δτ_k  = williams_delta_tau(k, ν̃, CO₂_ppmv, T, q, pₛ, geometry, scheme, g)
+            Δτ_k  = williams_delta_tau(k, ν̃, CO₂_concentration, T, q, pₛ, geometry, scheme, g)
             tr_k  = exp(-Δτ_k)
             B_k   = planck_wavenumber(T[k], ν̃)
             U_new::NF = U * tr_k + dν̃ * NF(π) * B_k * (1 - tr_k)
@@ -200,7 +198,7 @@ function solve_longwave!(dTdt::AbstractVector,
         D::NF = zero(NF)
 
         for k in 1:(nlayers - 1)
-            Δτ_k  = williams_delta_tau(k, ν̃, CO₂_ppmv, T, q, pₛ, geometry, scheme, g)
+            Δτ_k  = williams_delta_tau(k, ν̃, CO₂_concentration, T, q, pₛ, geometry, scheme, g)
             tr_k  = exp(-Δτ_k)
             B_k   = planck_wavenumber(T[k], ν̃)
             D_new::NF = D * tr_k + dν̃ * NF(π) * B_k * (1 - tr_k)
@@ -211,7 +209,7 @@ function solve_longwave!(dTdt::AbstractVector,
         end
 
         # Surface-adjacent layer: the downward flux that reaches the surface.
-        Δτ_nl = williams_delta_tau(nlayers, ν̃, CO₂_ppmv, T, q, pₛ, geometry, scheme, g)
+        Δτ_nl = williams_delta_tau(nlayers, ν̃, CO₂_concentration, T, q, pₛ, geometry, scheme, g)
         tr_nl = exp(-Δτ_nl)
         B_nl  = planck_wavenumber(T[nlayers], ν̃)
         D_surf::NF = D * tr_nl + dν̃ * NF(π) * B_nl * (1 - tr_nl)

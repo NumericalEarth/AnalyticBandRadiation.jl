@@ -65,7 +65,7 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
     Φ  = @view vars.grid.geopotential[ij, :]
     pₛ = vars.grid.pressure_prev[ij]
 
-    CO₂_ppmv = let prog = vars.prognostic
+    CO₂_concentration = let prog = vars.prognostic
         if hasproperty(prog, :greenhouse_gases) && haskey(prog.greenhouse_gases, :co2)
             NF(prog.greenhouse_gases.co2[])
         else
@@ -75,7 +75,7 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
 
     profile  = AtmosphereProfile(temperature = T, humidity = q,
                              geopotential = Φ, surface_pressure = pₛ, 
-                             CO₂_ppmv = CO₂_ppmv)
+                             CO₂_concentration = CO₂_concentration)
                              
     geometry = _speedy_column_geometry(model)
     surface  = SurfaceState{NF}(
