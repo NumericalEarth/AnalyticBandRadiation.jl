@@ -76,8 +76,8 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
     end
 
     profile  = AtmosphereProfile(temperature = T, humidity = q,
-                             geopotential = Φ, surface_pressure = pₛ, 
-                             CO₂ = CO₂)
+                                 geopotential = Φ, surface_pressure = pₛ, 
+                                 CO₂ = CO₂)
                              
     geometry = _speedy_column_geometry(model)
     surface  = SurfaceState{NF}(
