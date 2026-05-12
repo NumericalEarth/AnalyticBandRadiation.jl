@@ -16,23 +16,25 @@ import AnalyticBandRadiation: AtmosphereProfile, ColumnGrid, SurfaceState,
 """
     SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
 
-SpeedyWeather wrapper around [`AnalyticBandRadiation.AnalyticBandLongwave`](@ref).
+SpeedyWeather wrapper around [`AnalyticBandRadiation.AnalyticBandLongwave`](@ref). 
+Allows for setting the default CO₂ concentration [ppmv], if the model does not specify one.
 
 Usage: 
 
 ```julia 
 spectral_grid = SpectralGrid()
-model = PrimitiveWetModel(spectral_grid; longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid))
+model = PrimitiveWetModel(spectral_grid; longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid; CO₂=280))
 ```
 """
 struct SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
     scheme::AnalyticBandLongwave{NF}
+    default_CO₂::NF
 end
 
 Adapt.@adapt_structure SpeedyAnalyticBandLongwave
 
-function SpeedyAnalyticBandLongwave(SG::SpeedyWeather.SpectralGrid; kwargs...)
-    return SpeedyAnalyticBandLongwave(AnalyticBandLongwave{SG.NF}(; kwargs...))
+function SpeedyAnalyticBandLongwave(SG::SpeedyWeather.SpectralGrid; CO₂ = 280, kwargs...)
+    return SpeedyAnalyticBandLongwave(AnalyticBandLongwave{SG.NF}(; kwargs...), SG.NF(CO₂))
 end
 
 SpeedyWeather.initialize!(::SpeedyAnalyticBandLongwave, ::SpeedyWeather.PrimitiveEquation) = nothing
@@ -65,8 +67,18 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
     Φ  = @view vars.grid.geopotential[ij, :]
     pₛ = vars.grid.pressure_prev[ij]
 
+    CO₂ = let prog = vars.prognostic
+        if hasproperty(prog, :greenhouse_gases) && haskey(prog.greenhouse_gases, :co2)
+            NF(prog.greenhouse_gases.co2[])
+        else
+            rad.default_CO₂
+        end
+    end
+
     profile  = AtmosphereProfile(temperature = T, humidity = q,
-                             geopotential = Φ, surface_pressure = pₛ)
+                                 geopotential = Φ, surface_pressure = pₛ, 
+                                 CO₂ = CO₂)
+                             
     geometry = _speedy_column_geometry(model)
     surface  = SurfaceState{NF}(
         sea_surface_temperature  = vars.prognostic.ocean.sea_surface_temperature[ij],

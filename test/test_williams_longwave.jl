@@ -14,26 +14,24 @@ end
 @testset "AnalyticBandLongwave: parameterization smoke test" begin
     NF = Float32
     nlayers = 8
-    for do_CO₂ in (false, true)
-        lw = AnalyticBandLongwave(NF; do_CO₂)
-        profile, geom = _test_column(NF, nlayers)
-        surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
-                                    land_surface_temperature = NF(285),
-                                    land_fraction = NF(0.3))
-        constants = PhysicalConstants{NF}()
-        dTdt = zeros(NF, nlayers)
-        diag = LongwaveDiagnostics{NF}()
-        solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
-        @test any(!=(0), dTdt)
-        @test isfinite(diag.outgoing_longwave)
-        @test diag.outgoing_longwave > 0
-    end
+    lw = AnalyticBandLongwave(NF)
+    profile, geom = _test_column(NF, nlayers)
+    surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
+                                land_surface_temperature = NF(285),
+                                land_fraction = NF(0.3))
+    constants = PhysicalConstants{NF}()
+    dTdt = zeros(NF, nlayers)
+    diag = LongwaveDiagnostics{NF}()
+    solve_longwave!(dTdt, diag, lw, profile, geom, surface, constants)
+    @test any(!=(0), dTdt)
+    @test isfinite(diag.outgoing_longwave)
+    @test diag.outgoing_longwave > 0
 end
 
 @testset "AnalyticBandLongwave: energy conservation sanity" begin
     NF = Float32
     nlayers = 8
-    lw = AnalyticBandLongwave(NF; do_CO₂ = true)
+    lw = AnalyticBandLongwave(NF)
     profile, geom = _test_column(NF, nlayers)
     surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                 land_surface_temperature = NF(285),
@@ -52,9 +50,15 @@ end
 @testset "AnalyticBandLongwave: CO₂ forcing" begin
     NF = Float32
     nlayers = 8
-    function _olr(CO₂_ppmv)
-        lw = AnalyticBandLongwave(NF; do_CO₂ = true, CO₂_ppmv = NF(CO₂_ppmv))
+    lw = AnalyticBandLongwave(NF)
+
+    function _olr(CO₂)
         profile, geom = _test_column(NF, nlayers)
+        profile = AtmosphereProfile(temperature = profile.temperature,
+                                    humidity = profile.humidity,
+                                    geopotential = profile.geopotential,
+                                    surface_pressure = profile.surface_pressure,
+                                    CO₂ = NF(CO₂))
         surface = SurfaceState{NF}(sea_surface_temperature = NF(295),
                                     land_surface_temperature = NF(285),
                                     land_fraction = NF(0.3))

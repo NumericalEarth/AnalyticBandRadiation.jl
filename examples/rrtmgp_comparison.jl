@@ -104,6 +104,7 @@ profile = ABR.AtmosphereProfile(
     humidity         = qᵛ_top_down,
     geopotential     = zeros(Nz),
     surface_pressure = surface_pressure,
+    CO₂              = 420.0,
 )
 
 surface = ABR.SurfaceState{Float64}(sea_surface_temperature  = surface_temperature,
@@ -111,7 +112,7 @@ surface = ABR.SurfaceState{Float64}(sea_surface_temperature  = surface_temperatu
                                       land_fraction            = 0.0)
 pc = ABR.PhysicalConstants{Float64}(heat_capacity = cₚ)
 
-lw_williams = ABR.AnalyticBandLongwave(Float64; do_CO₂ = true, CO₂_ppmv = 420.0)
+lw_williams = ABR.AnalyticBandLongwave(Float64)
 dT_williams = zeros(Nz)
 diag = ABR.LongwaveDiagnostics{Float64}()
 ABR.solve_longwave!(dT_williams, diag, lw_williams, profile, geometry, surface, pc)

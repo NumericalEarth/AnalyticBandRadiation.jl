@@ -52,6 +52,7 @@ profile = AtmosphereProfile(
     humidity         = fill(0.005, nlayers),
     geopotential     = zeros(nlayers),
     surface_pressure = 100_000.0,
+    CO₂              = 280.0,
 )
 
 surface = SurfaceState(
@@ -64,8 +65,7 @@ surface = SurfaceState(
 )
 
 # Schemes, constants, and output buffers all wrap up here.
-rtm = RadiativeTransferColumn(; grid, profile, surface,
-    longwave_scheme = AnalyticBandLongwave(do_CO₂ = true, CO₂_ppmv = 280.0))
+rtm = RadiativeTransferColumn(; grid, profile, surface)
 
 solve_longwave!(rtm)
 solve_shortwave!(rtm)
@@ -85,7 +85,7 @@ or NamedTuple carrying `gravity`, `heat_capacity`, `stefan_boltzmann`,
 
 All floating-point types default to `Float64`. To run in `Float32` (useful for
 GPU kernels), pass the type as a positional argument to the scheme
-constructors: `AnalyticBandLongwave(Float32; do_CO₂ = true)`,
+constructors: `AnalyticBandLongwave(Float32)`,
 `OneBandShortwave(Float32)`, etc.
 
 ## With SpeedyWeather.jl
@@ -100,7 +100,7 @@ const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
                                      :AnalyticBandRadiationSpeedyWeatherExt)
 
 spectral_grid = SpectralGrid(trunc = 31, nlayers = 8)
-longwave      = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid; do_CO₂ = true)
+longwave      = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid)
 model         = PrimitiveWetModel(spectral_grid; longwave_radiation = longwave)
 ```
 
