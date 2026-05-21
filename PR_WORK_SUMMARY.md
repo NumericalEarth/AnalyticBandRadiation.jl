@@ -18,6 +18,59 @@ working audit trail. This document is the PR narrative.
 
 ---
 
+## Headline figures
+
+Generated from the committed artifacts by `figures/make_pr_figures.jl`
+(`julia --project=figures figures/make_pr_figures.jl`).
+
+### Accuracy: official 32×32 ecCKD matches ecRad on the clear-sky tropical column
+
+![ecCKD 32×32 vs ecRad flux profiles](figures/fig1_ecckd_vs_ecrad_profiles.png)
+
+Up- and down-welling longwave and shortwave fluxes from RadiativeHeating.jl
+(dashed red) over the ecRad reference (solid black) on the
+`ecckd_clear_sky_tropical_column` ensemble. LW flux RMSE ≈ 0.003 W m⁻²,
+SW flux RMSE ≈ 0.007 W m⁻², heating-rate RMSE ≈ 0.006 K day⁻¹. The hard
+ecCKD cloudless gate passes.
+
+### Performance: ≈30× speedup over RRTMGP on H100 across k-models
+
+![H100 speedup bar chart](figures/fig2_h100_speedup.png)
+
+Median radiation-update timing on an H100 RCEMIP-style 32×32×64 / 1024-column
+workload, taken from the dedicated Breeze checkout (see §4.4). The validated
+ecCKD 32×32 production path closes the ≥4× Breeze H100 gate by ≈31×; the
+fixed-coefficient 32×16 and 16×16 scaffolds confirm the speedup at the
+smaller k-models where the optimizer search is still ongoing.
+
+### Training: Reactant + Enzyme calibration of ecCKD coefficients
+
+![Reactant/Enzyme training curves](figures/fig3_training_curves.png)
+
+Left: 13-epoch finite-difference / Enzyme-checked gradient descent on a
+toy 4-parameter ecCKD fixed-topology fixture — loss drops by ≈170×, flux
+RMSE by ≈13×, heating-rate RMSE by ≈5.6×. Right: 8 epochs of Reactant-compiled,
+Enzyme reverse-mode gradient descent against the package-native RRTMGP
+shortwave loss for a 48-parameter 16-g model. The toy fixture validates the
+AD path end-to-end; the production-shape loss confirms Reactant compilation
++ Enzyme reverse-mode are both functional on the live model.
+
+### What's left: the reduced 16-g hard gate
+
+![Reduced 16-g optimizer descent](figures/fig4_reduced_descent.png)
+
+Worst boundary-forcing error after each accepted optimizer move in the
+greedy / constrained-table / slot-blend / weight-refit chain that drives
+the reduced-accuracy artifact. The official 32×32 baseline starts at
+0.0042 W m⁻², well under the 0.3 W m⁻² threshold. Reducing the shortwave
+subset to 16 g-points jumps the error to ≈7.2 W m⁻²; the long optimizer
+chain brings the canonical retained row down to ≈2.14 W m⁻². That is real
+progress (≈ 3.4× reduction from the naive 16-g start), but still ≈7× above
+the hard gate, which is why the Reactant/Enzyme original-objective recovery
+path is the next step — see §6.
+
+---
+
 ## 1. The goal in one paragraph
 
 Make this package a standalone, GPU-capable, differentiable, ecRad/ecCKD-
