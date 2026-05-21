@@ -1,11 +1,11 @@
 using Dates
 
 const ABR_ROOT = normpath(joinpath(@__DIR__, ".."))
-if Base.find_package("AnalyticBandRadiation") === nothing
+if Base.find_package("Lightflux") === nothing
     push!(LOAD_PATH, ABR_ROOT)
 end
 
-using AnalyticBandRadiation
+using Lightflux
 using NCDatasets
 
 include(joinpath(@__DIR__, "ecrad_reference_manifest.jl"))

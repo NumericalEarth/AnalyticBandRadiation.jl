@@ -2,13 +2,13 @@
 
 This page drives the longwave and shortwave solvers together on a single
 column and plots their heating-rate profiles. It serves as a template for
-integrating `AnalyticBandRadiation` into a single-column model or for
+integrating `Lightflux` into a single-column model or for
 debugging a new band parameterization.
 
 ## Lapse-rate column, daytime + doubled CO₂
 
 ```@example single_column
-using AnalyticBandRadiation
+using Lightflux
 using CairoMakie
 
 nlayers = 32
@@ -31,7 +31,7 @@ constants = PhysicalConstants{Float64}()
 thermo    = ThermodynamicConstants{Float64}()
 
 lw = AnalyticBandLongwave(Float64)
-sw = AnalyticBandRadiation.OneBandShortwave(Float64)
+sw = Lightflux.OneBandShortwave(Float64)
 
 function run(CO₂)
     prof = AtmosphereProfile(

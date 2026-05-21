@@ -4,7 +4,7 @@ using Statistics
 
 push!(LOAD_PATH, normpath(joinpath(@__DIR__, "..")))
 
-using AnalyticBandRadiation
+using Lightflux
 using NCDatasets
 using RRTMGP
 
@@ -97,8 +97,8 @@ function atmosphere_from_dataset(ds, column)
 end
 
 function rrtmgp_fluxes!(fluxes, model, atmosphere, ds, column, workspace)
-    ext = Base.get_extension(AnalyticBandRadiation, :AnalyticBandRadiationRRTMGPExt)
-    ext === nothing && error("AnalyticBandRadiationRRTMGPExt did not load")
+    ext = Base.get_extension(Lightflux, :LightfluxRRTMGPExt)
+    ext === nothing && error("LightfluxRRTMGPExt did not load")
     boundary = ext.RRTMGPBoundaryConditions(
         surface_temperature = Array(ds["surface_temperature"])[column],
         surface_emissivity = 0.98,
@@ -182,8 +182,8 @@ function official_32g_baseline_passed()
 end
 
 function run_comparison()
-    ext = Base.get_extension(AnalyticBandRadiation, :AnalyticBandRadiationRRTMGPExt)
-    ext === nothing && error("AnalyticBandRadiationRRTMGPExt did not load")
+    ext = Base.get_extension(Lightflux, :LightfluxRRTMGPExt)
+    ext === nothing && error("LightfluxRRTMGPExt did not load")
     model = ext.RRTMGPClearSkyModel(Float64)
     cases = [case_result(spec, model) for spec in CASES]
     all_finite = all(cases) do case

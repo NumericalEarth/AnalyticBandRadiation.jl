@@ -1,6 +1,6 @@
 using SpeedyWeather, Statistics
-const SpeedyExt = Base.get_extension(AnalyticBandRadiation,
-                                     :AnalyticBandRadiationSpeedyWeatherExt)
+const SpeedyExt = Base.get_extension(Lightflux,
+                                     :LightfluxSpeedyWeatherExt)
 
 default_spectral_grid() = SpectralGrid(trunc=15, nlayers=8)
 

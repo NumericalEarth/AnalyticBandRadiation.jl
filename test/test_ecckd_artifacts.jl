@@ -1,9 +1,9 @@
 const ABR_ROOT_FOR_ARTIFACT_TEST = normpath(joinpath(@__DIR__, ".."))
-if Base.find_package("AnalyticBandRadiation") === nothing
+if Base.find_package("Lightflux") === nothing
     push!(LOAD_PATH, ABR_ROOT_FOR_ARTIFACT_TEST)
 end
 
-using AnalyticBandRadiation
+using Lightflux
 
 @testset "official ecCKD artifact resolver" begin
     inventory = official_ecckd_model_inventory()

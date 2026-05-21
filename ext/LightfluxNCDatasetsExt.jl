@@ -1,12 +1,12 @@
-module AnalyticBandRadiationNCDatasetsExt
+module LightfluxNCDatasetsExt
 
-using AnalyticBandRadiation
+using Lightflux
 using NCDatasets
 
-import AnalyticBandRadiation: EcCKDDefinition, EcCKDTabulatedGasOpticsModel
-import AnalyticBandRadiation: CloudScatteringTable, EcCKDSpectralMapping
-import AnalyticBandRadiation: read_ecckd_definition, read_ecckd_tabulated_gas_optics
-import AnalyticBandRadiation: read_cloud_scattering_table, read_ecckd_spectral_mapping
+import Lightflux: EcCKDDefinition, EcCKDTabulatedGasOpticsModel
+import Lightflux: CloudScatteringTable, EcCKDSpectralMapping
+import Lightflux: read_ecckd_definition, read_ecckd_tabulated_gas_optics
+import Lightflux: read_cloud_scattering_table, read_ecckd_spectral_mapping
 
 _sym(name) = Symbol(String(name))
 

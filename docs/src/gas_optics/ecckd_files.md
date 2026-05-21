@@ -10,13 +10,13 @@ The core package defines dependency-free ecCKD schema objects:
 - [`validate_ecckd_definition`](@ref) checks required dimensions and variable
   groups before any runtime gas-optics model is constructed.
 
-NetCDF-backed loading lives in `AnalyticBandRadiationNCDatasetsExt`, so
+NetCDF-backed loading lives in `LightfluxNCDatasetsExt`, so
 `NCDatasets.jl` is an optional dependency rather than a hard dependency of the
 standalone runtime package. Load `NCDatasets` before calling
 `read_ecckd_definition(path::String)`:
 
 ```julia
-using AnalyticBandRadiation
+using Lightflux
 using NCDatasets
 
 definition = read_ecckd_definition("ecckd-definition.nc")
@@ -36,7 +36,7 @@ source archive used by the validation suite. Users can override this with
 directory.
 
 ```julia
-using AnalyticBandRadiation
+using Lightflux
 
 official_ecckd_model_inventory()
 paths = official_ecckd_definition_paths()
@@ -62,7 +62,7 @@ the original `optimize_lut`, cost-function, and training-script machinery. It
 does not include the large CKDMIP line-by-line spectral absorption database.
 
 ```julia
-using AnalyticBandRadiation
+using Lightflux
 
 source = ecckd_source_path()
 joinpath(source, "src", "ecckd", "optimize_lut.cpp")

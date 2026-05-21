@@ -1,4 +1,4 @@
-# AnalyticBandRadiation.jl
+# Lightflux.jl
 
 Analytic-band atmospheric radiation for intermediate-complexity models.
 
@@ -33,7 +33,7 @@ The spectral quadrature captures ≥99 % of the blackbody flux at 300 K between
 terrestrial atmosphere, not interstellar space).
 
 ```@example index
-using AnalyticBandRadiation
+using Lightflux
 using CairoMakie
 
 T = 300.0

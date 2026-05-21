@@ -83,20 +83,20 @@ planck_wavenumber
 h2o_line_kappa_ref
 h2o_cont_kappa_ref
 co2_kappa_ref
-AnalyticBandRadiation.williams_delta_tau
+Lightflux.williams_delta_tau
 ```
 
 ## Shortwave
 
 ```@docs
-AnalyticBandRadiation.TransparentShortwave
-AnalyticBandRadiation.OneBandShortwave
-AnalyticBandRadiation.OneBandGreyShortwave
+Lightflux.TransparentShortwave
+Lightflux.OneBandShortwave
+Lightflux.OneBandGreyShortwave
 OneBandShortwaveRadiativeTransfer
-AnalyticBandRadiation.AbstractShortwaveTransmissivity
+Lightflux.AbstractShortwaveTransmissivity
 ConstantShortwaveTransmissivity
 BackgroundShortwaveTransmissivity
-AnalyticBandRadiation.AbstractShortwaveClouds
+Lightflux.AbstractShortwaveClouds
 NoClouds
 DiagnosticClouds
 solve_shortwave!

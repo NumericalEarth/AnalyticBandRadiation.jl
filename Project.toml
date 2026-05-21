@@ -1,4 +1,4 @@
-name = "AnalyticBandRadiation"
+name = "Lightflux"
 uuid = "cd8119b0-1744-44d6-9ede-6ad1ad750b26"
 authors = ["NumericalEarth organization (github.com/NumericalEarth) and contributors"]
 version = "0.1.0"
@@ -17,9 +17,9 @@ RRTMGP = "a01a1ee8-cea4-48fc-987c-fc7878d79da1"
 SpeedyWeather = "9e226e20-d153-4fed-8a5b-493def4f21a9"
 
 [extensions]
-AnalyticBandRadiationNCDatasetsExt = "NCDatasets"
-AnalyticBandRadiationRRTMGPExt = ["ClimaComms", "NCDatasets", "RRTMGP"]
-AnalyticBandRadiationSpeedyWeatherExt = "SpeedyWeather"
+LightfluxNCDatasetsExt = "NCDatasets"
+LightfluxRRTMGPExt = ["ClimaComms", "NCDatasets", "RRTMGP"]
+LightfluxSpeedyWeatherExt = "SpeedyWeather"
 
 [compat]
 Adapt = "4"

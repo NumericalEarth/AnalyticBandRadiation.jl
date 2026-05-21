@@ -1,11 +1,11 @@
 using Dates
 
 const ABR_ROOT = normpath(joinpath(@__DIR__, ".."))
-if Base.find_package("AnalyticBandRadiation") === nothing
+if Base.find_package("Lightflux") === nothing
     push!(LOAD_PATH, ABR_ROOT)
 end
 
-using AnalyticBandRadiation
+using Lightflux
 using NCDatasets
 
 const INVENTORY_JSON = joinpath(@__DIR__, "results", "ecckd_model_inventory.json")

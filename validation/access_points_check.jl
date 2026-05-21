@@ -1,4 +1,4 @@
-using AnalyticBandRadiation
+using Lightflux
 using Dates
 
 const REQUIRED_EXPORTS = (
@@ -41,11 +41,11 @@ const REQUIRED_EXPORTS = (
 )
 
 function exported_symbol_status(name)
-    names = Base.names(AnalyticBandRadiation)
+    names = Base.names(Lightflux)
     return (
         name = string(name),
         exported = name in names,
-        defined = isdefined(AnalyticBandRadiation, name),
+        defined = isdefined(Lightflux, name),
     )
 end
 

@@ -1,4 +1,4 @@
-using AnalyticBandRadiation
+using Lightflux
 using Dates
 using Printf
 

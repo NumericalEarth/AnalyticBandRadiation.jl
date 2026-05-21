@@ -1,7 +1,7 @@
 """
     AbstractRadiationScheme
 
-Root type for column radiation schemes defined by `AnalyticBandRadiation`.
+Root type for column radiation schemes defined by `Lightflux`.
 """
 abstract type AbstractRadiationScheme end
 

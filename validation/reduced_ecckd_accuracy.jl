@@ -4,7 +4,7 @@ using Printf
 
 push!(LOAD_PATH, normpath(joinpath(@__DIR__, "..")))
 
-using AnalyticBandRadiation
+using Lightflux
 
 include(joinpath(@__DIR__, "write_ecrad_candidates.jl"))
 
@@ -1984,7 +1984,7 @@ function indexed_tabulated_model(model, lw_indices, sw_indices)
         model.longwave_source_table[lw_indices, :]
 
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,
@@ -2019,7 +2019,7 @@ function weighted_tabulated_model(model, ng_lw, ng_sw)
     sw_groups = gpoint_groups(size(model.shortwave_absorption, 1), ng_sw)
 
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,
@@ -2063,7 +2063,7 @@ function cumulative_weight_tabulated_model(model, ng_lw, ng_sw)
     sw_groups = cumulative_weight_groups(model.shortwave_weights, ng_sw)
 
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,
@@ -2137,7 +2137,7 @@ end
 function similarity_pair_tabulated_model(model, ng_sw)
     sw_groups = shortwave_similarity_groups(model, ng_sw)
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,
@@ -2188,7 +2188,7 @@ end
 function anchored_similarity_tabulated_model(model, anchor_indices)
     sw_groups = anchored_similarity_groups(model, anchor_indices)
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,
@@ -2237,7 +2237,7 @@ end
 function anchored_voronoi_tabulated_model(model, anchor_indices)
     sw_groups = anchored_voronoi_groups(model, anchor_indices)
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,
@@ -2575,7 +2575,7 @@ end
 
 function with_shortwave_weights(model, weights)
     weighted = EcCKDTabulatedGasOpticsModel(
-        gas_names = AnalyticBandRadiation.gas_names(model),
+        gas_names = Lightflux.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,

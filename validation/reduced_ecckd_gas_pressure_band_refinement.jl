@@ -61,7 +61,7 @@ function gas_pressure_band_candidates(full_model, base_model, target_breakdown,
         pressure_interfaces = Array(dataset["pressure_interface"])
         gas_amounts = gas_column_amounts(dataset, pressure_interfaces).amounts
         gases = Dict(Symbol(name) => values for (name, values) in gas_amounts)
-        gas_names_tuple = AnalyticBandRadiation.gas_names(full_model)
+        gas_names_tuple = Lightflux.gas_names(full_model)
         references = full_model.gas_reference_mole_fractions
         column = worst_column.column
         nlayers = size(pressure_layers, 1)

@@ -1,6 +1,6 @@
-module AnalyticBandRadiationRRTMGPExt
+module LightfluxRRTMGPExt
 
-using AnalyticBandRadiation
+using Lightflux
 using ClimaComms
 using NCDatasets
 using RRTMGP
@@ -68,7 +68,7 @@ struct RRTMGPWorkspace{S, AS, SOL}
     solver::SOL
 end
 
-function AnalyticBandRadiation.radiation_workspace(model::RRTMGPClearSkyModel{FT},
+function Lightflux.radiation_workspace(model::RRTMGPClearSkyModel{FT},
                                                    atmosphere::ColumnAtmosphere;
                                                    backend = nothing) where FT
     nlayers = length(atmosphere.temperature_layers)
@@ -177,7 +177,7 @@ function fill_atmospheric_state!(workspace::RRTMGPWorkspace,
     return workspace
 end
 
-function AnalyticBandRadiation.radiative_fluxes!(fluxes::RadiativeFluxes,
+function Lightflux.radiative_fluxes!(fluxes::RadiativeFluxes,
                                                  model::RRTMGPClearSkyModel,
                                                  atmosphere::ColumnAtmosphere,
                                                  boundary::RRTMGPBoundaryConditions,

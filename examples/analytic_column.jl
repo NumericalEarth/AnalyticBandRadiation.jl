@@ -1,4 +1,4 @@
-using AnalyticBandRadiation
+using Lightflux
 
 nlayers = 32
 grid = ColumnGrid(collect(range(0.0, 1.0, length = nlayers + 1)))

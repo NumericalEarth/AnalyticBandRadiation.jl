@@ -1,4 +1,4 @@
-module AnalyticBandRadiation
+module Lightflux
 
 using Adapt
 using Dates

@@ -1,6 +1,6 @@
 # Examples
 
-Standalone scripts that exercise `AnalyticBandRadiation` in richer settings
+Standalone scripts that exercise `Lightflux` in richer settings
 than the docs examples. They live in their own Julia environment
 (`examples/Project.toml`) so the main package stays dep-light.
 
@@ -12,7 +12,7 @@ shared idealized tropical column.
 Breeze's `RadiativeTransferModel(grid, ClearSkyOptics(), …)` provides the
 RRTMGP reference; we extract the same `T(z)`, `qᵥ(z)`, and reference-state
 pressure profile and feed them to
-[`AnalyticBandRadiation.solve_longwave!`](../src/longwave/williams_longwave.jl).
+[`Lightflux.solve_longwave!`](../src/longwave/williams_longwave.jl).
 
 ### Run it
 

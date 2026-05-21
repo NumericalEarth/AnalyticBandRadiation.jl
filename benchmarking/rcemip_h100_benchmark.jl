@@ -29,7 +29,7 @@ Writes `radiative_heating_rcemip_latest.{json,md}` under
 benchmark, so `figures/make_pr_figures.jl` can pick the result up directly.
 """
 
-using AnalyticBandRadiation
+using Lightflux
 using Breeze
 using CUDA
 using ClimaComms

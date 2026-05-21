@@ -1,9 +1,9 @@
 using Documenter
-using AnalyticBandRadiation
+using Lightflux
 
 makedocs(
-    sitename = "AnalyticBandRadiation.jl",
-    modules = [AnalyticBandRadiation],
+    sitename = "Lightflux.jl",
+    modules = [Lightflux],
     authors = "NumericalEarth organization and contributors",
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", "false") == "true",

@@ -1,6 +1,6 @@
 # Notation
 
-`AnalyticBandRadiation` follows the [NumericalEarth.jl notation
+`Lightflux` follows the [NumericalEarth.jl notation
 guide](https://github.com/NumericalEarth/NumericalEarth.jl/blob/main/docs/src/appendix/notation.md)
 for symbolic names in math, in docstring equations, and in plot labels. Julia
 struct fields stay descriptive snake_case (matching Breeze's public API

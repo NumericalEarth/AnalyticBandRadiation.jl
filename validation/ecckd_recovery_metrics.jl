@@ -2,11 +2,11 @@ using Dates
 using Statistics
 
 const ABR_ROOT = normpath(joinpath(@__DIR__, ".."))
-if Base.find_package("AnalyticBandRadiation") === nothing
+if Base.find_package("Lightflux") === nothing
     push!(LOAD_PATH, ABR_ROOT)
 end
 
-using AnalyticBandRadiation
+using Lightflux
 using NCDatasets
 
 const RECOVERY_JSON = joinpath(@__DIR__, "results", "ecckd_recovery_metrics.json")
