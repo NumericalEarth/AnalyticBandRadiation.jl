@@ -1,0 +1,23 @@
+source,label,ng_lw,ng_sw,total_gpoints,passed,worst_toa_forcing_error_w_m2,worst_surface_forcing_error_w_m2,worst_boundary_forcing_error_w_m2
+reduced_accuracy,"official ecCKD 32x32 baseline without shortwave reduction",32,32,64,true,0.00806408713606288,0.014033547037797689,0.014033547037797689
+reduced_accuracy,"evenly selected official ecCKD g-points with renormalized weights",32,16,48,false,15.148939416007124,66.56751138054426,66.56751138054426
+reduced_accuracy,"greedy searched 16 shortwave g-point subset with official weights renormalized",32,16,48,false,7.17718646855576,6.842986675459997,7.17718646855576
+reduced_accuracy,"greedy searched 16 shortwave g-point subset with least-squares fitted shortwave weights",32,16,48,false,31.026221959352824,66.67311851863076,66.67311851863076
+reduced_accuracy,"greedy searched 16 shortwave g-point subset with projected boundary-weighted fitted shortwave weights",32,16,48,false,5.557632544628063,2.748340355147775,5.557632544628063
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with projected simplex weights",32,16,48,false,5.520305760481278,3.178522098350527,5.520305760481278
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with projected hard-gate max-norm weights",32,16,48,false,5.518843803513278,3.1886143843053105,5.518843803513278
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with diagnostic fitted coefficient scales",32,16,48,false,5.881710097857763,5.778982042235384,5.881710097857763
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with latest preflight-optimized weights and coefficient scales",32,16,48,false,2.588652944311036,2.5662214073375935,2.588652944311036
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with latest preflight-optimized weights, coefficient scales, and pressure-band table moves",32,16,48,false,2.311709885137816,2.757902059324806,2.757902059324806
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with latest preflight table moves and reduced incoming shortwave spectral weights",32,16,48,false,2.311709885137816,2.757902059324806,2.757902059324806
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with boundary-aware post-constrained weight refit",32,16,48,false,2.325872432747474,2.751094395294672,2.751094395294672
+reduced_accuracy,"weighted greedy 16 shortwave g-point subset with boundary-aware table, component, structural, objective-probe, surface-probe, capped table, continuation, post-capped weight, post-weight surface-table, bounded weight, four current component-scale refits, selected current gas-pressure component scan refit, gas-pressure continuation refit, weighted gas-pressure continuation refit, and high-weight gas-pressure continuation refit",32,16,48,false,2.075241671208687,2.026956688318073,2.075241671208687
+reduced_accuracy,"evenly selected official ecCKD g-points with least-squares fitted shortwave weights",32,16,48,false,56.88907090742123,118.95823596929245,118.95823596929245
+reduced_accuracy,"evenly selected official ecCKD g-points with renormalized weights",16,16,32,false,92.3557392308254,171.6748445980652,171.6748445980652
+reduced_accuracy,"adjacent official ecCKD g-point bins with spectral-weighted coefficient averages",32,16,48,false,66.04848850385326,164.9832350029278,164.9832350029278
+reduced_accuracy,"adjacent official ecCKD g-point bins with spectral-weighted coefficient averages",16,16,32,false,79.97856182911323,156.746283353722,156.746283353722
+reduced_accuracy,"cumulative spectral-weight bins with coefficient averages",32,16,48,false,81.05550822401597,215.16143285594512,215.16143285594512
+reduced_accuracy,"cumulative spectral-weight bins with coefficient averages",16,16,32,false,94.98558154927593,206.5998016028641,206.5998016028641
+reduced_accuracy,"non-adjacent coefficient-similarity shortwave g-point pairs with spectral-weighted coefficient averages",32,16,48,false,26.227976391784978,73.6097384691634,73.6097384691634
+reduced_accuracy,"weighted-greedy anchor g-points plus nearest-neighbor coefficient-similarity bins",32,16,48,false,40.32007321120864,123.04044267584152,123.04044267584152
+reduced_accuracy,"weighted-greedy anchor g-points plus nearest spectral-order Voronoi bins",32,16,48,false,40.360196621065484,125.54176578960312,125.54176578960312

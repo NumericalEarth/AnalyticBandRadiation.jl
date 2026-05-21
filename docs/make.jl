@@ -12,6 +12,11 @@ makedocs(
     ),
     pages = [
         "Home" => "index.md",
+        "Architecture" => "architecture.md",
+        "Gas optics" => [
+            "ecCKD files" => "gas_optics/ecckd_files.md",
+            "CKDMIP training data" => "gas_optics/ckdmip_training_data.md",
+        ],
         "Longwave" => "longwave.md",
         "Shortwave" => "shortwave.md",
         "Single-column examples" => "single_column.md",

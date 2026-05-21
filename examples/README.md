@@ -51,3 +51,13 @@ scheme, which is the claim of the paper.
 
 The script writes `rrtmgp_comparison.png` next to itself: a temperature
 profile on the left and the two heating-rate profiles overlaid on the right.
+
+## `analytic_column.jl`
+
+Run a single analytic-band column through the staged `radiative_heating!`
+wrapper and print surface fluxes, TOA flux, column-integrated heating, energy
+closure residual, and runtime.
+
+```bash
+julia --project=. examples/analytic_column.jl
+```

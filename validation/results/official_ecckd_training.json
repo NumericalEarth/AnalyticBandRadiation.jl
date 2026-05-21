@@ -1,0 +1,134 @@
+{
+  "case": "official_reduced_ecckd_gas_optics_training",
+  "timestamp_utc": "2026-05-15T18:36:51.516",
+  "status": "passed",
+  "reference_scope": ["ecckd_clear_sky_tropical_column", "ecckd_rcemip_style_column_subset"],
+  "training_source": "official ecCKD tabulated gas-optics reduced hard-gate objective",
+  "parameterization": "softmax weights plus per-g-point absorption and Rayleigh log-scales",
+  "parameter_count": 48,
+  "ng_sw": 16,
+  "optimizer": "deterministic repeated directional search",
+  "iterations": 2,
+  "initial_objective": 214.26452989359106,
+  "final_objective": 213.30664255797396,
+  "objective_reduction": 0.9578873356171016,
+  "objective_ratio": 0.9955294171364116,
+  "objective_target": 1.0,
+  "final_objective_target_ratio": 213.30664255797396,
+  "hard_accuracy_target_met": false,
+  "acceptance_gap_status": "far_above_objective_target",
+  "loss_history": [213.78538866725114, 213.30664255797396],
+  "reactant_check": {
+  "status": "passed",
+  "check": "official_reduced_parameter_surrogate",
+  "passed": true,
+  "error": null
+},
+  "enzyme_check": {
+  "status": "passed",
+  "check": "official_reduced_parameter_surrogate",
+  "relative_error": 4.195996440670387e-11,
+  "threshold": 0.0001,
+  "passed": true,
+  "error": null
+},
+  "topology_candidate_scan": {
+  "status": "all_32x16_topologies_fail_forcing_gate",
+  "source": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
+  "candidate_count": 11,
+  "rows": [{
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "evenly selected official ecCKD g-points with renormalized weights",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 15.148939416007124,
+  "max_surface_forcing_abs": 66.56751138054426,
+  "forcing_objective_lower_bound": 221.8917046018142
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "greedy searched 16 shortwave g-point subset with official weights renormalized",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 7.17718646855576,
+  "max_surface_forcing_abs": 6.842986675459997,
+  "forcing_objective_lower_bound": 23.92395489518587
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "greedy searched 16 shortwave g-point subset with least-squares fitted shortwave weights",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 31.026221959352824,
+  "max_surface_forcing_abs": 66.67311851863076,
+  "forcing_objective_lower_bound": 222.24372839543588
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "greedy searched 16 shortwave g-point subset with projected boundary-weighted fitted shortwave weights",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 5.557632544628063,
+  "max_surface_forcing_abs": 2.748340355147775,
+  "forcing_objective_lower_bound": 18.52544181542688
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "weighted greedy 16 shortwave g-point subset with projected simplex weights",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 5.520305760481278,
+  "max_surface_forcing_abs": 3.178522098350527,
+  "forcing_objective_lower_bound": 18.401019201604264
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "weighted greedy 16 shortwave g-point subset with projected hard-gate max-norm weights",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 5.518843803513278,
+  "max_surface_forcing_abs": 3.1886143843053105,
+  "forcing_objective_lower_bound": 18.396146011710925
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "weighted greedy 16 shortwave g-point subset with diagnostic fitted coefficient scales",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 5.881710097857763,
+  "max_surface_forcing_abs": 5.778982042235384,
+  "forcing_objective_lower_bound": 19.605700326192544
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "evenly selected official ecCKD g-points with least-squares fitted shortwave weights",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 56.88907090742123,
+  "max_surface_forcing_abs": 118.95823596929245,
+  "forcing_objective_lower_bound": 396.52745323097486
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "adjacent official ecCKD g-point bins with spectral-weighted coefficient averages",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 66.04848850385326,
+  "max_surface_forcing_abs": 164.9832350029278,
+  "forcing_objective_lower_bound": 549.9441166764261
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "non-adjacent coefficient-similarity shortwave g-point pairs with spectral-weighted coefficient averages",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 26.227976391784978,
+  "max_surface_forcing_abs": 73.6097384691634,
+  "forcing_objective_lower_bound": 245.36579489721134
+}, {
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "reduction_method": "weighted-greedy anchor g-points plus nearest-neighbor coefficient-similarity bins",
+  "passed_hard_thresholds": false,
+  "max_toa_forcing_abs": 40.32007321120864,
+  "max_surface_forcing_abs": 123.04044267584152,
+  "forcing_objective_lower_bound": 410.13480891947177
+}],
+  "best_method": "weighted greedy 16 shortwave g-point subset with projected hard-gate max-norm weights",
+  "best_forcing_objective_lower_bound": 18.396146011710925,
+  "best_passed_hard_thresholds": false
+},
+  "next_required_work": "Replace the current per-g-point scaling search with a richer reduced k-distribution coefficient/topology optimization; the current 48-parameter search remains far above the hard-gate target.",
+  "notes": "This is the official/reduced ecCKD training-path artifact: it demonstrates objective construction, trainable parameters, Reactant/Enzyme checks, and deterministic objective reduction on official ecCKD references. It does not close the reduced-accuracy gate until final_objective_target_ratio <= 1."
+}

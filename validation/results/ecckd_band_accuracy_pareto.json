@@ -1,0 +1,312 @@
+{
+  "case": "ecckd_band_accuracy_pareto",
+  "timestamp_utc": "2026-05-19T20:14:20.309",
+  "status": "passed",
+  "point_count": 22,
+  "passed_point_count": 1,
+  "published_inventory_count": 6,
+  "plot_path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.svg",
+  "csv_path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.csv",
+  "accuracy_points": [{
+  "source": "reduced_accuracy",
+  "label": "official ecCKD 32x32 baseline without shortwave reduction",
+  "ng_lw": 32,
+  "ng_sw": 32,
+  "total_gpoints": 64,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.00806408713606288,
+  "worst_surface_forcing_error_w_m2": 0.014033547037797689,
+  "worst_boundary_forcing_error_w_m2": 0.014033547037797689
+}, {
+  "source": "reduced_accuracy",
+  "label": "evenly selected official ecCKD g-points with renormalized weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 15.148939416007124,
+  "worst_surface_forcing_error_w_m2": 66.56751138054426,
+  "worst_boundary_forcing_error_w_m2": 66.56751138054426
+}, {
+  "source": "reduced_accuracy",
+  "label": "greedy searched 16 shortwave g-point subset with official weights renormalized",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 7.17718646855576,
+  "worst_surface_forcing_error_w_m2": 6.842986675459997,
+  "worst_boundary_forcing_error_w_m2": 7.17718646855576
+}, {
+  "source": "reduced_accuracy",
+  "label": "greedy searched 16 shortwave g-point subset with least-squares fitted shortwave weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 31.026221959352824,
+  "worst_surface_forcing_error_w_m2": 66.67311851863076,
+  "worst_boundary_forcing_error_w_m2": 66.67311851863076
+}, {
+  "source": "reduced_accuracy",
+  "label": "greedy searched 16 shortwave g-point subset with projected boundary-weighted fitted shortwave weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 5.557632544628063,
+  "worst_surface_forcing_error_w_m2": 2.748340355147775,
+  "worst_boundary_forcing_error_w_m2": 5.557632544628063
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with projected simplex weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 5.520305760481278,
+  "worst_surface_forcing_error_w_m2": 3.178522098350527,
+  "worst_boundary_forcing_error_w_m2": 5.520305760481278
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with projected hard-gate max-norm weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 5.518843803513278,
+  "worst_surface_forcing_error_w_m2": 3.1886143843053105,
+  "worst_boundary_forcing_error_w_m2": 5.518843803513278
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with diagnostic fitted coefficient scales",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 5.881710097857763,
+  "worst_surface_forcing_error_w_m2": 5.778982042235384,
+  "worst_boundary_forcing_error_w_m2": 5.881710097857763
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with latest preflight-optimized weights and coefficient scales",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 2.588652944311036,
+  "worst_surface_forcing_error_w_m2": 2.5662214073375935,
+  "worst_boundary_forcing_error_w_m2": 2.588652944311036
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with latest preflight-optimized weights, coefficient scales, and pressure-band table moves",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 2.311709885137816,
+  "worst_surface_forcing_error_w_m2": 2.757902059324806,
+  "worst_boundary_forcing_error_w_m2": 2.757902059324806
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with latest preflight table moves and reduced incoming shortwave spectral weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 2.311709885137816,
+  "worst_surface_forcing_error_w_m2": 2.757902059324806,
+  "worst_boundary_forcing_error_w_m2": 2.757902059324806
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with boundary-aware post-constrained weight refit",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 2.325872432747474,
+  "worst_surface_forcing_error_w_m2": 2.751094395294672,
+  "worst_boundary_forcing_error_w_m2": 2.751094395294672
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with boundary-aware table, component, structural, objective-probe, surface-probe, capped table, continuation, post-capped weight, post-weight surface-table, bounded weight, four current component-scale refits, selected current gas-pressure component scan refit, gas-pressure continuation refit, weighted gas-pressure continuation refit, and high-weight gas-pressure continuation refit",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 2.075241671208687,
+  "worst_surface_forcing_error_w_m2": 2.026956688318073,
+  "worst_boundary_forcing_error_w_m2": 2.075241671208687
+}, {
+  "source": "reduced_accuracy",
+  "label": "evenly selected official ecCKD g-points with least-squares fitted shortwave weights",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 56.88907090742123,
+  "worst_surface_forcing_error_w_m2": 118.95823596929245,
+  "worst_boundary_forcing_error_w_m2": 118.95823596929245
+}, {
+  "source": "reduced_accuracy",
+  "label": "evenly selected official ecCKD g-points with renormalized weights",
+  "ng_lw": 16,
+  "ng_sw": 16,
+  "total_gpoints": 32,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 92.3557392308254,
+  "worst_surface_forcing_error_w_m2": 171.6748445980652,
+  "worst_boundary_forcing_error_w_m2": 171.6748445980652
+}, {
+  "source": "reduced_accuracy",
+  "label": "adjacent official ecCKD g-point bins with spectral-weighted coefficient averages",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 66.04848850385326,
+  "worst_surface_forcing_error_w_m2": 164.9832350029278,
+  "worst_boundary_forcing_error_w_m2": 164.9832350029278
+}, {
+  "source": "reduced_accuracy",
+  "label": "adjacent official ecCKD g-point bins with spectral-weighted coefficient averages",
+  "ng_lw": 16,
+  "ng_sw": 16,
+  "total_gpoints": 32,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 79.97856182911323,
+  "worst_surface_forcing_error_w_m2": 156.746283353722,
+  "worst_boundary_forcing_error_w_m2": 156.746283353722
+}, {
+  "source": "reduced_accuracy",
+  "label": "cumulative spectral-weight bins with coefficient averages",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 81.05550822401597,
+  "worst_surface_forcing_error_w_m2": 215.16143285594512,
+  "worst_boundary_forcing_error_w_m2": 215.16143285594512
+}, {
+  "source": "reduced_accuracy",
+  "label": "cumulative spectral-weight bins with coefficient averages",
+  "ng_lw": 16,
+  "ng_sw": 16,
+  "total_gpoints": 32,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 94.98558154927593,
+  "worst_surface_forcing_error_w_m2": 206.5998016028641,
+  "worst_boundary_forcing_error_w_m2": 206.5998016028641
+}, {
+  "source": "reduced_accuracy",
+  "label": "non-adjacent coefficient-similarity shortwave g-point pairs with spectral-weighted coefficient averages",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 26.227976391784978,
+  "worst_surface_forcing_error_w_m2": 73.6097384691634,
+  "worst_boundary_forcing_error_w_m2": 73.6097384691634
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted-greedy anchor g-points plus nearest-neighbor coefficient-similarity bins",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 40.32007321120864,
+  "worst_surface_forcing_error_w_m2": 123.04044267584152,
+  "worst_boundary_forcing_error_w_m2": 123.04044267584152
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted-greedy anchor g-points plus nearest spectral-order Voronoi bins",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 40.360196621065484,
+  "worst_surface_forcing_error_w_m2": 125.54176578960312,
+  "worst_boundary_forcing_error_w_m2": 125.54176578960312
+}],
+  "pareto_front": [{
+  "source": "reduced_accuracy",
+  "label": "adjacent official ecCKD g-point bins with spectral-weighted coefficient averages",
+  "ng_lw": 16,
+  "ng_sw": 16,
+  "total_gpoints": 32,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 79.97856182911323,
+  "worst_surface_forcing_error_w_m2": 156.746283353722,
+  "worst_boundary_forcing_error_w_m2": 156.746283353722
+}, {
+  "source": "reduced_accuracy",
+  "label": "weighted greedy 16 shortwave g-point subset with boundary-aware table, component, structural, objective-probe, surface-probe, capped table, continuation, post-capped weight, post-weight surface-table, bounded weight, four current component-scale refits, selected current gas-pressure component scan refit, gas-pressure continuation refit, weighted gas-pressure continuation refit, and high-weight gas-pressure continuation refit",
+  "ng_lw": 32,
+  "ng_sw": 16,
+  "total_gpoints": 48,
+  "passed": false,
+  "worst_toa_forcing_error_w_m2": 2.075241671208687,
+  "worst_surface_forcing_error_w_m2": 2.026956688318073,
+  "worst_boundary_forcing_error_w_m2": 2.075241671208687
+}, {
+  "source": "reduced_accuracy",
+  "label": "official ecCKD 32x32 baseline without shortwave reduction",
+  "ng_lw": 32,
+  "ng_sw": 32,
+  "total_gpoints": 64,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.00806408713606288,
+  "worst_surface_forcing_error_w_m2": 0.014033547037797689,
+  "worst_boundary_forcing_error_w_m2": 0.014033547037797689
+}],
+  "published_inventory": [{
+  "filename": "ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "kind": "longwave",
+  "bands": 1,
+  "gpoints": 32,
+  "gases": "composite, h2o, o3, co2, ch4, n2o, cfc11, cfc12",
+  "source_tables_present": true,
+  "rayleigh_tables_present": false
+}, {
+  "filename": "ecckd-1.0_sw_climate_rgb-32b_ckd-definition.nc",
+  "kind": "shortwave",
+  "bands": 5,
+  "gpoints": 32,
+  "gases": "composite, h2o, o3, co2, ch4, n2o",
+  "source_tables_present": false,
+  "rayleigh_tables_present": true
+}, {
+  "filename": "ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "kind": "longwave",
+  "bands": 13,
+  "gpoints": 64,
+  "gases": "composite, h2o, o3, co2, ch4, n2o, cfc11, cfc12",
+  "source_tables_present": true,
+  "rayleigh_tables_present": false
+}, {
+  "filename": "ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
+  "kind": "shortwave",
+  "bands": 19,
+  "gpoints": 64,
+  "gases": "composite, h2o, o3, co2, ch4, n2o",
+  "source_tables_present": false,
+  "rayleigh_tables_present": true
+}, {
+  "filename": "ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc",
+  "kind": "shortwave",
+  "bands": 5,
+  "gpoints": 32,
+  "gases": "composite, h2o, o3, co2, ch4, n2o",
+  "source_tables_present": false,
+  "rayleigh_tables_present": true
+}, {
+  "filename": "ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
+  "kind": "shortwave",
+  "bands": 44,
+  "gpoints": 96,
+  "gases": "composite, h2o, o3, co2, ch4, n2o",
+  "source_tables_present": false,
+  "rayleigh_tables_present": true
+}],
+  "notes": "This artifact plots all currently available ecCKD reduced-accuracy rows. Published 64/96 definitions are inventoried and recovered by the teacher-student scan, but radiative accuracy for newly trained intermediate models remains future work."
+}

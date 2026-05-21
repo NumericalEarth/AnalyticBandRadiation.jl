@@ -1,0 +1,269 @@
+{
+  "case": "ecrad_all_sky_optics_gap",
+  "date": "2026-05-15T11:11:25.302",
+  "reference_case": "validation/reference/ecrad/ecckd_all_sky_tropical_column.nc",
+  "ecrad_properties": "validation/external/ecrad/test/ifs/radiative_properties_ecckd_tc.nc",
+  "candidate_configuration": [{
+  "variable": "RH_AEROSOL_OPTICS",
+  "value": "false"
+}, {
+  "variable": "RH_CANDIDATE_GAS_OPTICS",
+  "value": "official_ecckd"
+}, {
+  "variable": "RH_CLOUD_EFFECTIVE_RADIUS_OPTICS",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_FRACTION_EXPONENT",
+  "value": "0.5"
+}, {
+  "variable": "RH_CLOUD_LW_TABLE_EXTINCTION_AS_ABSORPTION",
+  "value": "false"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_RULE",
+  "value": "maximum"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_SHORTWAVE",
+  "value": "false"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_DELTA_EDDINGTON_AVERAGE",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_DELTA_EDDINGTON_SCALE",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_MAPPING_METHOD",
+  "value": "ecrad"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_SW_SSA_SCALE",
+  "value": "1.0"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_TABLE_OPTICS",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_THICK_AVERAGING",
+  "value": "true"
+}, {
+  "variable": "RH_ICE_CLOUD_EFFECTIVE_RADIUS_SW_SCALE",
+  "value": "1.0"
+}, {
+  "variable": "RH_ICE_CLOUD_LW_MASS_ABSORPTION",
+  "value": "50"
+}, {
+  "variable": "RH_ICE_CLOUD_SW_SCATTERING_ASYMMETRY",
+  "value": "0.75"
+}, {
+  "variable": "RH_ICE_CLOUD_SW_SINGLE_SCATTERING_ALBEDO",
+  "value": "1.0"
+}, {
+  "variable": "RH_LIQUID_CLOUD_EFFECTIVE_RADIUS_SW_SCALE",
+  "value": "1.0"
+}, {
+  "variable": "RH_LIQUID_CLOUD_LW_MASS_ABSORPTION",
+  "value": "100"
+}, {
+  "variable": "RH_LIQUID_CLOUD_SW_SCATTERING_ASYMMETRY",
+  "value": "0.85"
+}, {
+  "variable": "RH_LIQUID_CLOUD_SW_SINGLE_SCATTERING_ALBEDO",
+  "value": "1.0"
+}],
+  "rows": [{
+  "candidate_kind": "grid_mean_current",
+  "variable": "od_lw",
+  "candidate_variable": "od_lw",
+  "units": "1",
+  "rmse": 0.13825014719201661,
+  "max_abs": 2.798460396020617,
+  "mean_bias": 0.024135937870255066,
+  "mean_abs": 0.024289083527020878,
+  "reference_mean": 1.7051858914805649,
+  "candidate_mean": 1.72932182935082
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "od_lw_cloud",
+  "candidate_variable": "od_lw_cloud",
+  "units": "1",
+  "rmse": 2.003371066016663,
+  "max_abs": 21.03631061271473,
+  "mean_bias": -0.4881650267679167,
+  "mean_abs": 0.4881650267679167,
+  "reference_mean": 0.5122000585163483,
+  "candidate_mean": 0.024035031748431523
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "od_sw",
+  "candidate_variable": "od_sw",
+  "units": "1",
+  "rmse": 0.12760367591423707,
+  "max_abs": 2.5264846141702746,
+  "mean_bias": 0.021043966314526888,
+  "mean_abs": 0.021746261187513344,
+  "reference_mean": 0.13002934296200666,
+  "candidate_mean": 0.15107330927653354
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "ssa_sw",
+  "candidate_variable": "ssa_sw",
+  "units": "1",
+  "rmse": 0.17994992546441801,
+  "max_abs": 0.9552560702778152,
+  "mean_bias": 0.004287406837422469,
+  "mean_abs": 0.09183866894761336,
+  "reference_mean": 0.3290598824314516,
+  "candidate_mean": 0.3333472892688741
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "asymmetry_sw",
+  "candidate_variable": "asymmetry_sw",
+  "units": "1",
+  "rmse": 0.2255329552715145,
+  "max_abs": 0.4641749843893914,
+  "mean_bias": -0.13086370273591816,
+  "mean_abs": 0.18598590104935464,
+  "reference_mean": 0.21492205193371317,
+  "candidate_mean": 0.08405834919779502
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "od_sw_cloud",
+  "candidate_variable": "od_sw_cloud",
+  "units": "1",
+  "rmse": 0.9613508005821126,
+  "max_abs": 13.090856948724605,
+  "mean_bias": -0.2342995122010078,
+  "mean_abs": 0.2342995251755552,
+  "reference_mean": 0.25584342501085766,
+  "candidate_mean": 0.02154391280984983
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "ssa_sw_cloud",
+  "candidate_variable": "ssa_sw_cloud",
+  "units": "1",
+  "rmse": 7.710885987567267e-6,
+  "max_abs": 0.0002149325242516431,
+  "mean_bias": -1.4098151449174872e-6,
+  "mean_abs": 1.4313753720751557e-6,
+  "reference_mean": 0.1734887133722559,
+  "candidate_mean": 0.17348730355711098
+}, {
+  "candidate_kind": "grid_mean_current",
+  "variable": "asymmetry_sw_cloud",
+  "candidate_variable": "asymmetry_sw_cloud",
+  "units": "1",
+  "rmse": 0.05599017592241556,
+  "max_abs": 0.4584432670898466,
+  "mean_bias": -0.010982112208066441,
+  "mean_abs": 0.010982113318849279,
+  "reference_mean": 0.09504046140586145,
+  "candidate_mean": 0.08405834919779502
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "od_lw",
+  "candidate_variable": "cloudy_region_od_lw",
+  "units": "1",
+  "rmse": 3.0859501460330274,
+  "max_abs": 29.201636449249417,
+  "mean_bias": 0.7836299566880732,
+  "mean_abs": 0.7837757591319212,
+  "reference_mean": 1.7051858914805649,
+  "candidate_mean": 2.4888158481686378
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "od_lw_cloud",
+  "candidate_variable": "cloudy_region_od_lw_cloud",
+  "units": "1",
+  "rmse": 1.1927223180949649,
+  "max_abs": 15.319498020942941,
+  "mean_bias": 0.27132899204990135,
+  "mean_abs": 0.28052504601581496,
+  "reference_mean": 0.5122000585163483,
+  "candidate_mean": 0.7835290505662496
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "ssa_lw_cloud",
+  "candidate_variable": "cloudy_region_ssa_lw_cloud",
+  "units": "1",
+  "rmse": 0.18330345133936965,
+  "max_abs": 0.6702182353848714,
+  "mean_bias": 0.0777664506151125,
+  "mean_abs": 0.07778785158131803,
+  "reference_mean": 0.04103931581271417,
+  "candidate_mean": 0.11880576642782666
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "asymmetry_lw_cloud",
+  "candidate_variable": "cloudy_region_asymmetry_lw_cloud",
+  "units": "1",
+  "rmse": 0.1792110518051625,
+  "max_abs": 0.4772106378858688,
+  "mean_bias": 0.08006339345286542,
+  "mean_abs": 0.08006339345286542,
+  "reference_mean": 0.09440037603122467,
+  "candidate_mean": 0.1744637694840901
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "od_sw",
+  "candidate_variable": "cloudy_region_od_sw",
+  "units": "1",
+  "rmse": 0.9959844652952321,
+  "max_abs": 13.137933642329939,
+  "mean_bias": 0.25535113704996354,
+  "mean_abs": 0.2560190957376652,
+  "reference_mean": 0.13002934296200666,
+  "candidate_mean": 0.3853804800119701
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "ssa_sw",
+  "candidate_variable": "cloudy_region_ssa_sw",
+  "units": "1",
+  "rmse": 0.2556336577512447,
+  "max_abs": 0.9819428984628654,
+  "mean_bias": 0.04708576049853626,
+  "mean_abs": 0.1335005129699689,
+  "reference_mean": 0.3290598824314516,
+  "candidate_mean": 0.3761456429299879
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "asymmetry_sw",
+  "candidate_variable": "cloudy_region_asymmetry_sw",
+  "units": "1",
+  "rmse": 0.23475857333296385,
+  "max_abs": 0.4641749843893914,
+  "mean_bias": -0.11988154250814546,
+  "mean_abs": 0.19530104664212647,
+  "reference_mean": 0.21492205193371317,
+  "candidate_mean": 0.09504050942556769
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "od_sw_cloud",
+  "candidate_variable": "cloudy_region_od_sw_cloud",
+  "units": "1",
+  "rmse": 6.28953105577431e-5,
+  "max_abs": 0.0013623786800076587,
+  "mean_bias": 7.658534428758545e-6,
+  "mean_abs": 9.32993948313018e-6,
+  "reference_mean": 0.25584342501085766,
+  "candidate_mean": 0.2558510835452864
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "ssa_sw_cloud",
+  "candidate_variable": "cloudy_region_ssa_sw_cloud",
+  "units": "1",
+  "rmse": 7.71088598754908e-6,
+  "max_abs": 0.00021493252426463272,
+  "mean_bias": -1.4098151446467763e-6,
+  "mean_abs": 1.431375371631305e-6,
+  "reference_mean": 0.1734887133722559,
+  "candidate_mean": 0.17348730355711126
+}, {
+  "candidate_kind": "cloudy_region_delta_scaled",
+  "variable": "asymmetry_sw_cloud",
+  "candidate_variable": "cloudy_region_asymmetry_sw_cloud",
+  "units": "1",
+  "rmse": 5.055373745484925e-7,
+  "max_abs": 3.424625521541991e-5,
+  "mean_bias": 4.801970624686454e-8,
+  "mean_abs": 6.574177764725958e-8,
+  "reference_mean": 0.09504046140586145,
+  "candidate_mean": 0.09504050942556769
+}]
+}

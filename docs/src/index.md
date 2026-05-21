@@ -13,10 +13,11 @@ This package bundles two per-column radiation schemes:
   stratocumulus model, after Kucharski, Molteni & Bracco (2006).
 
 The column solvers are pure scalar operations — no allocations, no host-side
-loops, GPU-safe — so the same code can be driven by
-[SpeedyWeather.jl](https://github.com/SpeedyWeather/SpeedyWeather.jl) or by
-[Breeze](https://github.com/NumericalEarth/Breeze.jl). Package extensions
-wire each host automatically when both packages are loaded.
+loops, GPU-safe — so the same code can be driven by host models. A package
+extension wires [SpeedyWeather.jl](https://github.com/SpeedyWeather/SpeedyWeather.jl)
+when both packages are loaded. The Breeze integration is owned by Breeze in
+`Breeze.jl/ext/BreezeRadiativeHeatingExt`, so this package does not depend on
+Breeze.
 
 ## Installation
 

@@ -7,3 +7,9 @@ docs/site/
 *.jl.mem
 .DS_Store
 .vscode/
+validation/results/*_recovered_candidate.nc
+validation/results/ecckd_recovered_sw32_candidate.nc
+# External reference checkouts (ecrad, ecckd source, .deb packages).
+# These are user-provided or artifact-backed via Artifacts.toml; do not
+# track them in this repository.
+validation/external/

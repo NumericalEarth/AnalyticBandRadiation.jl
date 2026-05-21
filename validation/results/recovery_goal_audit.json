@@ -1,0 +1,187 @@
+{
+  "case": "recovery_goal_audit",
+  "timestamp_utc": "2026-05-20T19:13:12.792",
+  "status": "not_complete",
+  "blocked_count": 1,
+  "partial_count": 2,
+  "unmet_requirement_count": 3,
+  "unmet_requirement_ids": [
+    "ecrad_full_and_reduced_parity",
+    "reduced_vs_rrtmgp_representative_states",
+    "reactant_enzyme_ecckd_training_recovery"
+  ],
+  "reduced_model_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
+    "present": true,
+    "full_32x32_passed": true,
+    "reduced_candidates_present": true,
+    "reduced_candidates_passed": false,
+    "hard_boundary_forcing_threshold_w_m2": 0.3,
+    "official_32x32_worst_boundary_forcing_error_w_m2": 0.014033547037797689,
+    "best_reduced_candidate": {
+      "ng_lw": 32,
+      "ng_sw": 16,
+      "total_gpoints": 48,
+      "reduction_method": "weighted greedy 16 shortwave g-point subset with boundary-aware table, component, structural, objective-probe, surface-probe, capped table, continuation, post-capped weight, post-weight surface-table, bounded weight, four current component-scale refits, selected current gas-pressure component scan refit, gas-pressure continuation refit, weighted gas-pressure continuation refit, and high-weight gas-pressure continuation refit",
+      "passed": false,
+      "worst_toa_forcing_error_w_m2": 2.075241671208687,
+      "worst_surface_forcing_error_w_m2": 2.026956688318073,
+      "worst_boundary_forcing_error_w_m2": 2.075241671208687
+    },
+    "passing_band_counts": [
+      64
+    ],
+    "failing_reduced_band_counts": [
+      32,
+      48
+    ]
+  },
+  "breeze_summary": {
+    "artifact": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json",
+    "present": true,
+    "status": "final_4x_evidence",
+    "workload": "RCEMIP-style nontrivial column ensemble without expensive spinup",
+    "gas_model_kind": "official_ecCKD_32_lw_32_sw",
+    "gas_model_accuracy_status": "passed",
+    "runtime_supported": true,
+    "final_4x_claim_supported": true,
+    "speedup": 31.334824629779977,
+    "nsys_report": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/nsight/radiative_heating_rcemip_nsys.nsys-rep",
+    "ncu_report": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/nsight/radiative_heating_rcemip_ncu.ncu-rep"
+  },
+  "ckdmip_preflight_status": "ready_for_derived_flux_generation",
+  "derived_flux_plan_status": "derived_flux_generation_required",
+  "objective_reconstruction_status": "blocked_missing_original_training_assets",
+  "original_objective_assets_ready": false,
+  "derived_flux_progress": {
+    "expected": 18,
+    "final_present": 3,
+    "products_with_raw_chunks": 1,
+    "expected_raw_chunks": 90,
+    "present_raw_chunks": 3,
+    "completed_equivalent_raw_chunks": 18,
+    "observed_raw_chunk_rate_per_hour": 8.046269021356558,
+    "estimated_raw_chunk_hours_remaining": 10.81246472981241,
+    "missing": 15
+  },
+  "derived_flux_plan_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json",
+    "present": true,
+    "status": "derived_flux_generation_required",
+    "expected_derived_flux_count": 18,
+    "present_derived_flux_count": 3,
+    "raw_chunk_product_count": 1,
+    "present_raw_chunk_count": 3,
+    "expected_raw_chunk_count": 90,
+    "completed_equivalent_raw_chunk_count": 18,
+    "raw_chunk_rate": {
+      "first_raw_chunk_at_utc": "2026-05-20T18:50:47",
+      "latest_raw_chunk_at_utc": "2026-05-20T19:04:21",
+      "observed_raw_chunk_rate_per_hour": 8.046269021356558,
+      "estimated_hours_remaining": 10.81246472981241
+    },
+    "ncrcat": {
+      "present": true,
+      "path": "/shared/home/greg/.local/bin/ncrcat",
+      "julia_concat_shim": true,
+      "uses_julia_concat": true,
+      "note": "ncrcat resolves to the Julia concat shim used for CKDMIP raw chunk assembly."
+    }
+  },
+  "teacher_student_recovery_status": "passed",
+  "pareto_point_count": 22,
+  "requirements": [
+    {
+      "id": "ecrad_full_and_reduced_parity",
+      "requirement": "Demonstrate parity with ecRad for full-accuracy models and reduced ecCKD models such as 16- and 32-band variants.",
+      "status": "partial",
+      "evidence": [
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_accuracy_gate.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_all_sky_ifs_gate.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json"
+      ],
+      "finding": "Full official ecCKD 32x32 passes, but currently measured reduced 16-g shortwave candidates fail the hard thresholds."
+    },
+    {
+      "id": "reduced_vs_rrtmgp_representative_states",
+      "requirement": "Demonstrate that reduced models meet accuracy criteria when compared to RRTMGP for representative atmosphere states.",
+      "status": "partial",
+      "evidence": [
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_32g_rrtmgp_comparison.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json"
+      ],
+      "finding": "RRTMGP comparison metrics are emitted for the official 32x32 path on representative states, but reduced 16-g candidates do not yet pass hard accuracy criteria."
+    },
+    {
+      "id": "breeze_dynamic_integration",
+      "requirement": "Demonstrate that the new radiation models can be integrated into Breeze simulations dynamically without blowing them up.",
+      "status": "passed",
+      "evidence": [
+        "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json"
+      ],
+      "finding": "The dedicated Breeze RCEMIP-style H100 artifact records a supported official ecCKD 32/32 runtime, passed gas-model accuracy status, and a finite >=4x RRTMGP speedup."
+    },
+    {
+      "id": "reactant_enzyme_ecckd_training_recovery",
+      "requirement": "Reimplement the ecCKD training pipeline and demonstrate success by recovering one published model while varying only optimizer settings.",
+      "status": "blocked",
+      "evidence": [
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_teacher_student_recovery_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_objective_reconstruction_check.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ckdmip_training_data_preflight.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json"
+      ],
+      "finding": "Teacher-student coefficient recovery passes and upstream CKDMIP data is present, but exact original-objective recovery is blocked until the derived ecCKD 5gas/rel training flux products are generated."
+    }
+  ],
+  "prompt_to_artifact_checklist": [
+    {
+      "requirement_id": "ecrad_full_and_reduced_parity",
+      "prompt_requirement": "Demonstrate parity with ecRad for full-accuracy models and reduced ecCKD models such as 16- and 32-band variants.",
+      "coverage_status": "partial",
+      "evidence": [
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_accuracy_gate.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_all_sky_ifs_gate.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json"
+      ],
+      "covered": false,
+      "gap": "Full official ecCKD 32x32 passes, but currently measured reduced 16-g shortwave candidates fail the hard thresholds."
+    },
+    {
+      "requirement_id": "reduced_vs_rrtmgp_representative_states",
+      "prompt_requirement": "Demonstrate that reduced models meet accuracy criteria when compared to RRTMGP for representative atmosphere states.",
+      "coverage_status": "partial",
+      "evidence": [
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_32g_rrtmgp_comparison.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json"
+      ],
+      "covered": false,
+      "gap": "RRTMGP comparison metrics are emitted for the official 32x32 path on representative states, but reduced 16-g candidates do not yet pass hard accuracy criteria."
+    },
+    {
+      "requirement_id": "breeze_dynamic_integration",
+      "prompt_requirement": "Demonstrate that the new radiation models can be integrated into Breeze simulations dynamically without blowing them up.",
+      "coverage_status": "passed",
+      "evidence": [
+        "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json"
+      ],
+      "covered": true,
+      "gap": ""
+    },
+    {
+      "requirement_id": "reactant_enzyme_ecckd_training_recovery",
+      "prompt_requirement": "Reimplement the ecCKD training pipeline and demonstrate success by recovering one published model while varying only optimizer settings.",
+      "coverage_status": "blocked",
+      "evidence": [
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_teacher_student_recovery_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_objective_reconstruction_check.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ckdmip_training_data_preflight.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json"
+      ],
+      "covered": false,
+      "gap": "Teacher-student coefficient recovery passes and upstream CKDMIP data is present, but exact original-objective recovery is blocked until the derived ecCKD 5gas/rel training flux products are generated."
+    }
+  ]
+}

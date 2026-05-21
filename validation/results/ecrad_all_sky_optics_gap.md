@@ -1,0 +1,50 @@
+# ecRad All-Sky Optics Gap
+
+This diagnostic compares candidate optical properties against ecRad's saved all-sky `radiative_properties_ecckd_tc.nc` before radiative-transfer solving.
+
+| Candidate kind | Variable | RMSE | Max abs | Mean bias | Mean abs | Reference mean | Candidate mean |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `grid_mean_current` | `od_lw` | 0.138250147192 | 2.79846039602 | 0.0241359378703 | 0.024289083527 | 1.70518589148 | 1.72932182935 |
+| `grid_mean_current` | `od_lw_cloud` | 2.00337106602 | 21.0363106127 | -0.488165026768 | 0.488165026768 | 0.512200058516 | 0.0240350317484 |
+| `grid_mean_current` | `od_sw` | 0.127603675914 | 2.52648461417 | 0.0210439663145 | 0.0217462611875 | 0.130029342962 | 0.151073309277 |
+| `grid_mean_current` | `ssa_sw` | 0.179949925464 | 0.955256070278 | 0.00428740683742 | 0.0918386689476 | 0.329059882431 | 0.333347289269 |
+| `grid_mean_current` | `asymmetry_sw` | 0.225532955272 | 0.464174984389 | -0.130863702736 | 0.185985901049 | 0.214922051934 | 0.0840583491978 |
+| `grid_mean_current` | `od_sw_cloud` | 0.961350800582 | 13.0908569487 | -0.234299512201 | 0.234299525176 | 0.255843425011 | 0.0215439128098 |
+| `grid_mean_current` | `ssa_sw_cloud` | 7.71088598757e-06 | 0.000214932524252 | -1.40981514492e-06 | 1.43137537208e-06 | 0.173488713372 | 0.173487303557 |
+| `grid_mean_current` | `asymmetry_sw_cloud` | 0.0559901759224 | 0.45844326709 | -0.0109821122081 | 0.0109821133188 | 0.0950404614059 | 0.0840583491978 |
+| `cloudy_region_delta_scaled` | `od_lw` | 3.08595014603 | 29.2016364492 | 0.783629956688 | 0.783775759132 | 1.70518589148 | 2.48881584817 |
+| `cloudy_region_delta_scaled` | `od_lw_cloud` | 1.19272231809 | 15.3194980209 | 0.27132899205 | 0.280525046016 | 0.512200058516 | 0.783529050566 |
+| `cloudy_region_delta_scaled` | `ssa_lw_cloud` | 0.183303451339 | 0.670218235385 | 0.0777664506151 | 0.0777878515813 | 0.0410393158127 | 0.118805766428 |
+| `cloudy_region_delta_scaled` | `asymmetry_lw_cloud` | 0.179211051805 | 0.477210637886 | 0.0800633934529 | 0.0800633934529 | 0.0944003760312 | 0.174463769484 |
+| `cloudy_region_delta_scaled` | `od_sw` | 0.995984465295 | 13.1379336423 | 0.25535113705 | 0.256019095738 | 0.130029342962 | 0.385380480012 |
+| `cloudy_region_delta_scaled` | `ssa_sw` | 0.255633657751 | 0.981942898463 | 0.0470857604985 | 0.13350051297 | 0.329059882431 | 0.37614564293 |
+| `cloudy_region_delta_scaled` | `asymmetry_sw` | 0.234758573333 | 0.464174984389 | -0.119881542508 | 0.195301046642 | 0.214922051934 | 0.0950405094256 |
+| `cloudy_region_delta_scaled` | `od_sw_cloud` | 6.28953105577e-05 | 0.00136237868001 | 7.65853442876e-06 | 9.32993948313e-06 | 0.255843425011 | 0.255851083545 |
+| `cloudy_region_delta_scaled` | `ssa_sw_cloud` | 7.71088598755e-06 | 0.000214932524265 | -1.40981514465e-06 | 1.43137537163e-06 | 0.173488713372 | 0.173487303557 |
+| `cloudy_region_delta_scaled` | `asymmetry_sw_cloud` | 5.05537374548e-07 | 3.42462552154e-05 | 4.80197062469e-08 | 6.57417776473e-08 | 0.0950404614059 | 0.0950405094256 |
+
+## Candidate Configuration
+
+| Environment variable | Value |
+|---|---|
+| `RH_AEROSOL_OPTICS` | `false` |
+| `RH_CANDIDATE_GAS_OPTICS` | `official_ecckd` |
+| `RH_CLOUD_EFFECTIVE_RADIUS_OPTICS` | `true` |
+| `RH_CLOUD_FRACTION_EXPONENT` | `0.5` |
+| `RH_CLOUD_LW_TABLE_EXTINCTION_AS_ABSORPTION` | `false` |
+| `RH_CLOUD_OVERLAP_RULE` | `maximum` |
+| `RH_CLOUD_OVERLAP_SHORTWAVE` | `false` |
+| `RH_CLOUD_SCATTERING_DELTA_EDDINGTON_AVERAGE` | `true` |
+| `RH_CLOUD_SCATTERING_DELTA_EDDINGTON_SCALE` | `true` |
+| `RH_CLOUD_SCATTERING_MAPPING_METHOD` | `ecrad` |
+| `RH_CLOUD_SCATTERING_SW_SSA_SCALE` | `1.0` |
+| `RH_CLOUD_SCATTERING_TABLE_OPTICS` | `true` |
+| `RH_CLOUD_SCATTERING_THICK_AVERAGING` | `true` |
+| `RH_ICE_CLOUD_EFFECTIVE_RADIUS_SW_SCALE` | `1.0` |
+| `RH_ICE_CLOUD_LW_MASS_ABSORPTION` | `50` |
+| `RH_ICE_CLOUD_SW_SCATTERING_ASYMMETRY` | `0.75` |
+| `RH_ICE_CLOUD_SW_SINGLE_SCATTERING_ALBEDO` | `1.0` |
+| `RH_LIQUID_CLOUD_EFFECTIVE_RADIUS_SW_SCALE` | `1.0` |
+| `RH_LIQUID_CLOUD_LW_MASS_ABSORPTION` | `100` |
+| `RH_LIQUID_CLOUD_SW_SCATTERING_ASYMMETRY` | `0.85` |
+| `RH_LIQUID_CLOUD_SW_SINGLE_SCATTERING_ALBEDO` | `1.0` |

@@ -1,0 +1,78 @@
+# ecCKD Files
+
+The core package defines dependency-free ecCKD schema objects:
+
+- [`EcCKDDefinition`](@ref) stores model name, version, dimensions, variables,
+  and global attributes.
+- [`summarize_ecckd_definition`](@ref) extracts benchmark/report metadata such
+  as LW/SW band counts, g-point counts, gases, pressure/temperature grid sizes,
+  and source/Rayleigh table availability.
+- [`validate_ecckd_definition`](@ref) checks required dimensions and variable
+  groups before any runtime gas-optics model is constructed.
+
+NetCDF-backed loading lives in `AnalyticBandRadiationNCDatasetsExt`, so
+`NCDatasets.jl` is an optional dependency rather than a hard dependency of the
+standalone runtime package. Load `NCDatasets` before calling
+`read_ecckd_definition(path::String)`:
+
+```julia
+using AnalyticBandRadiation
+using NCDatasets
+
+definition = read_ecckd_definition("ecckd-definition.nc")
+summary = summarize_ecckd_definition(definition)
+validate_ecckd_definition(definition)
+```
+
+Without `NCDatasets`, path-based loading throws a clear error while the core
+schema types remain available.
+
+## Official ecCKD Data
+
+The package resolves official ecCKD definition files through
+`Artifacts.toml`. The pinned `ecrad_data` artifact points at the upstream ecRad
+source archive used by the validation suite. Users can override this with
+`RH_ECRAD_DATA_PATH` when they already have an ecRad checkout or unpacked data
+directory.
+
+```julia
+using AnalyticBandRadiation
+
+official_ecckd_model_inventory()
+paths = official_ecckd_definition_paths()
+paths.longwave
+paths.shortwave
+```
+
+Resolution order is:
+
+1. `RH_ECRAD_DATA_PATH`
+2. lazy `ecrad_data` artifact
+3. local validation checkout at `validation/external/ecrad`
+
+Individual files can be addressed by filename or by stable keys:
+`:longwave_32`, `:shortwave_32`, `:longwave_64`, `:shortwave_64`, and
+`:shortwave_96`.
+
+## Official ecCKD Source
+
+The package also resolves the official ecCKD source tree through the lazy
+`ecckd_source` artifact. This is the small C++/shell source release containing
+the original `optimize_lut`, cost-function, and training-script machinery. It
+does not include the large CKDMIP line-by-line spectral absorption database.
+
+```julia
+using AnalyticBandRadiation
+
+source = ecckd_source_path()
+joinpath(source, "src", "ecckd", "optimize_lut.cpp")
+```
+
+Resolution order is:
+
+1. `RH_ECCKD_SOURCE_PATH`
+2. lazy `ecckd_source` artifact
+3. local validation checkout at `validation/external/ecckd`
+
+Exact reconstruction of the published ecCKD training problem still requires the
+CKDMIP line-by-line training database in addition to this source tree.
