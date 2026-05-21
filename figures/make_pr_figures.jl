@@ -5,6 +5,7 @@ using Statistics
 
 const REPO_ROOT = abspath(joinpath(@__DIR__, ".."))
 const OUT_DIR = @__DIR__
+const LOCAL_BENCH_RESULTS = joinpath(REPO_ROOT, "benchmarking", "results")
 const BREEZE_RESULTS = "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results"
 
 set_theme!(theme_minimal())
@@ -90,65 +91,112 @@ end
 # -----------------------------------------------------------------------------
 
 function figure_h100_speedup()
-    pareto = JSON.parsefile(joinpath(BREEZE_RESULTS, "reduced_pareto/radiative_heating_reduced_pareto_latest.json"))
-    rcemip32 = JSON.parsefile(joinpath(BREEZE_RESULTS, "rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json"))
+    # Prefer the independent benchmarking project's results (this repo); fall
+    # back to the dedicated Breeze checkout for older runs that haven't been
+    # re-measured under the new streaming kernel yet.
+    function load_local(label)
+        path = joinpath(LOCAL_BENCH_RESULTS, "rcemip_h100_$(label)",
+                        "radiative_heating_rcemip_latest.json")
+        isfile(path) ? JSON.parsefile(path) : nothing
+    end
 
-    # Single, defensible RRTMGP baseline: 3-sample median from the production
-    # benchmark (samples=3, post-warmup, status=final_4x_evidence).
-    rrtmgp_baseline_ms = Float64(rcemip32["rrtmgp_update_median_ms"])
-    rrtmgp_samples = Int(get(rcemip32, "samples", 0))
+    local_kmodels = [
+        ("32x32_validated_ecckd", 32, 32),
+        ("32x64_validated_ecckd", 32, 64),
+        ("32x96_validated_ecckd", 32, 96),
+        ("64x32_validated_ecckd", 64, 32),
+        ("64x64_validated_ecckd", 64, 64),
+    ]
 
-    # Each row: (label, ng_lw, ng_sw, RH ms, source, samples).
-    # source ∈ {:validated, :scaffold, :pending}
     rh_rows = Vector{NamedTuple}(undef, 0)
 
-    push!(rh_rows, (
-        label = "32 LW × 32 SW",
-        ng_lw = 32, ng_sw = 32,
-        rh_ms = Float64(rcemip32["radiative_heating_update_median_ms"]),
-        source = :validated,
-        samples = Int(get(rcemip32, "samples", 0))))
+    # Single, defensible RRTMGP baseline: pull from the 32x32 local run if
+    # available (consistent grid size with the rest of the local sweep);
+    # otherwise fall back to the dedicated Breeze production run.
+    local_32x32 = load_local("32x32_validated_ecckd")
+    if local_32x32 !== nothing && local_32x32["rrtmgp_update_median_ms"] !== nothing
+        rrtmgp_baseline_ms = Float64(local_32x32["rrtmgp_update_median_ms"])
+        rrtmgp_samples = Int(get(local_32x32, "samples", 0))
+        baseline_source = "local benchmarking/results/rcemip_h100_32x32_validated_ecckd"
+    else
+        rcemip32 = JSON.parsefile(joinpath(BREEZE_RESULTS,
+                                           "rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json"))
+        rrtmgp_baseline_ms = Float64(rcemip32["rrtmgp_update_median_ms"])
+        rrtmgp_samples = Int(get(rcemip32, "samples", 0))
+        baseline_source = "Breeze checkout rcemip_h100_32x32x64 (legacy)"
+        # Seed the headline 32x32 row from the legacy artifact if local doesn't exist.
+        push!(rh_rows, (
+            label = "32 LW × 32 SW",
+            ng_lw = 32, ng_sw = 32,
+            rh_ms = Float64(rcemip32["radiative_heating_update_median_ms"]),
+            source = :validated,
+            samples = Int(get(rcemip32, "samples", 0)),
+            grid = (32, 32, 64),
+            origin = :legacy))
+    end
 
-    for model in pareto["models"]
-        rh = get(model, "radiative_heating_update_median_ms", nothing)
-        (rh === nothing) && continue
-        nx = get(model, "nx", 0); ny = get(model, "ny", 0); nz = get(model, "nz", 0)
-        nx*ny*nz < 32*32*64 && continue
-        ng_lw = Int(model["ng_lw"]); ng_sw = Int(model["ng_sw"])
-        kind = get(model, "gas_model_kind", "")
-        source = occursin("validated", kind) ? :validated :
-                 occursin("fixed", kind) ? :scaffold : :scaffold
+    # Local benchmarking/results sweep (preferred — these are streaming-kernel
+    # runs at the production grid).
+    for (label, ng_lw, ng_sw) in local_kmodels
+        d = load_local(label)
+        d === nothing && continue
+        rh = get(d, "radiative_heating_update_median_ms", nothing)
+        rh === nothing && continue
+        grid = get(d, "grid", Dict{String, Any}())
+        nx = Int(get(grid, "nx", 0)); ny = Int(get(grid, "ny", 0)); nz = Int(get(grid, "nz", 0))
+        # Drop legacy row if local replaces it.
+        filter!(r -> !(r.ng_lw == ng_lw && r.ng_sw == ng_sw), rh_rows)
         push!(rh_rows, (
             label = "$(ng_lw) LW × $(ng_sw) SW",
             ng_lw = ng_lw, ng_sw = ng_sw,
             rh_ms = Float64(rh),
-            source = source,
-            samples = 1))
+            source = :validated,
+            samples = Int(get(d, "samples", 0)),
+            grid = (nx, ny, nz),
+            origin = :local))
     end
 
-    # Published ecCKD k-models that exist in our artifact inventory but have
-    # not been benchmarked on H100. Mark them as :pending so the gap is visible.
+    # Mark any remaining published ecCKD k-models that have no measurement yet.
     benchmarked = Set((r.ng_lw, r.ng_sw) for r in rh_rows)
-    for (ng_lw, ng_sw, label) in [(64, 32, "64 LW × 32 SW"),
-                                    (32, 64, "32 LW × 64 SW"),
-                                    (32, 96, "32 LW × 96 SW"),
-                                    (64, 64, "64 LW × 64 SW")]
+    for (ng_lw, ng_sw) in [(64, 32), (32, 64), (32, 96), (64, 64)]
         if !((ng_lw, ng_sw) in benchmarked)
-            push!(rh_rows, (label = label, ng_lw = ng_lw, ng_sw = ng_sw,
-                            rh_ms = NaN, source = :pending, samples = 0))
+            push!(rh_rows, (
+                label = "$(ng_lw) LW × $(ng_sw) SW",
+                ng_lw = ng_lw, ng_sw = ng_sw,
+                rh_ms = NaN,
+                source = :pending,
+                samples = 0,
+                grid = (0, 0, 0),
+                origin = :pending))
         end
     end
 
     # Sort by total g-points descending
     sort!(rh_rows; by = r -> -(r.ng_lw + r.ng_sw))
 
+    # Title carries the grid size for the local rows so the figure is honest
+    # about workload. Mixed-origin sweeps annotate each bar with its own grid.
+    local_grids = unique(r.grid for r in rh_rows if r.origin == :local)
+    grid_title = if length(local_grids) == 1
+        nx, ny, nz = local_grids[1]
+        "RCEMIP-style $(nx)×$(ny)×$(nz) / $(nx*ny) columns"
+    elseif !isempty(local_grids)
+        "RCEMIP-style — grid per bar"
+    else
+        "RCEMIP-style (legacy 32×32×64 / 1024 columns)"
+    end
+
     fig = Figure(size = (1400, 760))
     Label(fig[1, 1:2],
-          "RadiativeHeating.jl vs a single RRTMGP baseline on H100\nRCEMIP-style 32×32×64 / 1024 columns";
+          "RadiativeHeating.jl vs a single RRTMGP baseline on H100\n" * grid_title;
           fontsize = 18, font = :bold, tellwidth = false, justification = :center)
 
-    # Left panel: the single defensible head-to-head — validated 32x32 vs RRTMGP
-    headline = rh_rows[findfirst(r -> r.source == :validated, rh_rows)]
+    # Left panel: head-to-head against the validated 32×32 production target.
+    headline_idx = findfirst(r -> r.source == :validated && r.ng_lw == 32 && r.ng_sw == 32, rh_rows)
+    if headline_idx === nothing
+        headline_idx = findfirst(r -> r.source == :validated, rh_rows)
+    end
+    headline = rh_rows[headline_idx]
     ax1 = Axis(fig[2, 1];
                title = "Head-to-head (production, post-warmup median)",
                ylabel = "radiation update median [ms]\n(lower is faster)",
@@ -210,20 +258,27 @@ function figure_h100_speedup()
 
     ylims!(ax2, 0.3, rrtmgp_baseline_ms * 3)
 
-    # Legend explaining the provenance colors and the caveats
-    elems = [
-        PolyElement(color = color_map[:validated]),
-        PolyElement(color = color_map[:scaffold]),
-        PolyElement(color = color_map[:pending], strokecolor = :gray, strokewidth = 1),
-    ]
-    labels = [
-        "validated ecCKD (samples=3, production)",
-        "fixed-coeff scaffold (samples=1, single-shot)",
-        "published ecCKD model, no H100 timing yet",
-    ]
-    Legend(fig[3, 1:2], elems, labels;
-           orientation = :horizontal, framecolor = (:gray, 0.6),
-           tellheight = true, tellwidth = false)
+    # Provenance legend — only include the categories actually present.
+    elems = []
+    labels = String[]
+    if any(r -> r.source == :validated, rh_rows)
+        push!(elems, PolyElement(color = color_map[:validated]))
+        push!(labels, "validated ecCKD (samples=$(rrtmgp_samples), post-warmup median)")
+    end
+    if any(r -> r.source == :scaffold, rh_rows)
+        push!(elems, PolyElement(color = color_map[:scaffold]))
+        push!(labels, "fixed-coeff scaffold (samples=1, single-shot legacy)")
+    end
+    if any(r -> r.source == :pending, rh_rows)
+        push!(elems, PolyElement(color = color_map[:pending],
+                                 strokecolor = :gray, strokewidth = 1))
+        push!(labels, "published ecCKD model, no H100 timing yet")
+    end
+    if !isempty(elems)
+        Legend(fig[3, 1:2], elems, labels;
+               orientation = :horizontal, framecolor = (:gray, 0.6),
+               tellheight = true, tellwidth = false)
+    end
 
     colsize!(fig.layout, 1, Relative(0.32))
     save(joinpath(OUT_DIR, "fig2_h100_speedup.png"), fig; px_per_unit = 2)

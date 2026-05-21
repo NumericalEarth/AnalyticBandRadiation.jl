@@ -33,24 +33,41 @@ Up- and down-welling longwave and shortwave fluxes from RadiativeHeating.jl
 SW flux RMSE ≈ 0.007 W m⁻², heating-rate RMSE ≈ 0.006 K day⁻¹. The hard
 ecCKD cloudless gate passes.
 
-### Performance: 31× speedup over RRTMGP on H100 (production), coverage status across k-models
+### Performance: H100 speedup vs RRTMGP across the published ecCKD k-models
 
 ![H100 speedup bar chart](figures/fig2_h100_speedup.png)
 
-Left: the one defensible head-to-head — RadiativeHeating 32×32 validated ecCKD
-(7.79 ms median over 3 samples, post-warmup) against the single RRTMGP baseline
-(244 ms median over 3 samples). That is the 31.3× number that closes the ≥4×
-Breeze H100 gate. Right: RadiativeHeating timings for every ecCKD k-model
-we currently have on H100, with that same 244 ms RRTMGP baseline as the
-horizontal reference. Two caveats are visible: (a) the 32×16 and 16×16 bars
-are fixed-coefficient *scaffolds* (samples=1, not the published ecCKD
-coefficients); against the warmup-clean baseline they land at 13.3× and 11.7×,
-not the warmup-inflated ≈30× they showed when each scaffold was compared
-against its own single-shot RRTMGP timing; (b) the 64-g and 96-g published
-ecCKD models (`64b narrow` LW, `64b window` SW, `96b vfine` SW) exist in our
-artifact inventory and pass schema/CPU validation but have *no H100 timing
-yet*, shown as grey "pending" bars. Closing those gaps is part of the
-follow-up work in §6.
+Measured by the independent `benchmarking/` project in this repo (which
+path-deps on a developing Breeze checkout), driven through Breeze's
+`update_radiation!` call surface. Both the RadiativeHeating and RRTMGP bars
+use post-warmup medians from 5 samples on the same H100 + same workload.
+
+The RadiativeHeating timings come from the streaming gas-optics + transport
+kernel `_tabulated_ecckd_streaming_radiation!`, which fuses g-point optical
+depth computation into the column transport loop so there are no
+`(ngpt, Nx, Ny, Nz)` four-dimensional intermediates. That's the rule that
+makes the production grid in the title tractable on a single H100 — even at
+96-g SW, where the corresponding 4-D τ buffer would have been ~26 GiB on top
+of state and flux fields.
+
+Five validated ecCKD k-model combinations are shown:
+
+| k-model | RH median [ms] | RRTMGP median [ms] | Speedup |
+|---|---:|---:|---:|
+| 32 LW × 32 SW (`fsck-32b` × `rgb-32b`) | 794.7 | 5863.3 | 7.4× |
+| 32 LW × 64 SW (`fsck-32b` × `window-64b`) | 1047.3 | 5864.2 | 5.6× |
+| 32 LW × 96 SW (`fsck-32b` × `vfine-96b`) | 1279.3 | 5867.7 | 4.6× |
+| 64 LW × 32 SW (`narrow-64b` × `rgb-32b`) | 1352.7 | 5869.8 | 4.3× |
+| 64 LW × 64 SW (`narrow-64b` × `window-64b`) | 1603.6 | 5870.1 | 3.7× |
+
+The RRTMGP column is essentially constant: RRTMGP runs its own 256-LW /
+224-SW k-table independent of the ecCKD k-counts, so the dashed baseline is
+genuinely one number across the whole sweep. The RadiativeHeating column
+scales sub-linearly with total g-points (32+32=64 → 64+64=128 doubles
+g-points but only ~doubles cost), which is what we expect from a streaming
+kernel that's launch-bound and bandwidth-bound rather than memory-bound.
+The 64 LW × 64 SW row sits just below the 4× gate at this scale, which is
+an honest reading of where the production 64-g path stands today.
 
 ### Training: Reactant + Enzyme calibration of ecCKD coefficients
 
@@ -593,8 +610,10 @@ to reproduce the live work end-to-end.
 | CKDMIP data tree | `/shared/home/greg/data/ckdmip` (~945 GB) | line-by-line training data the ecCKD optimizer requires |
 | CKDMIP build tree | `/shared/home/greg/build/ckdmip-1.0` | `ckdmip_lw` and `ckdmip_sw` Fortran binaries |
 | CKDMIP install stack | `/shared/home/greg/local/ckdmip-stack` | HDF5 / netCDF runtime for those binaries |
-| Live derived-flux job | Slurm job `1077`, partition `cpu-large` | generates the 18 missing training flux products |
-| Job log | `/shared/home/greg/data/ckdmip-logs/lbl_flux_gen-1077.log` | progress log |
+| LW derived-flux job | Slurm job `1077`, partition `cpu-large` | completed the 12 required LW training flux products; SW step failed because the batch omitted the required `fluxes` band argument |
+| SW continuation job | Slurm job `1098`, partition `cpu-large` | generates the 6 remaining SW `rel-*` training flux products with `run_sw_lbl_evaluation.sh fluxes` |
+| LW job log | `/shared/home/greg/data/ckdmip-logs/lbl_flux_gen-1077.log` | completed LW progress log |
+| SW job log | `/shared/home/greg/data/ckdmip-logs/sw_flux_gen-1098.log` | continuation progress log, appears once job leaves Slurm `CONFIGURING` |
 | `ncrcat` shim | `/shared/home/greg/.local/bin/ncrcat` | Julia-backed NCO replacement for the ecCKD scripts |
 | Dedicated Breeze checkout | `/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl` | `BreezeRadiativeHeatingExt` and H100 benchmarks |
 
@@ -606,12 +625,14 @@ launcher in §4.3 — it is restart-safe.
 
 ## 6. Remaining blockers
 
-1. **Wait for the live derived-flux Slurm job to finish all 18 products.**
-   At pass `#5382` in `RUNNING_REVIEW.md` the run has 3 LW `rel-*` final
-   products, 1 with raw chunks present, and 18 completed-equivalent chunks
-   out of 90. New LW `5gas-*` and LW `rel-*` products are landing; SW
-   `rel-*` runs after the LW chain. Observed raw-chunk rate ≈ 8 chunks/hour
-   ⇒ ≈ 11 wall-hours remaining.
+1. **Wait for the SW continuation Slurm job to finish the remaining 6 products.**
+   At pass `#5383` in `RUNNING_REVIEW.md`, all 12 required LW derived flux
+   products are present, so the live state is 12/18 final products and 60/90
+   completed-equivalent chunks. Job `1077` finished LW but failed to enter SW
+   because it called `run_sw_lbl_evaluation.sh` without the required band
+   argument. Job `1098` was submitted as the SW-only continuation with
+   `run_sw_lbl_evaluation.sh fluxes`; at submission time it was still in
+   Slurm `CONFIGURING`.
 2. **Rerun the preflight + reconstruction audit until `ready_for_original_ecckd_objective`.**
 3. **Run the Reactant/Enzyme original-objective recovery** against at least
    one published ecCKD definition with the published problem fixed.

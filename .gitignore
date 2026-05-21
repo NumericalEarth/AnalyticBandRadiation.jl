@@ -1,6 +1,8 @@
 Manifest.toml
 docs/Manifest.toml
 figures/Manifest.toml
+benchmarking/Manifest.toml
+benchmarking/results/cpu_smoke*/
 docs/build/
 docs/site/
 *.jl.*.cov
