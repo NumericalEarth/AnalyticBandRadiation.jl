@@ -11,28 +11,19 @@ The 5gas-* and rel-* flux products are generated ecCKD training targets, not pub
 ## Progress
 
 - Expected derived flux products: 18
-- Final products present: 3
-- Products with raw chunks present: 1
-- Raw chunks present: 3/90
-- Completed-equivalent raw chunks: 18/90
-- Observed raw chunk rate: `8.046269021356558` chunks/hour
-- Estimated raw chunk hours remaining: `10.81246472981241`
+- Final products present: 12
+- Products with raw chunks present: 0
+- Raw chunks present: 0/90
+- Completed-equivalent raw chunks: 60/90
+- Observed raw chunk rate: `nothing` chunks/hour
+- Estimated raw chunk hours remaining: `nothing`
 
 ## Missing Derived Products
 
-Missing derived flux products: 15
+Missing derived flux products: 6
 
 | Path | Domain | Scenario | Script |
 |---|---|---|---|
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_5gas-1120.h5` | `lw` | `5gas-1120` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_5gas-180.h5` | `lw` | `5gas-180` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_5gas-2240.h5` | `lw` | `5gas-2240` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_5gas-280.h5` | `lw` | `5gas-280` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_5gas-415.h5` | `lw` | `5gas-415` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_5gas-560.h5` | `lw` | `5gas-560` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-1120.h5` | `lw` | `rel-1120` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-2240.h5` | `lw` | `rel-2240` | `test/run_lw_lbl_evaluation.sh` |
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-560.h5` | `lw` | `rel-560` | `test/run_lw_lbl_evaluation.sh` |
 | `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-1120.h5` | `sw` | `rel-1120` | `test/run_sw_lbl_evaluation.sh` |
 | `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-180.h5` | `sw` | `rel-180` | `test/run_sw_lbl_evaluation.sh` |
 | `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-2240.h5` | `sw` | `rel-2240` | `test/run_sw_lbl_evaluation.sh` |
@@ -42,9 +33,7 @@ Missing derived flux products: 15
 
 ## Raw Chunk Progress
 
-| Path | Final present | Raw chunks | Missing chunks | Raw bytes |
-|---|---:|---:|---:|---:|
-| `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-560.h5` | false | 3/5 | 2 | 258835 |
+No raw chunks are present yet.
 
 ## Required ecCKD Scripts
 

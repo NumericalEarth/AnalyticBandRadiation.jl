@@ -10,11 +10,11 @@ Status: **not_complete**
 - CKDMIP preflight status: `ready_for_derived_flux_generation`
 - Derived flux generation plan status: `derived_flux_generation_required`
 - Original objective assets ready: false
-- Derived flux products: 3/18 final present, 1 with raw chunks
-- Derived raw chunks: 3/90
-- Completed-equivalent derived raw chunks: 18/90
-- Observed derived raw chunk rate: `8.046269021356558` chunks/hour
-- Estimated derived raw chunk hours remaining: `10.81246472981241`
+- Derived flux products: 12/18 final present, 0 with raw chunks
+- Derived raw chunks: 0/90
+- Completed-equivalent derived raw chunks: 60/90
+- Observed derived raw chunk rate: `nothing` chunks/hour
+- Estimated derived raw chunk hours remaining: `nothing`
 - `ncrcat` concat tool: `present=true, path=/shared/home/greg/.local/bin/ncrcat, julia_concat_shim=true`
 - Pareto points: 22
 - Hard boundary forcing threshold: `0.3` W m^-2

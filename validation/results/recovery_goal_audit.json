@@ -1,6 +1,6 @@
 {
   "case": "recovery_goal_audit",
-  "timestamp_utc": "2026-05-20T19:13:12.792",
+  "timestamp_utc": "2026-05-21T15:03:47.361",
   "status": "not_complete",
   "blocked_count": 1,
   "partial_count": 2,
@@ -55,30 +55,30 @@
   "original_objective_assets_ready": false,
   "derived_flux_progress": {
     "expected": 18,
-    "final_present": 3,
-    "products_with_raw_chunks": 1,
+    "final_present": 12,
+    "products_with_raw_chunks": 0,
     "expected_raw_chunks": 90,
-    "present_raw_chunks": 3,
-    "completed_equivalent_raw_chunks": 18,
-    "observed_raw_chunk_rate_per_hour": 8.046269021356558,
-    "estimated_raw_chunk_hours_remaining": 10.81246472981241,
-    "missing": 15
+    "present_raw_chunks": 0,
+    "completed_equivalent_raw_chunks": 60,
+    "observed_raw_chunk_rate_per_hour": null,
+    "estimated_raw_chunk_hours_remaining": null,
+    "missing": 6
   },
   "derived_flux_plan_summary": {
     "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json",
     "present": true,
     "status": "derived_flux_generation_required",
     "expected_derived_flux_count": 18,
-    "present_derived_flux_count": 3,
-    "raw_chunk_product_count": 1,
-    "present_raw_chunk_count": 3,
+    "present_derived_flux_count": 12,
+    "raw_chunk_product_count": 0,
+    "present_raw_chunk_count": 0,
     "expected_raw_chunk_count": 90,
-    "completed_equivalent_raw_chunk_count": 18,
+    "completed_equivalent_raw_chunk_count": 60,
     "raw_chunk_rate": {
-      "first_raw_chunk_at_utc": "2026-05-20T18:50:47",
-      "latest_raw_chunk_at_utc": "2026-05-20T19:04:21",
-      "observed_raw_chunk_rate_per_hour": 8.046269021356558,
-      "estimated_hours_remaining": 10.81246472981241
+      "first_raw_chunk_at_utc": null,
+      "latest_raw_chunk_at_utc": null,
+      "observed_raw_chunk_rate_per_hour": null,
+      "estimated_hours_remaining": null
     },
     "ncrcat": {
       "present": true,
