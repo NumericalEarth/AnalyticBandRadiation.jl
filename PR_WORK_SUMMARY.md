@@ -33,15 +33,24 @@ Up- and down-welling longwave and shortwave fluxes from RadiativeHeating.jl
 SW flux RMSE ≈ 0.007 W m⁻², heating-rate RMSE ≈ 0.006 K day⁻¹. The hard
 ecCKD cloudless gate passes.
 
-### Performance: ≈30× speedup over RRTMGP on H100 across k-models
+### Performance: 31× speedup over RRTMGP on H100 (production), coverage status across k-models
 
 ![H100 speedup bar chart](figures/fig2_h100_speedup.png)
 
-Median radiation-update timing on an H100 RCEMIP-style 32×32×64 / 1024-column
-workload, taken from the dedicated Breeze checkout (see §4.4). The validated
-ecCKD 32×32 production path closes the ≥4× Breeze H100 gate by ≈31×; the
-fixed-coefficient 32×16 and 16×16 scaffolds confirm the speedup at the
-smaller k-models where the optimizer search is still ongoing.
+Left: the one defensible head-to-head — RadiativeHeating 32×32 validated ecCKD
+(7.79 ms median over 3 samples, post-warmup) against the single RRTMGP baseline
+(244 ms median over 3 samples). That is the 31.3× number that closes the ≥4×
+Breeze H100 gate. Right: RadiativeHeating timings for every ecCKD k-model
+we currently have on H100, with that same 244 ms RRTMGP baseline as the
+horizontal reference. Two caveats are visible: (a) the 32×16 and 16×16 bars
+are fixed-coefficient *scaffolds* (samples=1, not the published ecCKD
+coefficients); against the warmup-clean baseline they land at 13.3× and 11.7×,
+not the warmup-inflated ≈30× they showed when each scaffold was compared
+against its own single-shot RRTMGP timing; (b) the 64-g and 96-g published
+ecCKD models (`64b narrow` LW, `64b window` SW, `96b vfine` SW) exist in our
+artifact inventory and pass schema/CPU validation but have *no H100 timing
+yet*, shown as grey "pending" bars. Closing those gaps is part of the
+follow-up work in §6.
 
 ### Training: Reactant + Enzyme calibration of ecCKD coefficients
 
