@@ -93,69 +93,139 @@ function figure_h100_speedup()
     pareto = JSON.parsefile(joinpath(BREEZE_RESULTS, "reduced_pareto/radiative_heating_reduced_pareto_latest.json"))
     rcemip32 = JSON.parsefile(joinpath(BREEZE_RESULTS, "rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json"))
 
-    entries = Tuple{String, Float64, Float64, Float64}[]
+    # Single, defensible RRTMGP baseline: 3-sample median from the production
+    # benchmark (samples=3, post-warmup, status=final_4x_evidence).
+    rrtmgp_baseline_ms = Float64(rcemip32["rrtmgp_update_median_ms"])
+    rrtmgp_samples = Int(get(rcemip32, "samples", 0))
 
-    rh32 = Float64(rcemip32["radiative_heating_update_median_ms"])
-    rrt32 = Float64(rcemip32["rrtmgp_update_median_ms"])
-    push!(entries, ("32 LW × 32 SW\nvalidated ecCKD (production)", rh32, rrt32, rrt32/rh32))
+    # Each row: (label, ng_lw, ng_sw, RH ms, source, samples).
+    # source ∈ {:validated, :scaffold, :pending}
+    rh_rows = Vector{NamedTuple}(undef, 0)
+
+    push!(rh_rows, (
+        label = "32 LW × 32 SW",
+        ng_lw = 32, ng_sw = 32,
+        rh_ms = Float64(rcemip32["radiative_heating_update_median_ms"]),
+        source = :validated,
+        samples = Int(get(rcemip32, "samples", 0))))
 
     for model in pareto["models"]
         rh = get(model, "radiative_heating_update_median_ms", nothing)
-        rrt = get(model, "rrtmgp_update_median_ms", nothing)
-        (rh === nothing || rrt === nothing) && continue
+        (rh === nothing) && continue
         nx = get(model, "nx", 0); ny = get(model, "ny", 0); nz = get(model, "nz", 0)
         nx*ny*nz < 32*32*64 && continue
-        ng_lw = model["ng_lw"]; ng_sw = model["ng_sw"]
+        ng_lw = Int(model["ng_lw"]); ng_sw = Int(model["ng_sw"])
         kind = get(model, "gas_model_kind", "")
-        flavor = occursin("fixed", kind) ? "fixed-coeff scaffold" :
-                 occursin("validated", kind) ? "validated ecCKD" : "scaffold"
-        push!(entries, ("$(ng_lw) LW × $(ng_sw) SW\n$(flavor)",
-                        Float64(rh), Float64(rrt), Float64(rrt)/Float64(rh)))
+        source = occursin("validated", kind) ? :validated :
+                 occursin("fixed", kind) ? :scaffold : :scaffold
+        push!(rh_rows, (
+            label = "$(ng_lw) LW × $(ng_sw) SW",
+            ng_lw = ng_lw, ng_sw = ng_sw,
+            rh_ms = Float64(rh),
+            source = source,
+            samples = 1))
     end
 
-    # Order by total g-points descending so 32x32 sits on the left
-    function _total_gpoints(label::String)
-        m = match(r"(\d+)\s*LW\s*×\s*(\d+)\s*SW", label)
-        m === nothing && return 0
-        return parse(Int, m.captures[1]) + parse(Int, m.captures[2])
+    # Published ecCKD k-models that exist in our artifact inventory but have
+    # not been benchmarked on H100. Mark them as :pending so the gap is visible.
+    benchmarked = Set((r.ng_lw, r.ng_sw) for r in rh_rows)
+    for (ng_lw, ng_sw, label) in [(64, 32, "64 LW × 32 SW"),
+                                    (32, 64, "32 LW × 64 SW"),
+                                    (32, 96, "32 LW × 96 SW"),
+                                    (64, 64, "64 LW × 64 SW")]
+        if !((ng_lw, ng_sw) in benchmarked)
+            push!(rh_rows, (label = label, ng_lw = ng_lw, ng_sw = ng_sw,
+                            rh_ms = NaN, source = :pending, samples = 0))
+        end
     end
-    sort!(entries; by = e -> -_total_gpoints(e[1]))
 
-    fig = Figure(size = (1200, 680))
-    Label(fig[0, 1],
-          "RadiativeHeating.jl vs RRTMGP on H100\nRCEMIP-style 32×32×64 / 1024 columns";
+    # Sort by total g-points descending
+    sort!(rh_rows; by = r -> -(r.ng_lw + r.ng_sw))
+
+    fig = Figure(size = (1400, 760))
+    Label(fig[1, 1:2],
+          "RadiativeHeating.jl vs a single RRTMGP baseline on H100\nRCEMIP-style 32×32×64 / 1024 columns";
           fontsize = 18, font = :bold, tellwidth = false, justification = :center)
 
-    n = length(entries)
-    ax = Axis(fig[1, 1];
-              ylabel = "radiation update median [ms]\n(lower is faster)",
-              xticks = (1:n, [e[1] for e in entries]),
-              xticklabelsize = 12,
-              title = "")
-    barpos = collect(1.0:Float64(n))
-    rh_ms = [e[2] for e in entries]
-    rrt_ms = [e[3] for e in entries]
+    # Left panel: the single defensible head-to-head — validated 32x32 vs RRTMGP
+    headline = rh_rows[findfirst(r -> r.source == :validated, rh_rows)]
+    ax1 = Axis(fig[2, 1];
+               title = "Head-to-head (production, post-warmup median)",
+               ylabel = "radiation update median [ms]\n(lower is faster)",
+               xticks = ([1, 2], ["RadiativeHeating.jl\n$(headline.label)\nvalidated ecCKD",
+                                  "RRTMGP.jl\nstandard model\n(256 LW × 224 SW)"]))
+    barplot!(ax1, [1.0], [headline.rh_ms]; width = 0.55, color = :tomato)
+    barplot!(ax1, [2.0], [rrtmgp_baseline_ms]; width = 0.55, color = :steelblue)
+    text!(ax1, 1, headline.rh_ms + rrtmgp_baseline_ms * 0.03,
+          text = "$(round(headline.rh_ms; digits=2)) ms",
+          align = (:center, :bottom), fontsize = 14, font = :bold, color = :tomato)
+    text!(ax1, 2, rrtmgp_baseline_ms + rrtmgp_baseline_ms * 0.03,
+          text = "$(round(rrtmgp_baseline_ms; digits=1)) ms",
+          align = (:center, :bottom), fontsize = 14, font = :bold, color = :steelblue)
+    text!(ax1, 1.5, rrtmgp_baseline_ms * 0.6,
+          text = "$(round(rrtmgp_baseline_ms / headline.rh_ms; digits=1))×\nspeedup",
+          align = (:center, :center), fontsize = 22, font = :bold, color = :black)
+    ylims!(ax1, 0, rrtmgp_baseline_ms * 1.18)
 
-    barplot!(ax, barpos .- 0.2, rh_ms; width = 0.38, color = :tomato, label = "RadiativeHeating.jl")
-    barplot!(ax, barpos .+ 0.2, rrt_ms; width = 0.38, color = :steelblue, label = "RRTMGP.jl")
+    # Right panel: RadiativeHeating timing across k-models, with the single
+    # RRTMGP baseline as a horizontal reference line.
+    n = length(rh_rows)
+    ax2 = Axis(fig[2, 2];
+               title = "RadiativeHeating across ecCKD k-models\n(↑ on bar: speedup vs RRTMGP baseline)",
+               ylabel = "radiation update median [ms]",
+               xticks = (1:n, [r.label for r in rh_rows]),
+               xticklabelrotation = pi/6,
+               xticklabelsize = 11,
+               yscale = log10)
 
-    ymax = maximum(rrt_ms) * 1.30
-    ylims!(ax, 0, ymax)
-
-    for (i, e) in enumerate(entries)
-        # speedup callout above the RRTMGP bar
-        text!(ax, i + 0.2, e[3] + 8.0, text = "$(round(e[4]; digits=1))×",
-              align = (:center, :bottom), fontsize = 16, font = :bold, color = :black)
-        # numeric labels on each bar
-        text!(ax, i - 0.2, e[2] + 8.0, text = "$(round(e[2]; digits=1)) ms",
-              align = (:center, :bottom), fontsize = 11, color = :tomato)
-        text!(ax, i + 0.2, e[3] - 14.0, text = "$(round(e[3]; digits=1)) ms",
-              align = (:center, :top), fontsize = 11, color = :white)
+    # Plot each RadiativeHeating bar in a color matching its provenance
+    color_map = Dict(:validated => :tomato, :scaffold => RGBf(1.0, 0.65, 0.4),
+                     :pending => RGBf(0.85, 0.85, 0.85))
+    for (i, r) in enumerate(rh_rows)
+        if r.source == :pending
+            # placeholder grey bar at floor; annotated as not measured
+            barplot!(ax2, [Float64(i)], [0.5]; width = 0.6,
+                     color = color_map[:pending], strokecolor = :gray, strokewidth = 1)
+            text!(ax2, i, 0.6,
+                  text = "no H100\ntiming yet",
+                  align = (:center, :bottom), fontsize = 9, color = :gray35)
+        else
+            barplot!(ax2, [Float64(i)], [r.rh_ms]; width = 0.6,
+                     color = color_map[r.source])
+            speedup = rrtmgp_baseline_ms / r.rh_ms
+            text!(ax2, i, r.rh_ms * 1.15,
+                  text = "$(round(speedup; digits=1))×",
+                  align = (:center, :bottom), fontsize = 13, font = :bold, color = :black)
+            text!(ax2, i, r.rh_ms * 0.55,
+                  text = "$(round(r.rh_ms; digits=1)) ms",
+                  align = (:center, :center), fontsize = 10, color = :white)
+        end
     end
 
-    axislegend(ax; position = :rt, framecolor = (:gray, 0.6))
+    # RRTMGP baseline reference line
+    hlines!(ax2, [rrtmgp_baseline_ms]; color = :steelblue, linestyle = :dash, linewidth = 2)
+    text!(ax2, n * 0.5, rrtmgp_baseline_ms * 1.08,
+          text = "RRTMGP baseline: $(round(rrtmgp_baseline_ms; digits=1)) ms (n=$(rrtmgp_samples))",
+          color = :steelblue, fontsize = 11, align = (:center, :bottom), font = :bold)
 
-    rowsize!(fig.layout, 1, Relative(0.85))
+    ylims!(ax2, 0.3, rrtmgp_baseline_ms * 3)
+
+    # Legend explaining the provenance colors and the caveats
+    elems = [
+        PolyElement(color = color_map[:validated]),
+        PolyElement(color = color_map[:scaffold]),
+        PolyElement(color = color_map[:pending], strokecolor = :gray, strokewidth = 1),
+    ]
+    labels = [
+        "validated ecCKD (samples=3, production)",
+        "fixed-coeff scaffold (samples=1, single-shot)",
+        "published ecCKD model, no H100 timing yet",
+    ]
+    Legend(fig[3, 1:2], elems, labels;
+           orientation = :horizontal, framecolor = (:gray, 0.6),
+           tellheight = true, tellwidth = false)
+
+    colsize!(fig.layout, 1, Relative(0.32))
     save(joinpath(OUT_DIR, "fig2_h100_speedup.png"), fig; px_per_unit = 2)
     return fig
 end
