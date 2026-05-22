@@ -16,6 +16,8 @@ Keep these ecCKD source files, script modes, data selections, gases, weights, re
 | Train with both evaluation sets | `no` |
 | MMM dataset | `mmm` |
 | Idealized dataset | `idealized` |
+| CKDMIP preflight | `ready_for_original_ecckd_objective` |
+| Derived flux products | 18 / 18 |
 
 ## Source Files
 
@@ -35,6 +37,20 @@ Keep these ecCKD source files, script modes, data selections, gases, weights, re
 | `test/run_ckd_lw.sh` | true |
 | `test/run_ckd_sw.sh` | true |
 
+## Master Recipes
+
+| Script | Application | Band structure | Tolerance list | Optimizer passes |
+|---|---|---|---|---|
+| `test/do_all_lw.sh` | `climate` | `fsck` | `0.061 0.0161` | `relative-base relative-ch4 relative-n2o relative-cfc` |
+| `test/do_all_sw.sh` | `climate` | `rgb` | `0.16 0.047` | `relative-base relative-ch4 relative-n2o` |
+
+## Recovery Targets
+
+| Kind | Band structure | Tolerances | Nominal g-points | Optimizer pass order | Published reference |
+|---|---|---|---|---|---|
+| longwave | `fsck` | `0.061, 0.0161` | `16, 32` | `relative-base -> relative-ch4 -> relative-n2o -> relative-cfc` | `ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc` |
+| shortwave | `rgb` | `0.16, 0.047` | `16, 32` | `relative-base -> relative-ch4 -> relative-n2o` | `ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc` |
+
 ## Optimization Scripts
 
 ### `test/optimize_lut_lw.sh`
@@ -47,4 +63,4 @@ Keep these ecCKD source files, script modes, data selections, gases, weights, re
 - Selected common options: `COMMON_OPTIONS="prior_error=2.0 broadband_weight=0.4 flux_weight=0.4 flux_profile_weight=0.1 temperature_corr=0.8 pressure_corr=0.8 conc_corr=0.8 max_iterations=2000 bounded_optimization=0"`
 - Modes: nwp, climate-base, relative-base, relative-ch4, relative-n2o, relative-minor
 
-Remaining external data requirement: Full CKDMIP line-by-line spectral absorption and LBL flux database under RH_CKDMIP_DATA_PATH.
+Remaining external data requirement: None in this workspace: CKDMIP upstream inputs and all 18 derived ecCKD training flux products are present.

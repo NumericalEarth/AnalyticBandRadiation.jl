@@ -1,6 +1,6 @@
 {
   "case": "radiative_heating_reduced_accuracy",
-  "timestamp_utc": "2026-05-18T16:50:02.128",
+  "timestamp_utc": "2026-05-22T19:05:55.705",
   "status": "failed_threshold",
   "reference_scope": ["ecckd_clear_sky_tropical_column", "ecckd_rcemip_style_column_subset"],
   "acceptance_thresholds": {
@@ -72,6 +72,68 @@
 },
   "toa_forcing_max_abs": 0.00806408713606288,
   "surface_forcing_max_abs": 0.014033547037797689
+}]
+}, {
+  "ng_lw": 32,
+  "ng_sw": 31,
+  "reduction_method": "official ecCKD 32x31 leave-one-out g23 support with exact boundary-polished quadrature weights",
+  "passed_hard_thresholds": true,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0009104498592883523,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0021114544504658764,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.08058654450914869,
+  "max_abs": 0.12796647808002604
+},
+  "sw_down": {
+  "rmse": 0.12483256791178762,
+  "max_abs": 0.3531864394199147
+},
+  "heating_rate": {
+  "rmse": 0.04987699106081957,
+  "max_abs": 0.27117323227381807
+}
+},
+  "toa_forcing_max_abs": 0.12942092909611347,
+  "surface_forcing_max_abs": 0.2781916122328312
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.000849242176774232,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0013873154398463894,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.11147238607201139,
+  "max_abs": 0.2992630322058858
+},
+  "sw_down": {
+  "rmse": 0.10730450280743703,
+  "max_abs": 0.3531864394199147
+},
+  "heating_rate": {
+  "rmse": 0.04978894821150173,
+  "max_abs": 0.32168555532704524
+}
+},
+  "toa_forcing_max_abs": 0.2998267002146804,
+  "surface_forcing_max_abs": 0.2781916122328312
 }]
 }, {
   "ng_lw": 32,

@@ -1,6 +1,6 @@
 # ecCKD Objective Reconstruction Check
 
-Status: **blocked_missing_original_training_assets**
+Status: **ready_to_reconstruct_original_objective**
 
 ecRad source root: `/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20`
 
@@ -17,13 +17,13 @@ Current supported recovery: Teacher-student coefficient recovery against publish
 | ecRad CKDMIP evaluation scripts | true | Reference examples for evaluating CKD files in ecRad. | 4 |
 | ecRad runtime ecCKD source | true | Runtime implementation needed to understand how published CKD-definition files are consumed. | 3 |
 | original LBL training database | true | Upstream CKDMIP spectra, concentrations, and public flux inputs required before derived ecCKD training fluxes can be generated. | 32 |
-| derived ecCKD training flux products | false | Derived 5-gas and relative-humidity perturbation flux products consumed by the published ecCKD optimizer scripts. | 18 |
+| derived ecCKD training flux products | true | Derived 5-gas and relative-humidity perturbation flux products consumed by the published ecCKD optimizer scripts. | 18 |
 | official ecCKD generator and optimizer source | true | Required to keep all non-optimizer choices identical while swapping in the Reactant/Enzyme optimizer. | 4 |
 | official ecCKD objective weights and training scripts | true | Required to define the exact gases, profiles, spectral weights, loss terms, and stopping criteria used by the published models. | 5 |
 
 ## Blockers
 
-- CKDMIP upstream data is present, but derived ecCKD 5gas/rel training flux products are missing; generate them locally from the spectra before exact objective recovery.
+None.
 
 ## Next Required Inputs
 

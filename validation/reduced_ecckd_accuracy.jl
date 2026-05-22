@@ -15,6 +15,7 @@ const REDUCED_CASE_NAMES = (
 const REDUCED_CASES = Tuple(case for case in REQUIRED_CASES if case.case in REDUCED_CASE_NAMES)
 const REDUCED_MODELS = (
     (ng_lw = 32, ng_sw = 32, method = "full_official"),
+    (ng_lw = 32, ng_sw = 31, method = "leave_one_out_weight_coordinate_boundary_polish"),
     (ng_lw = 32, ng_sw = 16, method = "even_select"),
     (ng_lw = 32, ng_sw = 16, method = "greedy_subset"),
     (ng_lw = 32, ng_sw = 16, method = "greedy_subset_fit_sw_weights"),
@@ -159,6 +160,9 @@ const REDUCED_POST_CONSTRAINED_BOUNDARY_WEIGHT_REFIT_JSON =
     joinpath(@__DIR__, "results", "reduced_ecckd_post_constrained_boundary_weight_refit.json")
 const REDUCED_POST_SLOT_WEIGHT_REFIT_JSON =
     joinpath(@__DIR__, "results", "reduced_ecckd_post_slot_weight_refit.json")
+const REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_BOUNDARY_POLISH_JSON =
+    joinpath(@__DIR__, "results",
+             "reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json")
 const GREEDY_SW_16_INDICES = [1, 3, 4, 5, 6, 9, 10, 12, 13, 14, 16, 18, 21, 22, 27, 28]
 const WEIGHTED_GREEDY_SW_16_INDICES = [1, 4, 9, 10, 12, 13, 14, 16, 21, 22, 25, 27, 28, 30, 31, 32]
 const WEIGHTED_GREEDY_SW_16_WEIGHTS = [
@@ -538,6 +542,44 @@ function latest_post_slot_weight_refit_weights(;
         objective = final_objective,
         weights = weights,
     )
+end
+
+function latest_leave_one_out_boundary_polish_weights(;
+                                                      path =
+                                                          REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_BOUNDARY_POLISH_JSON)
+    isfile(path) || return nothing
+    text = read(path, String)
+    objective_match = Base.match(r"\"final_objective\"\s*:\s*([-+0-9.eE]+)", text)
+    objective_match === nothing && return nothing
+    final_objective = parse(Float64, objective_match.captures[1])
+    final_objective <= 1.0 || return nothing
+    gpoints_match =
+        Base.match(r"\"selected_shortwave_gpoints\"\s*:\s*\[([^\]]+)\]", text)
+    weights_match = Base.match(r"\"final_weights\"\s*:\s*\[([^\]]+)\]", text)
+    gpoints_match === nothing && return nothing
+    weights_match === nothing && return nothing
+    gpoints = parse.(Int, split(gpoints_match.captures[1], ","))
+    weights = parse.(Float64, split(weights_match.captures[1], ","))
+    length(gpoints) == length(weights) || return nothing
+    length(gpoints) == 31 || return nothing
+    return (
+        objective = final_objective,
+        gpoints = gpoints,
+        weights = weights,
+    )
+end
+
+function leave_one_out_boundary_polish_model(model)
+    polish = latest_leave_one_out_boundary_polish_weights()
+    polish === nothing &&
+        error("missing passing leave-one-out weight-coordinate boundary-polish artifact")
+    reduced = indexed_tabulated_model(
+        model,
+        collect(1:size(model.longwave_absorption, 1)),
+        polish.gpoints,
+    )
+    reduced.shortwave_weights .= polish.weights
+    return reduced
 end
 
 function latest_slot_blend_refinement_moves(;
@@ -2269,6 +2311,8 @@ end
 function reduced_tabulated_model(model, spec)
     if spec.method == "full_official"
         return model
+    elseif spec.method == "leave_one_out_weight_coordinate_boundary_polish"
+        return leave_one_out_boundary_polish_model(model)
     elseif spec.method == "even_select"
         return selected_tabulated_model(model, spec.ng_lw, spec.ng_sw)
     elseif spec.method == "greedy_subset"
@@ -3049,6 +3093,8 @@ function model_metrics(full_model, model_spec)
         ng_sw = model_spec.ng_sw,
         reduction_method = model_spec.method == "full_official" ?
             "official ecCKD 32x32 baseline without shortwave reduction" :
+            model_spec.method == "leave_one_out_weight_coordinate_boundary_polish" ?
+            "official ecCKD 32x31 leave-one-out g23 support with exact boundary-polished quadrature weights" :
             model_spec.method == "even_select" ?
             "evenly selected official ecCKD g-points with renormalized weights" :
             model_spec.method == "greedy_subset" ?

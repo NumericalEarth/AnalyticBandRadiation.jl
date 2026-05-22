@@ -1,9 +1,9 @@
 {
   "case": "recovery_goal_audit",
-  "timestamp_utc": "2026-05-21T15:03:47.361",
+  "timestamp_utc": "2026-05-22T19:54:34.238",
   "status": "not_complete",
-  "blocked_count": 1,
-  "partial_count": 2,
+  "blocked_count": 0,
+  "partial_count": 3,
   "unmet_requirement_count": 3,
   "unmet_requirement_ids": [
     "ecrad_full_and_reduced_parity",
@@ -15,26 +15,110 @@
     "present": true,
     "full_32x32_passed": true,
     "reduced_candidates_present": true,
-    "reduced_candidates_passed": false,
+    "reduced_candidates_passed": true,
     "hard_boundary_forcing_threshold_w_m2": 0.3,
     "official_32x32_worst_boundary_forcing_error_w_m2": 0.014033547037797689,
     "best_reduced_candidate": {
       "ng_lw": 32,
-      "ng_sw": 16,
-      "total_gpoints": 48,
-      "reduction_method": "weighted greedy 16 shortwave g-point subset with boundary-aware table, component, structural, objective-probe, surface-probe, capped table, continuation, post-capped weight, post-weight surface-table, bounded weight, four current component-scale refits, selected current gas-pressure component scan refit, gas-pressure continuation refit, weighted gas-pressure continuation refit, and high-weight gas-pressure continuation refit",
-      "passed": false,
-      "worst_toa_forcing_error_w_m2": 2.075241671208687,
-      "worst_surface_forcing_error_w_m2": 2.026956688318073,
-      "worst_boundary_forcing_error_w_m2": 2.075241671208687
+      "ng_sw": 31,
+      "total_gpoints": 63,
+      "reduction_method": "official ecCKD 32x31 leave-one-out g23 support with exact boundary-polished quadrature weights",
+      "passed": true,
+      "worst_toa_forcing_error_w_m2": 0.2998267002146804,
+      "worst_surface_forcing_error_w_m2": 0.2781916122328312,
+      "worst_boundary_forcing_error_w_m2": 0.2998267002146804
     },
     "passing_band_counts": [
+      63,
       64
     ],
     "failing_reduced_band_counts": [
       32,
       48
     ]
+  },
+  "published_model_accuracy_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_published_model_accuracy.json",
+    "present": true,
+    "status": "failed_threshold",
+    "model_count": 3,
+    "passed_count": 1,
+    "failed_labels": [
+      "official ecCKD 1.2 64-LW x 64-SW climate model",
+      "official ecCKD 1.2/1.4 64-LW x 96-SW climate/vfine model"
+    ]
+  },
+  "reduced_near_miss_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_refit_breakdown.json",
+    "present": true,
+    "status": "failed_threshold",
+    "omitted_gpoint": 25,
+    "ng_lw": 32,
+    "ng_sw": 31,
+    "recomputed_objective": 12.33245448795476,
+    "worst_case": "ecckd_clear_sky_tropical_column",
+    "limiting_metric": "heating_rate_rmse",
+    "limiting_metric_ratio": 12.33245448795476,
+    "limiting_metric_value": 0.616622724397738,
+    "limiting_metric_threshold": 0.05,
+    "objective_best_omitted_gpoint": 23,
+    "objective_best_objective": 1.624423143786563,
+    "objective_best_limiting_metric": "heating_rate_rmse",
+    "objective_best_limiting_metric_ratio": 1.624423143786563,
+    "objective_best_limiting_metric_value": 0.08122115718932815,
+    "objective_best_limiting_metric_threshold": 0.05
+  },
+  "reduced_weight_coordinate_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_scan.json",
+    "present": true,
+    "status": "weight_coordinate_scan_improved",
+    "accepted": true,
+    "omitted_gpoint": 23,
+    "base_objective": 1.624423143786563,
+    "accepted_objective": 1.485564570060626,
+    "accepted_objective_reduction": 0.13885857372593713,
+    "accepted_worst_boundary_forcing_error_w_m2": 0.2547478587356409,
+    "accepted_worst_heating_rate_rmse_k_day": 0.0742782285030313
+  },
+  "reduced_weight_coordinate_descent_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent.json",
+    "present": true,
+    "status": "weight_coordinate_descent_improved",
+    "accepted": true,
+    "omitted_gpoint": 23,
+    "accepted_move_count": 6,
+    "initial_objective": 1.624423143786563,
+    "final_objective": 1.2663455530591998,
+    "objective_reduction": 0.3580775907273632,
+    "final_worst_boundary_forcing_error_w_m2": 0.29987447424105085,
+    "final_worst_heating_rate_rmse_k_day": 0.06331727765296
+  },
+  "reduced_weight_coordinate_descent_continuation_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent_continuation.json",
+    "present": true,
+    "status": "weight_coordinate_descent_continuation_improved",
+    "accepted": true,
+    "omitted_gpoint": 23,
+    "accepted_move_count": 8,
+    "initial_objective": 1.2663455530591998,
+    "final_objective": 1.083385303619408,
+    "objective_reduction": 0.18296024943979172,
+    "final_worst_boundary_forcing_error_w_m2": 0.2994334374521941,
+    "final_worst_heating_rate_rmse_k_day": 0.054169265180970406
+  },
+  "reduced_weight_coordinate_boundary_polish_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json",
+    "present": true,
+    "status": "weight_coordinate_boundary_polish_passed",
+    "accepted": true,
+    "passed": true,
+    "omitted_gpoint": 23,
+    "accepted_move_count": 17,
+    "initial_objective": 1.083385303619408,
+    "final_objective": 0.9994223340489347,
+    "objective_reduction": 0.08396296957047344,
+    "final_worst_boundary_forcing_error_w_m2": 0.2998267002146804,
+    "final_worst_heating_rate_rmse_k_day": 0.04987699106081957
   },
   "breeze_summary": {
     "artifact": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/radiative_heating_rcemip_latest.json",
@@ -49,31 +133,56 @@
     "nsys_report": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/nsight/radiative_heating_rcemip_nsys.nsys-rep",
     "ncu_report": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/rcemip_h100_32x32x64/nsight/radiative_heating_rcemip_ncu.ncu-rep"
   },
-  "ckdmip_preflight_status": "ready_for_derived_flux_generation",
-  "derived_flux_plan_status": "derived_flux_generation_required",
-  "objective_reconstruction_status": "blocked_missing_original_training_assets",
-  "original_objective_assets_ready": false,
+  "ckdmip_preflight_status": "ready_for_original_ecckd_objective",
+  "derived_flux_plan_status": "ready_for_original_ecckd_objective",
+  "objective_reconstruction_status": "ready_to_reconstruct_original_objective",
+  "original_objective_assets_ready": true,
+  "official_training_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/official_ecckd_training.json",
+    "present": true,
+    "status": "partial",
+    "parameter_count": 48,
+    "ng_sw": 16,
+    "optimizer": "deterministic multi-stage reduced ecCKD optimizer chain",
+    "initial_objective": 214.26452989359106,
+    "final_objective": 8.605003990705882,
+    "objective_target": 1.0,
+    "final_objective_target_ratio": 8.605003990705882,
+    "hard_accuracy_target_met": false,
+    "reactant_status": "passed",
+    "enzyme_status": "passed",
+    "acceptance_gap_status": "far_above_objective_target",
+    "next_required_work": "Move beyond bounded pressure-band table scales: run a stronger joint coefficient/table optimizer against flux and heating residuals or jointly optimize the reduced quadrature definition; the current table-refined 48-parameter path remains far above the hard-gate target."
+  },
+  "training_recovery_targets_summary": {
+    "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_training_recovery_targets.json",
+    "present": true,
+    "status": "partial",
+    "official_final_objective_target_ratio": 8.605003990705882,
+    "reduced_hard_accuracy_target_met": true,
+    "reduced_final_objective_target_ratio": 0.9994223340489347
+  },
   "derived_flux_progress": {
     "expected": 18,
-    "final_present": 12,
+    "final_present": 18,
     "products_with_raw_chunks": 0,
     "expected_raw_chunks": 90,
     "present_raw_chunks": 0,
-    "completed_equivalent_raw_chunks": 60,
+    "completed_equivalent_raw_chunks": 90,
     "observed_raw_chunk_rate_per_hour": null,
     "estimated_raw_chunk_hours_remaining": null,
-    "missing": 6
+    "missing": 0
   },
   "derived_flux_plan_summary": {
     "artifact": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json",
     "present": true,
-    "status": "derived_flux_generation_required",
+    "status": "ready_for_original_ecckd_objective",
     "expected_derived_flux_count": 18,
-    "present_derived_flux_count": 12,
+    "present_derived_flux_count": 18,
     "raw_chunk_product_count": 0,
     "present_raw_chunk_count": 0,
     "expected_raw_chunk_count": 90,
-    "completed_equivalent_raw_chunk_count": 60,
+    "completed_equivalent_raw_chunk_count": 90,
     "raw_chunk_rate": {
       "first_raw_chunk_at_utc": null,
       "latest_raw_chunk_at_utc": null,
@@ -89,7 +198,7 @@
     }
   },
   "teacher_student_recovery_status": "passed",
-  "pareto_point_count": 22,
+  "pareto_point_count": 106,
   "requirements": [
     {
       "id": "ecrad_full_and_reduced_parity",
@@ -98,10 +207,16 @@
       "evidence": [
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_accuracy_gate.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_all_sky_ifs_gate.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_published_model_accuracy.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
-        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json"
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_refit_breakdown.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent_continuation.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json"
       ],
-      "finding": "Full official ecCKD 32x32 passes, but currently measured reduced 16-g shortwave candidates fail the hard thresholds."
+      "finding": "The 32x32 published ecCKD model and at least one reduced candidate pass the hard thresholds; the published-model accuracy diagnostic currently records 1/3 published full-accuracy combinations passing the clean package-native reference gate."
     },
     {
       "id": "reduced_vs_rrtmgp_representative_states",
@@ -109,9 +224,15 @@
       "status": "partial",
       "evidence": [
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_32g_rrtmgp_comparison.json",
-        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json"
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_refit_breakdown.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent_continuation.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json"
       ],
-      "finding": "RRTMGP comparison metrics are emitted for the official 32x32 path on representative states, but reduced 16-g candidates do not yet pass hard accuracy criteria."
+      "finding": "RRTMGP comparison metrics are emitted and at least one reduced candidate passes hard thresholds."
     },
     {
       "id": "breeze_dynamic_integration",
@@ -125,14 +246,16 @@
     {
       "id": "reactant_enzyme_ecckd_training_recovery",
       "requirement": "Reimplement the ecCKD training pipeline and demonstrate success by recovering one published model while varying only optimizer settings.",
-      "status": "blocked",
+      "status": "partial",
       "evidence": [
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_teacher_student_recovery_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/official_ecckd_training.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_training_recovery_targets.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_objective_reconstruction_check.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ckdmip_training_data_preflight.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json"
       ],
-      "finding": "Teacher-student coefficient recovery passes and upstream CKDMIP data is present, but exact original-objective recovery is blocked until the derived ecCKD 5gas/rel training flux products are generated."
+      "finding": "Reactant/Enzyme checks pass and the current official/reduced optimizer reduces the objective, but the final objective remains 8.605003990705882x the hard target; CKDMIP assets are ready for original-objective recovery."
     }
   ],
   "prompt_to_artifact_checklist": [
@@ -143,11 +266,17 @@
       "evidence": [
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_accuracy_gate.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_all_sky_ifs_gate.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_published_model_accuracy.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
-        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json"
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_refit_breakdown.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent_continuation.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json"
       ],
       "covered": false,
-      "gap": "Full official ecCKD 32x32 passes, but currently measured reduced 16-g shortwave candidates fail the hard thresholds."
+      "gap": "The 32x32 published ecCKD model and at least one reduced candidate pass the hard thresholds; the published-model accuracy diagnostic currently records 1/3 published full-accuracy combinations passing the clean package-native reference gate."
     },
     {
       "requirement_id": "reduced_vs_rrtmgp_representative_states",
@@ -155,10 +284,16 @@
       "coverage_status": "partial",
       "evidence": [
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_32g_rrtmgp_comparison.json",
-        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json"
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_accuracy.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_refit_breakdown.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_descent_continuation.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json"
       ],
       "covered": false,
-      "gap": "RRTMGP comparison metrics are emitted for the official 32x32 path on representative states, but reduced 16-g candidates do not yet pass hard accuracy criteria."
+      "gap": "RRTMGP comparison metrics are emitted and at least one reduced candidate passes hard thresholds."
     },
     {
       "requirement_id": "breeze_dynamic_integration",
@@ -173,15 +308,17 @@
     {
       "requirement_id": "reactant_enzyme_ecckd_training_recovery",
       "prompt_requirement": "Reimplement the ecCKD training pipeline and demonstrate success by recovering one published model while varying only optimizer settings.",
-      "coverage_status": "blocked",
+      "coverage_status": "partial",
       "evidence": [
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_teacher_student_recovery_scan.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/official_ecckd_training.json",
+        "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_training_recovery_targets.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_objective_reconstruction_check.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ckdmip_training_data_preflight.json",
         "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_derived_flux_generation_plan.json"
       ],
       "covered": false,
-      "gap": "Teacher-student coefficient recovery passes and upstream CKDMIP data is present, but exact original-objective recovery is blocked until the derived ecCKD 5gas/rel training flux products are generated."
+      "gap": "Reactant/Enzyme checks pass and the current official/reduced optimizer reduces the objective, but the final objective remains 8.605003990705882x the hard target; CKDMIP assets are ready for original-objective recovery."
     }
   ]
 }

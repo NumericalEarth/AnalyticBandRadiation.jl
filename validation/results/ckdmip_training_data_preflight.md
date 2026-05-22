@@ -1,6 +1,6 @@
 # CKDMIP Training Data Preflight
 
-Status: **ready_for_derived_flux_generation**
+Status: **ready_for_original_ecckd_objective**
 
 CKDMIP data root: `/shared/home/greg/data/ckdmip`
 
@@ -17,12 +17,7 @@ None.
 
 ## Derived Flux Products
 
-- Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-1120.h5
-- Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-180.h5
-- Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-2240.h5
-- Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-280.h5
-- Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-415.h5
-- Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-560.h5
+None missing.
 
 ## Required Upstream Files
 
@@ -84,9 +79,9 @@ None.
 | `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-280.h5` | true |
 | `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-415.h5` | true |
 | `evaluation1/lw_fluxes/ckdmip_evaluation1_lw_fluxes_rel-560.h5` | true |
-| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-1120.h5` | false |
-| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-180.h5` | false |
-| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-2240.h5` | false |
-| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-280.h5` | false |
-| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-415.h5` | false |
-| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-560.h5` | false |
+| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-1120.h5` | true |
+| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-180.h5` | true |
+| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-2240.h5` | true |
+| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-280.h5` | true |
+| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-415.h5` | true |
+| `evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-560.h5` | true |

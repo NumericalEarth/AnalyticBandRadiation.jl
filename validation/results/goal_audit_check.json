@@ -1,9 +1,9 @@
 {
   "case": "radiative_heating_goal_audit_check",
-  "date": "2026-05-19T20:31:03.763",
-  "status": "complete",
-  "missing_or_unexpected_artifact_count": 0,
-  "completion_blocker_count": 0,
+  "date": "2026-05-22T19:37:57.032",
+  "status": "not_complete",
+  "missing_or_unexpected_artifact_count": 12,
+  "completion_blocker_count": 1,
   "goal_steps": [{
   "name": "cloudless official ecCKD ecRad accuracy",
   "definition": "Pass hard cloudless/no-aerosol ecRad thresholds with official ecCKD inputs.",
@@ -95,7 +95,7 @@
 }, {
   "requirement": "Fresh dedicated Breeze checkout and Breeze-owned extension",
   "completion_criteria": "Old ABR Breeze extension is absent and the fresh Breeze checkout owns BreezeRadiativeHeatingExt.",
-  "status": "satisfied",
+  "status": "uncovered",
   "evidence": [{
   "artifact": "old ABR Breeze extension removed",
   "present_in_audit": true,
@@ -104,12 +104,12 @@
 }, {
   "artifact": "dedicated BreezeRadiativeHeatingExt present",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD column amount conversion",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }]
 }, {
@@ -240,7 +240,7 @@
 }, {
   "requirement": "End-to-end gas-optics training demonstration",
   "completion_criteria": "Toy training passes, and an official/reduced ecCKD gas-optics training artifact demonstrates the production path.",
-  "status": "satisfied",
+  "status": "blocked",
   "evidence": [{
   "artifact": "toy ecCKD training",
   "present_in_audit": true,
@@ -255,7 +255,7 @@
   "artifact": "official/reduced ecCKD gas-optics training",
   "present_in_audit": true,
   "status": "verified",
-  "completion_blocker_active": false
+  "completion_blocker_active": true
 }]
 }, {
   "requirement": "Current IFS all-sky cloud/aerosol/scattering/overlap semantics",
@@ -300,7 +300,7 @@
 }, {
   "requirement": "Validated ecCKD Breeze CPU and H100 support path",
   "completion_criteria": "Validated ecCKD metadata flows through Breeze, CPU support is verified, and H100 tabulated multi-gas support is no longer blocked.",
-  "status": "satisfied",
+  "status": "uncovered",
   "evidence": [{
   "artifact": "Breeze validated ecCKD CPU smoke",
   "present_in_audit": true,
@@ -324,47 +324,47 @@
 }, {
   "artifact": "Breeze tabulated ecCKD device column amount kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD interpolation state kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD absorption optical-depth kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD Rayleigh optical-depth kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD longwave source kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD integrated optical-properties kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD flux-divergence kernel",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD device workspace",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze tabulated ecCKD device update path",
   "present_in_audit": true,
-  "status": "verified",
+  "status": "missing_or_unexpected",
   "completion_blocker_active": false
 }, {
   "artifact": "Breeze validated ecCKD H100 support preflight",
@@ -431,9 +431,9 @@
   "breeze_checkout": {
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl",
   "present": true,
-  "head_sha": "8a3dba0575a7b8c29cb8dfedc5fe391cab7d2938",
+  "head_sha": "2772a8bbdab14c3fc4c6fd5e255dac9ba22d744f",
   "expected_head_sha": "8a3dba0575a7b8c29cb8dfedc5fe391cab7d2938",
-  "head_sha_matches_fresh_clone": true,
+  "head_sha_matches_fresh_clone": false,
   "origin_remote": "https://github.com/NumericalEarth/Breeze.jl",
   "expected_origin_remote": "https://github.com/NumericalEarth/Breeze.jl",
   "origin_remote_matches": true,
@@ -441,7 +441,7 @@
 },
   "artifacts": [{
   "name": "old ABR Breeze extension removed",
-  "path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/ext/AnalyticBandRadiationBreezeExt.jl",
+  "path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/ext/LightfluxBreezeExt.jl",
   "present": false,
   "expected_present": false,
   "presence_matches": true,
@@ -456,31 +456,31 @@
 }, {
   "name": "dedicated BreezeRadiativeHeatingExt present",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "module BreezeRadiativeHeatingExt",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD column amount conversion",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "EcCKDTabulatedGasOpticsModel",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "ecRad reference manifest",
   "path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecrad_reference_manifest.json",
@@ -725,13 +725,13 @@
   "present": true,
   "expected_present": true,
   "presence_matches": true,
-  "required_text": "\"status\": \"passed\"",
+  "required_text": "\"status\": \"partial\"",
   "required_text_found": true,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": true,
-  "completion_blocker_active": false,
-  "blocker_reason": "toy gas-optics training exists, but production official/reduced ecCKD training has not been demonstrated",
+  "completion_blocker_active": true,
+  "blocker_reason": "production official/reduced ecCKD training improves the objective but has not quantitatively recovered a published model",
   "status": "verified"
 }, {
   "name": "full Reactant/Enzyme RRTMGP-target 16-g calibration",
@@ -777,11 +777,11 @@
   "status": "verified"
 }, {
   "name": "package-native RRTMGP comparison extension",
-  "path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/ext/AnalyticBandRadiationRRTMGPExt.jl",
+  "path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/ext/LightfluxRRTMGPExt.jl",
   "present": true,
   "expected_present": true,
   "presence_matches": true,
-  "required_text": "module AnalyticBandRadiationRRTMGPExt",
+  "required_text": "module LightfluxRRTMGPExt",
   "required_text_found": true,
   "forbidden_text": "",
   "forbidden_text_found": false,
@@ -904,129 +904,129 @@
 }, {
   "name": "Breeze tabulated ecCKD device column amount kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_column_amounts!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD interpolation state kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_interpolation_state!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD absorption optical-depth kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_absorption_optical_depths!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD Rayleigh optical-depth kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_rayleigh_optical_depths!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD longwave source kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_longwave_sources!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD integrated optical-properties kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_optical_properties!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD flux-divergence kernel",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "tabulated_ecckd_flux_divergence!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD device workspace",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "TabulatedEcCKDDeviceWorkspace",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze tabulated ecCKD device update path",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/ext/BreezeRadiativeHeatingExt/BreezeRadiativeHeatingExt.jl",
-  "present": true,
+  "present": false,
   "expected_present": true,
-  "presence_matches": true,
+  "presence_matches": false,
   "required_text": "update_tabulated_ecckd_radiation_device!",
-  "required_text_found": true,
+  "required_text_found": false,
   "forbidden_text": "",
   "forbidden_text_found": false,
   "completion_blocker": false,
   "completion_blocker_active": false,
   "blocker_reason": "",
-  "status": "verified"
+  "status": "missing_or_unexpected"
 }, {
   "name": "Breeze validated ecCKD H100 support preflight",
   "path": "/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl/benchmarking/results/h100_validated_ecckd_preflight/radiative_heating_h100_support_preflight_latest.json",

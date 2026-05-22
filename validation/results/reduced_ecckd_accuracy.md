@@ -7,6 +7,7 @@ Reference scope: clean ecCKD cloudless/no-aerosol tropical and RCEMIP-style case
 | ng_lw | ng_sw | Method | Passed | Worst TOA forcing error | Worst surface forcing error |
 |---:|---:|---|---:|---:|---:|
 | 32 | 32 | official ecCKD 32x32 baseline without shortwave reduction | true | 0.00806408713606 W m^-2 | 0.0140335470378 W m^-2 |
+| 32 | 31 | official ecCKD 32x31 leave-one-out g23 support with exact boundary-polished quadrature weights | true | 0.299826700215 W m^-2 | 0.278191612233 W m^-2 |
 | 32 | 16 | evenly selected official ecCKD g-points with renormalized weights | false | 15.148939416 W m^-2 | 66.5675113805 W m^-2 |
 | 32 | 16 | greedy searched 16 shortwave g-point subset with official weights renormalized | false | 7.17718646856 W m^-2 | 6.84298667546 W m^-2 |
 | 32 | 16 | greedy searched 16 shortwave g-point subset with least-squares fitted shortwave weights | false | 31.0262219594 W m^-2 | 66.6731185186 W m^-2 |

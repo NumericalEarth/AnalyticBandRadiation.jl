@@ -23,7 +23,9 @@ const GOAL_STEPS = (
     ),
 )
 
-const VERIFIED_STATUS_BLOCKERS = Set{String}()
+const VERIFIED_STATUS_BLOCKERS = Set([
+    "official/reduced ecCKD gas-optics training",
+])
 
 const PROMPT_ARTIFACT_CHECKLIST = (
     (
@@ -362,11 +364,11 @@ const REQUIRED_ARTIFACTS = (
     (
         name = "official/reduced ecCKD gas-optics training",
         path = joinpath(ABR_ROOT, "validation", "results", "official_ecckd_training.json"),
-        required_text = "\"status\": \"passed\"",
+        required_text = "\"status\": \"partial\"",
         forbidden_text = "",
         expected_present = true,
         completion_blocker = true,
-        blocker_reason = "toy gas-optics training exists, but production official/reduced ecCKD training has not been demonstrated",
+        blocker_reason = "production official/reduced ecCKD training improves the objective but has not quantitatively recovered a published model",
     ),
     (
         name = "full Reactant/Enzyme RRTMGP-target 16-g calibration",

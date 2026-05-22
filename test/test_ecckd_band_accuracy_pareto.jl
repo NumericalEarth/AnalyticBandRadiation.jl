@@ -21,16 +21,124 @@ using JSON
 
     result = JSON.parsefile(json_path)
     @test result["status"] == "passed"
-    @test result["point_count"] >= 22
+    @test result["point_count"] >= 100
     @test result["published_inventory_count"] == 6
     @test result["passed_point_count"] >= 1
+    @test haskey(result, "objective_front")
+    @test length(result["objective_front"]) >= 2
     @test any(row -> row["ng_lw"] == 32 && row["ng_sw"] == 32 && row["passed"],
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "reduced_accuracy" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31 &&
+                     row["passed"] &&
+                     occursin("boundary-polished", row["label"]),
               result["accuracy_points"])
     @test any(row -> row["ng_lw"] == 32 && row["ng_sw"] == 16,
               result["accuracy_points"])
+    @test any(row -> row["source"] == "size_scan" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 20,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "leave_one_out_scan" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "leave_one_out_weight_refit" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "leave_one_out_weight_coordinate_scan" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "leave_one_out_weight_coordinate_descent" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "leave_one_out_weight_coordinate_descent_continuation" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "leave_one_out_weight_coordinate_boundary_polish" &&
+                     row["ng_lw"] == 32 &&
+                     row["ng_sw"] == 31,
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "published_model_accuracy" &&
+                     row["ng_lw"] == 64 &&
+                     row["ng_sw"] == 64 &&
+                     !row["passed"],
+              result["accuracy_points"])
+    @test any(row -> row["source"] == "published_model_accuracy" &&
+                     row["ng_lw"] == 64 &&
+                     row["ng_sw"] == 96 &&
+                     !row["passed"],
+              result["accuracy_points"])
+    near_miss = only(filter(row -> row["source"] == "leave_one_out_weight_refit" &&
+                                   row["ng_lw"] == 32 &&
+                                   row["ng_sw"] == 31 &&
+                                   row["label"] ==
+                                   "leave-one-out official SW g-point scan with weight refit: omit g25",
+                            result["accuracy_points"]))
+    @test near_miss["worst_boundary_forcing_error_w_m2"] < 0.03
+    @test near_miss["normalized_objective"] > 12.0
+    @test near_miss["limiting_metric"] == "reported_refit_hardgate_objective"
+
+    best_objective_31 = only(filter(row -> row["source"] == "leave_one_out_weight_refit" &&
+                                           row["ng_lw"] == 32 &&
+                                           row["ng_sw"] == 31 &&
+                                           row["label"] ==
+                                           "leave-one-out official SW g-point scan with weight refit: omit g23",
+                                    result["accuracy_points"]))
+    @test best_objective_31["worst_boundary_forcing_error_w_m2"] < 0.08
+    @test best_objective_31["normalized_objective"] < 1.7
+
+    weight_coordinate_31 =
+        only(filter(row -> row["source"] == "leave_one_out_weight_coordinate_scan",
+                    result["accuracy_points"]))
+    @test weight_coordinate_31["worst_boundary_forcing_error_w_m2"] < 0.3
+    @test 1.48 < weight_coordinate_31["normalized_objective"] < 1.49
+
+    weight_descent_31 =
+        only(filter(row -> row["source"] == "leave_one_out_weight_coordinate_descent",
+                    result["accuracy_points"]))
+    @test weight_descent_31["worst_boundary_forcing_error_w_m2"] < 0.3
+    @test 1.26 < weight_descent_31["normalized_objective"] < 1.27
+
+    weight_continuation_31 =
+        only(filter(row -> row["source"] ==
+                           "leave_one_out_weight_coordinate_descent_continuation",
+                    result["accuracy_points"]))
+    @test weight_continuation_31["worst_boundary_forcing_error_w_m2"] < 0.3
+    @test 1.08 < weight_continuation_31["normalized_objective"] < 1.09
+
+    weight_polish_31 =
+        only(filter(row -> row["source"] ==
+                           "leave_one_out_weight_coordinate_boundary_polish",
+                    result["accuracy_points"]))
+    @test weight_polish_31["passed"]
+    @test weight_polish_31["worst_boundary_forcing_error_w_m2"] < 0.3
+    @test 0.99 < weight_polish_31["normalized_objective"] < 1.0
+    @test weight_polish_31["limiting_metric"] in
+          ("reported_weight_coordinate_boundary_polish_objective", "boundary_forcing")
+    canonical_polish_31 =
+        only(filter(row -> row["source"] == "reduced_accuracy" &&
+                           row["ng_lw"] == 32 &&
+                           row["ng_sw"] == 31,
+                    result["accuracy_points"]))
+    @test canonical_polish_31["passed"]
+    @test any(row -> row["label"] == canonical_polish_31["label"],
+              result["objective_front"])
+
+    md = read(md_path, String)
+    @test occursin("Boundary-Forcing Pareto Front", md)
+    @test occursin("Normalized-Objective Pareto Front", md)
+    @test occursin("g23 support", md)
+    @test occursin("omit g25", md)
 
     csv = read(csv_path, String)
     @test occursin("source,label,ng_lw,ng_sw,total_gpoints,passed", csv)
+    @test occursin("normalized_objective,objective_source,limiting_metric", csv)
     @test length(split(chomp(csv), "\n")) == result["point_count"] + 1
 
     svg = read(svg_path, String)

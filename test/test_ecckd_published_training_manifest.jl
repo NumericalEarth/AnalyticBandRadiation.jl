@@ -22,7 +22,21 @@ end
     @test result["config"]["training_code"] == "evaluation1"
     @test result["config"]["evaluation_code"] == "evaluation2"
     @test result["config"]["training_both"] == "no"
+    @test result["ckdmip_preflight"]["status"] == "ready_for_original_ecckd_objective"
+    @test result["ckdmip_preflight"]["derived_flux_final_product_count"] == 18
+    @test result["ckdmip_preflight"]["ready"]
     @test all(file -> file["exists"], result["source_files"])
+
+    master_scripts = Dict(script["path"] => script for script in result["master_scripts"])
+    @test master_scripts["test/do_all_lw.sh"]["band_structure"] == "fsck"
+    @test master_scripts["test/do_all_sw.sh"]["band_structure"] == "rgb"
+    @test occursin("relative-base", master_scripts["test/do_all_lw.sh"]["optimize_mode_list"])
+    @test occursin("relative-base", master_scripts["test/do_all_sw.sh"]["optimize_mode_list"])
+
+    targets = Dict(target["kind"] => target for target in result["official_recovery_targets"])
+    @test targets["longwave"]["nominal_gpoints"] == Any[16, 32]
+    @test targets["shortwave"]["nominal_gpoints"] == Any[16, 32]
+    @test targets["shortwave"]["optimizer_pass_order"] == Any["relative-base", "relative-ch4", "relative-n2o"]
 
     scripts = Dict(script["path"] => script for script in result["optimization_scripts"])
     @test haskey(scripts, "test/optimize_lut_lw.sh")

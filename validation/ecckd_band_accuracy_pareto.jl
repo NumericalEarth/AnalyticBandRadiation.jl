@@ -4,11 +4,37 @@ using Printf
 
 const RESULTS_DIR = joinpath(@__DIR__, "results")
 const REDUCED_ACCURACY_JSON = joinpath(RESULTS_DIR, "reduced_ecckd_accuracy.json")
+const REDUCED_SIZE_SCAN_JSON = joinpath(RESULTS_DIR, "reduced_ecckd_size_scan.json")
+const REDUCED_LEAVE_ONE_OUT_JSON =
+    joinpath(RESULTS_DIR, "reduced_ecckd_leave_one_out_scan.json")
+const REDUCED_LEAVE_ONE_OUT_REFIT_JSON =
+    joinpath(RESULTS_DIR, "reduced_ecckd_leave_one_out_weight_refit.json")
+const REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_JSON =
+    joinpath(RESULTS_DIR, "reduced_ecckd_leave_one_out_weight_coordinate_scan.json")
+const REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_DESCENT_JSON =
+    joinpath(RESULTS_DIR, "reduced_ecckd_leave_one_out_weight_coordinate_descent.json")
+const REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_DESCENT_CONTINUATION_JSON =
+    joinpath(RESULTS_DIR,
+             "reduced_ecckd_leave_one_out_weight_coordinate_descent_continuation.json")
+const REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_BOUNDARY_POLISH_JSON =
+    joinpath(RESULTS_DIR,
+             "reduced_ecckd_leave_one_out_weight_coordinate_boundary_polish.json")
+const PUBLISHED_MODEL_ACCURACY_JSON =
+    joinpath(RESULTS_DIR, "ecckd_published_model_accuracy.json")
 const INVENTORY_JSON = joinpath(RESULTS_DIR, "ecckd_model_inventory.json")
 const PARETO_JSON = joinpath(RESULTS_DIR, "ecckd_band_accuracy_pareto.json")
 const PARETO_MD = joinpath(RESULTS_DIR, "ecckd_band_accuracy_pareto.md")
 const PARETO_CSV = joinpath(RESULTS_DIR, "ecckd_band_accuracy_pareto.csv")
 const PARETO_SVG = joinpath(RESULTS_DIR, "ecckd_band_accuracy_pareto.svg")
+
+const FALLBACK_ACCEPTANCE_THRESHOLDS = (
+    flux_rmse_w_m2 = 1.0,
+    flux_max_abs_w_m2 = 5.0,
+    heating_rate_rmse_k_day = 0.05,
+    heating_rate_max_abs_k_day = 0.5,
+    toa_forcing_abs_error_w_m2 = 0.3,
+    surface_forcing_abs_error_w_m2 = 0.3,
+)
 
 function json_escape(text)
     return replace(text, "\\" => "\\\\", "\"" => "\\\"", "\n" => "\\n")
@@ -49,9 +75,70 @@ function json_get(object, key, default)
     return haskey(object, key) ? object[key] : default
 end
 
+function acceptance_thresholds(path = REDUCED_ACCURACY_JSON)
+    isfile(path) || return FALLBACK_ACCEPTANCE_THRESHOLDS
+    result = JSON.parsefile(path)
+    thresholds = json_get(result, "acceptance_thresholds", Dict{String, Any}())
+    return (
+        flux_rmse_w_m2 = Float64(json_get(thresholds, "flux_rmse_w_m2",
+                                          FALLBACK_ACCEPTANCE_THRESHOLDS.flux_rmse_w_m2)),
+        flux_max_abs_w_m2 = Float64(json_get(thresholds, "flux_max_abs_w_m2",
+                                             FALLBACK_ACCEPTANCE_THRESHOLDS.flux_max_abs_w_m2)),
+        heating_rate_rmse_k_day = Float64(json_get(thresholds, "heating_rate_rmse_k_day",
+                                                   FALLBACK_ACCEPTANCE_THRESHOLDS.heating_rate_rmse_k_day)),
+        heating_rate_max_abs_k_day = Float64(json_get(thresholds, "heating_rate_max_abs_k_day",
+                                                      FALLBACK_ACCEPTANCE_THRESHOLDS.heating_rate_max_abs_k_day)),
+        toa_forcing_abs_error_w_m2 = Float64(json_get(thresholds, "toa_forcing_abs_error_w_m2",
+                                                      FALLBACK_ACCEPTANCE_THRESHOLDS.toa_forcing_abs_error_w_m2)),
+        surface_forcing_abs_error_w_m2 = Float64(json_get(thresholds, "surface_forcing_abs_error_w_m2",
+                                                          FALLBACK_ACCEPTANCE_THRESHOLDS.surface_forcing_abs_error_w_m2)),
+    )
+end
+
+function metric_choice(pairs)
+    filtered = filter(pair -> isfinite(pair[2]), pairs)
+    isempty(filtered) && return ("unreported", NaN)
+    index = argmax(last.(filtered))
+    return filtered[index]
+end
+
+function reduced_case_metric_ratios(cases, thresholds)
+    pairs = Tuple{String, Float64}[]
+    for case in cases
+        variables = json_get(case, "variables", Dict{String, Any}())
+        for name in ("lw_up", "lw_down", "sw_up", "sw_down")
+            metrics = json_get(variables, name, Dict{String, Any}())
+            push!(pairs, ("$(name)_rmse", Float64(json_get(metrics, "rmse", 0.0)) /
+                                          thresholds.flux_rmse_w_m2))
+            push!(pairs, ("$(name)_max_abs", Float64(json_get(metrics, "max_abs", 0.0)) /
+                                             thresholds.flux_max_abs_w_m2))
+        end
+        heating = json_get(variables, "heating_rate", Dict{String, Any}())
+        push!(pairs, ("heating_rate_rmse", Float64(json_get(heating, "rmse", 0.0)) /
+                                            thresholds.heating_rate_rmse_k_day))
+        push!(pairs, ("heating_rate_max_abs", Float64(json_get(heating, "max_abs", 0.0)) /
+                                               thresholds.heating_rate_max_abs_k_day))
+        push!(pairs, ("toa_forcing", Float64(json_get(case, "toa_forcing_max_abs", 0.0)) /
+                                     thresholds.toa_forcing_abs_error_w_m2))
+        push!(pairs, ("surface_forcing", Float64(json_get(case, "surface_forcing_max_abs", 0.0)) /
+                                         thresholds.surface_forcing_abs_error_w_m2))
+    end
+    return metric_choice(pairs)
+end
+
+function sw_boundary_metric_ratios(toa, surface, sw_up_rmse, sw_down_rmse, thresholds)
+    return metric_choice((
+        ("toa_forcing", toa / thresholds.toa_forcing_abs_error_w_m2),
+        ("surface_forcing", surface / thresholds.surface_forcing_abs_error_w_m2),
+        ("sw_up_rmse", sw_up_rmse / thresholds.flux_rmse_w_m2),
+        ("sw_down_rmse", sw_down_rmse / thresholds.flux_rmse_w_m2),
+    ))
+end
+
 function parse_reduced_accuracy_rows(path = REDUCED_ACCURACY_JSON)
     isfile(path) || return NamedTuple[]
     result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds(path)
     rows = NamedTuple[]
     for model in json_get(result, "models", Any[])
         cases = json_get(model, "cases", Any[])
@@ -60,6 +147,7 @@ function parse_reduced_accuracy_rows(path = REDUCED_ACCURACY_JSON)
         surface = maximum(Float64(json_get(case, "surface_forcing_max_abs")) for case in cases)
         ng_lw = Int(json_get(model, "ng_lw"))
         ng_sw = Int(json_get(model, "ng_sw"))
+        limiting_metric, limiting_ratio = reduced_case_metric_ratios(cases, thresholds)
         push!(rows, (
             source = "reduced_accuracy",
             label = String(json_get(model, "reduction_method")),
@@ -70,6 +158,317 @@ function parse_reduced_accuracy_rows(path = REDUCED_ACCURACY_JSON)
             worst_toa_forcing_error_w_m2 = toa,
             worst_surface_forcing_error_w_m2 = surface,
             worst_boundary_forcing_error_w_m2 = max(toa, surface),
+            normalized_objective = limiting_ratio,
+            objective_source = "maximum_reported_threshold_ratio",
+            limiting_metric = limiting_metric,
+            limiting_metric_ratio = limiting_ratio,
+        ))
+    end
+    return rows
+end
+
+function parse_size_scan_rows(path = REDUCED_SIZE_SCAN_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    rows = NamedTuple[]
+    for row in json_get(result, "rows", Any[])
+        ng_lw = Int(json_get(row, "ng_lw"))
+        ng_sw = Int(json_get(row, "ng_sw"))
+        toa = Float64(json_get(row, "worst_toa_forcing_error"))
+        surface = Float64(json_get(row, "worst_surface_forcing_error"))
+        sw_up = Float64(json_get(row, "worst_sw_up_rmse", 0.0))
+        sw_down = Float64(json_get(row, "worst_sw_down_rmse", 0.0))
+        limiting_metric, limiting_ratio =
+            sw_boundary_metric_ratios(toa, surface, sw_up, sw_down, thresholds)
+        push!(rows, (
+            source = "size_scan",
+            label = "size scan: $(String(json_get(row, "method")))",
+            ng_lw = ng_lw,
+            ng_sw = ng_sw,
+            total_gpoints = ng_lw + ng_sw,
+            passed = Bool(json_get(row, "passed_hard_thresholds")),
+            worst_toa_forcing_error_w_m2 = toa,
+            worst_surface_forcing_error_w_m2 = surface,
+            worst_boundary_forcing_error_w_m2 = max(toa, surface),
+            normalized_objective = limiting_ratio,
+            objective_source = "maximum_reported_threshold_ratio",
+            limiting_metric = limiting_metric,
+            limiting_metric_ratio = limiting_ratio,
+        ))
+    end
+    return rows
+end
+
+function parse_leave_one_out_rows(path = REDUCED_LEAVE_ONE_OUT_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    rows = NamedTuple[]
+    for row in json_get(result, "rows", Any[])
+        ng_lw = Int(json_get(row, "ng_lw"))
+        ng_sw = Int(json_get(row, "ng_sw"))
+        omitted = Int(json_get(row, "omitted_gpoint"))
+        toa = Float64(json_get(row, "worst_toa_forcing_error_w_m2"))
+        surface = Float64(json_get(row, "worst_surface_forcing_error_w_m2"))
+        sw_up = Float64(json_get(row, "worst_sw_up_rmse_w_m2", 0.0))
+        sw_down = Float64(json_get(row, "worst_sw_down_rmse_w_m2", 0.0))
+        limiting_metric, limiting_ratio =
+            sw_boundary_metric_ratios(toa, surface, sw_up, sw_down, thresholds)
+        objective = Float64(json_get(row, "objective", limiting_ratio))
+        if objective > limiting_ratio
+            limiting_metric = "reported_hardgate_objective"
+            limiting_ratio = objective
+        end
+        push!(rows, (
+            source = "leave_one_out_scan",
+            label = "leave-one-out official SW g-point scan: omit g$(omitted)",
+            ng_lw = ng_lw,
+            ng_sw = ng_sw,
+            total_gpoints = ng_lw + ng_sw,
+            passed = Bool(json_get(row, "passed_hard_thresholds")),
+            worst_toa_forcing_error_w_m2 = toa,
+            worst_surface_forcing_error_w_m2 = surface,
+            worst_boundary_forcing_error_w_m2 = max(toa, surface),
+            normalized_objective = objective,
+            objective_source = "reported_hardgate_objective",
+            limiting_metric = limiting_metric,
+            limiting_metric_ratio = limiting_ratio,
+        ))
+    end
+    return rows
+end
+
+function parse_leave_one_out_refit_rows(path = REDUCED_LEAVE_ONE_OUT_REFIT_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    rows = NamedTuple[]
+    for row in json_get(result, "rows", Any[])
+        ng_lw = Int(json_get(row, "ng_lw"))
+        ng_sw = Int(json_get(row, "ng_sw"))
+        omitted = Int(json_get(row, "omitted_gpoint"))
+        toa = Float64(json_get(row, "refit_toa_forcing_error_w_m2"))
+        surface = Float64(json_get(row, "refit_surface_forcing_error_w_m2"))
+        limiting_metric, boundary_ratio =
+            metric_choice((
+                ("toa_forcing", toa / thresholds.toa_forcing_abs_error_w_m2),
+                ("surface_forcing", surface / thresholds.surface_forcing_abs_error_w_m2),
+            ))
+        objective = Float64(json_get(row, "refit_objective", boundary_ratio))
+        if objective > boundary_ratio
+            limiting_metric = "reported_refit_hardgate_objective"
+        end
+        push!(rows, (
+            source = "leave_one_out_weight_refit",
+            label = "leave-one-out official SW g-point scan with weight refit: omit g$(omitted)",
+            ng_lw = ng_lw,
+            ng_sw = ng_sw,
+            total_gpoints = ng_lw + ng_sw,
+            passed = Bool(json_get(row, "passed_hard_thresholds")),
+            worst_toa_forcing_error_w_m2 = toa,
+            worst_surface_forcing_error_w_m2 = surface,
+            worst_boundary_forcing_error_w_m2 = max(toa, surface),
+            normalized_objective = objective,
+            objective_source = "reported_refit_hardgate_objective",
+            limiting_metric = limiting_metric,
+            limiting_metric_ratio = max(objective, boundary_ratio),
+        ))
+    end
+    return rows
+end
+
+function parse_leave_one_out_weight_coordinate_rows(path = REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    accepted = Bool(json_get(result, "accepted", false))
+    accepted || return NamedTuple[]
+    omitted = Int(json_get(result, "omitted_gpoint"))
+    ng_lw = Int(json_get(result, "ng_lw"))
+    ng_sw = Int(json_get(result, "ng_sw"))
+    move = json_get(result, "accepted_move", Dict{String, Any}())
+    toa = Float64(json_get(move, "worst_toa_forcing_error_w_m2",
+                           json_get(result, "accepted_worst_boundary_forcing_error_w_m2")))
+    surface = Float64(json_get(move, "worst_surface_forcing_error_w_m2",
+                               json_get(result, "accepted_worst_boundary_forcing_error_w_m2")))
+    boundary = Float64(json_get(result, "accepted_worst_boundary_forcing_error_w_m2"))
+    heating_rmse = Float64(json_get(result, "accepted_worst_heating_rate_rmse_k_day"))
+    objective = Float64(json_get(result, "accepted_objective"))
+    limiting_metric, limiting_ratio = metric_choice((
+        ("heating_rate_rmse", heating_rmse / thresholds.heating_rate_rmse_k_day),
+        ("reported_weight_coordinate_objective", objective),
+        ("boundary_forcing", boundary / thresholds.toa_forcing_abs_error_w_m2),
+    ))
+    if objective > limiting_ratio
+        limiting_metric = "reported_weight_coordinate_objective"
+        limiting_ratio = objective
+    end
+    return [(
+        source = "leave_one_out_weight_coordinate_scan",
+        label = "leave-one-out official SW g-point scan with exact weight coordinate move: omit g$(omitted)",
+        ng_lw = ng_lw,
+        ng_sw = ng_sw,
+        total_gpoints = ng_lw + ng_sw,
+        passed = objective <= 1.0,
+        worst_toa_forcing_error_w_m2 = toa,
+        worst_surface_forcing_error_w_m2 = surface,
+        worst_boundary_forcing_error_w_m2 = boundary,
+        normalized_objective = objective,
+        objective_source = "accepted_exact_weight_coordinate_objective",
+        limiting_metric = limiting_metric,
+        limiting_metric_ratio = limiting_ratio,
+    )]
+end
+
+function parse_leave_one_out_weight_coordinate_descent_rows(path = REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_DESCENT_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    accepted_move_count = Int(json_get(result, "accepted_move_count", 0))
+    accepted_move_count > 0 || return NamedTuple[]
+    omitted = Int(json_get(result, "omitted_gpoint"))
+    ng_lw = Int(json_get(result, "ng_lw"))
+    ng_sw = Int(json_get(result, "ng_sw"))
+    toa = Float64(json_get(result, "final_worst_toa_forcing_error_w_m2"))
+    surface = Float64(json_get(result, "final_worst_surface_forcing_error_w_m2"))
+    boundary = Float64(json_get(result, "final_worst_boundary_forcing_error_w_m2"))
+    heating_rmse = Float64(json_get(result, "final_worst_heating_rate_rmse_k_day"))
+    objective = Float64(json_get(result, "final_objective"))
+    limiting_metric, limiting_ratio = metric_choice((
+        ("heating_rate_rmse", heating_rmse / thresholds.heating_rate_rmse_k_day),
+        ("reported_weight_coordinate_descent_objective", objective),
+        ("boundary_forcing", boundary / thresholds.toa_forcing_abs_error_w_m2),
+    ))
+    if objective > limiting_ratio
+        limiting_metric = "reported_weight_coordinate_descent_objective"
+        limiting_ratio = objective
+    end
+    return [(
+        source = "leave_one_out_weight_coordinate_descent",
+        label = "leave-one-out official SW g-point scan with exact weight coordinate descent: omit g$(omitted)",
+        ng_lw = ng_lw,
+        ng_sw = ng_sw,
+        total_gpoints = ng_lw + ng_sw,
+        passed = objective <= 1.0,
+        worst_toa_forcing_error_w_m2 = toa,
+        worst_surface_forcing_error_w_m2 = surface,
+        worst_boundary_forcing_error_w_m2 = boundary,
+        normalized_objective = objective,
+        objective_source = "accepted_exact_weight_coordinate_descent_objective",
+        limiting_metric = limiting_metric,
+        limiting_metric_ratio = limiting_ratio,
+    )]
+end
+
+function parse_leave_one_out_weight_coordinate_descent_continuation_rows(
+        path = REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_DESCENT_CONTINUATION_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    accepted_move_count = Int(json_get(result, "accepted_move_count", 0))
+    accepted_move_count > 0 || return NamedTuple[]
+    omitted = Int(json_get(result, "omitted_gpoint"))
+    ng_lw = Int(json_get(result, "ng_lw"))
+    ng_sw = Int(json_get(result, "ng_sw"))
+    toa = Float64(json_get(result, "final_worst_toa_forcing_error_w_m2"))
+    surface = Float64(json_get(result, "final_worst_surface_forcing_error_w_m2"))
+    boundary = Float64(json_get(result, "final_worst_boundary_forcing_error_w_m2"))
+    heating_rmse = Float64(json_get(result, "final_worst_heating_rate_rmse_k_day"))
+    objective = Float64(json_get(result, "final_objective"))
+    limiting_metric, limiting_ratio = metric_choice((
+        ("heating_rate_rmse", heating_rmse / thresholds.heating_rate_rmse_k_day),
+        ("reported_weight_coordinate_descent_continuation_objective", objective),
+        ("boundary_forcing", boundary / thresholds.toa_forcing_abs_error_w_m2),
+    ))
+    if objective > limiting_ratio
+        limiting_metric = "reported_weight_coordinate_descent_continuation_objective"
+        limiting_ratio = objective
+    end
+    return [(
+        source = "leave_one_out_weight_coordinate_descent_continuation",
+        label = "leave-one-out official SW g-point scan with exact weight coordinate descent continuation: omit g$(omitted)",
+        ng_lw = ng_lw,
+        ng_sw = ng_sw,
+        total_gpoints = ng_lw + ng_sw,
+        passed = objective <= 1.0,
+        worst_toa_forcing_error_w_m2 = toa,
+        worst_surface_forcing_error_w_m2 = surface,
+        worst_boundary_forcing_error_w_m2 = boundary,
+        normalized_objective = objective,
+        objective_source = "accepted_exact_weight_coordinate_descent_continuation_objective",
+        limiting_metric = limiting_metric,
+        limiting_metric_ratio = limiting_ratio,
+    )]
+end
+
+function parse_leave_one_out_weight_coordinate_boundary_polish_rows(
+    path = REDUCED_LEAVE_ONE_OUT_WEIGHT_COORDINATE_BOUNDARY_POLISH_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    thresholds = acceptance_thresholds()
+    accepted_move_count = Int(json_get(result, "accepted_move_count", 0))
+    accepted_move_count > 0 || return NamedTuple[]
+    omitted = Int(json_get(result, "omitted_gpoint"))
+    ng_lw = Int(json_get(result, "ng_lw"))
+    ng_sw = Int(json_get(result, "ng_sw"))
+    toa = Float64(json_get(result, "final_worst_toa_forcing_error_w_m2"))
+    surface = Float64(json_get(result, "final_worst_surface_forcing_error_w_m2"))
+    boundary = Float64(json_get(result, "final_worst_boundary_forcing_error_w_m2"))
+    heating_rmse = Float64(json_get(result, "final_worst_heating_rate_rmse_k_day"))
+    objective = Float64(json_get(result, "final_objective"))
+    limiting_metric, limiting_ratio = metric_choice((
+        ("heating_rate_rmse", heating_rmse / thresholds.heating_rate_rmse_k_day),
+        ("reported_weight_coordinate_boundary_polish_objective", objective),
+        ("boundary_forcing", boundary / thresholds.toa_forcing_abs_error_w_m2),
+    ))
+    if objective > limiting_ratio
+        limiting_metric = "reported_weight_coordinate_boundary_polish_objective"
+        limiting_ratio = objective
+    end
+    return [(
+        source = "leave_one_out_weight_coordinate_boundary_polish",
+        label = "leave-one-out official SW g-point scan with exact weight coordinate boundary polish: omit g$(omitted)",
+        ng_lw = ng_lw,
+        ng_sw = ng_sw,
+        total_gpoints = ng_lw + ng_sw,
+        passed = objective <= 1.0,
+        worst_toa_forcing_error_w_m2 = toa,
+        worst_surface_forcing_error_w_m2 = surface,
+        worst_boundary_forcing_error_w_m2 = boundary,
+        normalized_objective = objective,
+        objective_source = "accepted_exact_weight_coordinate_boundary_polish_objective",
+        limiting_metric = limiting_metric,
+        limiting_metric_ratio = limiting_ratio,
+    )]
+end
+
+function parse_published_model_accuracy_rows(path = PUBLISHED_MODEL_ACCURACY_JSON)
+    isfile(path) || return NamedTuple[]
+    result = JSON.parsefile(path)
+    rows = NamedTuple[]
+    for model in json_get(result, "models", Any[])
+        objective = json_get(model, "hard_objective", Dict{String, Any}())
+        ng_lw = Int(json_get(model, "ng_lw"))
+        ng_sw = Int(json_get(model, "ng_sw"))
+        toa = Float64(json_get(model, "worst_toa_forcing_abs_error_w_m2"))
+        surface = Float64(json_get(model, "worst_surface_forcing_abs_error_w_m2"))
+        normalized_objective = Float64(json_get(objective, "value", max(toa, surface)))
+        limiting_metric = String(json_get(objective, "metric", "reported_hard_objective"))
+        push!(rows, (
+            source = "published_model_accuracy",
+            label = String(json_get(model, "label")),
+            ng_lw = ng_lw,
+            ng_sw = ng_sw,
+            total_gpoints = ng_lw + ng_sw,
+            passed = Bool(json_get(model, "passed_hard_thresholds")),
+            worst_toa_forcing_error_w_m2 = toa,
+            worst_surface_forcing_error_w_m2 = surface,
+            worst_boundary_forcing_error_w_m2 = max(toa, surface),
+            normalized_objective = normalized_objective,
+            objective_source = "published_model_accuracy_hard_objective",
+            limiting_metric = limiting_metric,
+            limiting_metric_ratio = normalized_objective,
         ))
     end
     return rows
@@ -106,8 +505,22 @@ function pareto_front(rows)
     return front
 end
 
+function objective_front(rows)
+    sorted = sort(rows; by = row -> (row.total_gpoints, row.normalized_objective,
+                                     row.worst_boundary_forcing_error_w_m2))
+    front = NamedTuple[]
+    best = Inf
+    for row in sorted
+        if row.normalized_objective < best
+            push!(front, row)
+            best = row.normalized_objective
+        end
+    end
+    return front
+end
+
 function write_csv(rows, path = PARETO_CSV)
-    lines = ["source,label,ng_lw,ng_sw,total_gpoints,passed,worst_toa_forcing_error_w_m2,worst_surface_forcing_error_w_m2,worst_boundary_forcing_error_w_m2"]
+    lines = ["source,label,ng_lw,ng_sw,total_gpoints,passed,worst_toa_forcing_error_w_m2,worst_surface_forcing_error_w_m2,worst_boundary_forcing_error_w_m2,normalized_objective,objective_source,limiting_metric,limiting_metric_ratio"]
     for row in rows
         label = replace(row.label, "\"" => "\"\"")
         push!(lines, join((
@@ -120,6 +533,10 @@ function write_csv(rows, path = PARETO_CSV)
             row.worst_toa_forcing_error_w_m2,
             row.worst_surface_forcing_error_w_m2,
             row.worst_boundary_forcing_error_w_m2,
+            row.normalized_objective,
+            row.objective_source,
+            row.limiting_metric,
+            row.limiting_metric_ratio,
         ), ","))
     end
     write(path, join(lines, "\n") * "\n")
@@ -185,8 +602,19 @@ function svg_plot(rows, front)
 end
 
 function run_band_accuracy_pareto()
-    rows = parse_reduced_accuracy_rows()
+    rows = vcat(
+        parse_reduced_accuracy_rows(),
+        parse_size_scan_rows(),
+        parse_leave_one_out_rows(),
+        parse_leave_one_out_refit_rows(),
+        parse_leave_one_out_weight_coordinate_rows(),
+        parse_leave_one_out_weight_coordinate_descent_rows(),
+        parse_leave_one_out_weight_coordinate_descent_continuation_rows(),
+        parse_leave_one_out_weight_coordinate_boundary_polish_rows(),
+        parse_published_model_accuracy_rows(),
+    )
     front = pareto_front(rows)
+    objective = objective_front(rows)
     inventory = parse_inventory_rows()
     passed_rows = count(row -> row.passed, rows)
     return (
@@ -200,8 +628,9 @@ function run_band_accuracy_pareto()
         csv_path = PARETO_CSV,
         accuracy_points = rows,
         pareto_front = front,
+        objective_front = objective,
         published_inventory = inventory,
-        notes = "This artifact plots all currently available ecCKD reduced-accuracy rows. Published 64/96 definitions are inventoried and recovered by the teacher-student scan, but radiative accuracy for newly trained intermediate models remains future work.",
+        notes = "This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the official 32x32, 64x64, and 64x96 combinations. Published 64/96 definitions are inventoried and recovered by the teacher-student scan, but the current package-native clean reference gate is only passed by the 32x32 published combination; newly trained intermediate models remain future work.",
     )
 end
 
@@ -219,13 +648,27 @@ function markdown_pareto(result)
         "",
         result.notes,
         "",
-        "## Pareto Front",
+        "The plot keeps boundary forcing on the y-axis because that is the user-facing radiative forcing criterion. The JSON and CSV also report `normalized_objective`, `objective_source`, and `limiting_metric`; for leave-one-out reduced models, the reported ecCKD hard-gate objective can remain above threshold even when boundary forcing is small because the scan artifact does not expose every max-abs/heating component separately.",
         "",
-        "| Total g-points | LW | SW | Passed | Worst boundary forcing error | Method |",
-        "|---:|---:|---:|---:|---:|---|",
+        "## Boundary-Forcing Pareto Front",
+        "",
+        "| Total g-points | LW | SW | Passed | Worst boundary forcing error | Normalized objective | Limiting metric | Method |",
+        "|---:|---:|---:|---:|---:|---:|---|---|",
     ]
     for row in result.pareto_front
-        push!(lines, "| $(row.total_gpoints) | $(row.ng_lw) | $(row.ng_sw) | $(row.passed) | $(@sprintf("%.6g", row.worst_boundary_forcing_error_w_m2)) | $(row.label) |")
+        push!(lines, "| $(row.total_gpoints) | $(row.ng_lw) | $(row.ng_sw) | $(row.passed) | $(@sprintf("%.6g", row.worst_boundary_forcing_error_w_m2)) | $(@sprintf("%.6g", row.normalized_objective)) | $(row.limiting_metric) | $(row.label) |")
+    end
+    append!(lines, [
+        "",
+        "## Normalized-Objective Pareto Front",
+        "",
+        "This front ranks the same rows by the full reported hard-gate objective when available. It can disagree with the boundary-forcing front: the 32×31 omitted-g25 row has the smallest boundary forcing, while the omitted-g23 row is the closest 32×31 row to satisfying the full hard gate.",
+        "",
+        "| Total g-points | LW | SW | Passed | Worst boundary forcing error | Normalized objective | Limiting metric | Method |",
+        "|---:|---:|---:|---:|---:|---:|---|---|",
+    ])
+    for row in result.objective_front
+        push!(lines, "| $(row.total_gpoints) | $(row.ng_lw) | $(row.ng_sw) | $(row.passed) | $(@sprintf("%.6g", row.worst_boundary_forcing_error_w_m2)) | $(@sprintf("%.6g", row.normalized_objective)) | $(row.limiting_metric) | $(row.label) |")
     end
     append!(lines, [
         "",

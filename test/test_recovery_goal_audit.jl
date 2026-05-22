@@ -29,6 +29,12 @@ end
           Set(item["requirement_id"] for item in result["prompt_to_artifact_checklist"]
               if !item["covered"])
     @test haskey(result, "original_objective_assets_ready")
+    @test haskey(result, "official_training_summary")
+    @test result["official_training_summary"]["present"]
+    @test result["official_training_summary"]["reactant_status"] == "passed"
+    @test result["official_training_summary"]["enzyme_status"] == "passed"
+    @test result["official_training_summary"]["final_objective_target_ratio"] > 1
+    @test !result["official_training_summary"]["hard_accuracy_target_met"]
     @test result["teacher_student_recovery_status"] == "passed"
     @test haskey(result, "derived_flux_progress")
     @test haskey(result, "derived_flux_plan_status")
@@ -61,6 +67,44 @@ end
     @test result["reduced_model_summary"]["hard_boundary_forcing_threshold_w_m2"] == 0.3
     @test result["reduced_model_summary"]["official_32x32_worst_boundary_forcing_error_w_m2"] < 0.3
     @test haskey(result["reduced_model_summary"], "best_reduced_candidate")
+    @test haskey(result, "reduced_near_miss_summary")
+    @test result["reduced_near_miss_summary"]["present"]
+    @test result["reduced_near_miss_summary"]["ng_lw"] == 32
+    @test result["reduced_near_miss_summary"]["ng_sw"] == 31
+    @test result["reduced_near_miss_summary"]["limiting_metric"] == "heating_rate_rmse"
+    @test result["reduced_near_miss_summary"]["limiting_metric_ratio"] > 12
+    @test result["reduced_near_miss_summary"]["objective_best_omitted_gpoint"] == 23
+    @test result["reduced_near_miss_summary"]["objective_best_limiting_metric"] ==
+          "heating_rate_rmse"
+    @test 1.6 < result["reduced_near_miss_summary"]["objective_best_objective"] < 1.7
+    @test haskey(result, "reduced_weight_coordinate_summary")
+    @test result["reduced_weight_coordinate_summary"]["present"]
+    @test result["reduced_weight_coordinate_summary"]["accepted"]
+    @test result["reduced_weight_coordinate_summary"]["omitted_gpoint"] == 23
+    @test 1.48 < result["reduced_weight_coordinate_summary"]["accepted_objective"] < 1.49
+    @test result["reduced_weight_coordinate_summary"]["accepted_worst_boundary_forcing_error_w_m2"] < 0.3
+    @test haskey(result, "reduced_weight_coordinate_descent_summary")
+    @test result["reduced_weight_coordinate_descent_summary"]["present"]
+    @test result["reduced_weight_coordinate_descent_summary"]["accepted"]
+    @test result["reduced_weight_coordinate_descent_summary"]["omitted_gpoint"] == 23
+    @test result["reduced_weight_coordinate_descent_summary"]["accepted_move_count"] == 6
+    @test 1.26 < result["reduced_weight_coordinate_descent_summary"]["final_objective"] < 1.27
+    @test result["reduced_weight_coordinate_descent_summary"]["final_worst_boundary_forcing_error_w_m2"] < 0.3
+    @test haskey(result, "reduced_weight_coordinate_descent_continuation_summary")
+    @test result["reduced_weight_coordinate_descent_continuation_summary"]["present"]
+    @test result["reduced_weight_coordinate_descent_continuation_summary"]["accepted"]
+    @test result["reduced_weight_coordinate_descent_continuation_summary"]["omitted_gpoint"] == 23
+    @test result["reduced_weight_coordinate_descent_continuation_summary"]["accepted_move_count"] == 8
+    @test 1.08 < result["reduced_weight_coordinate_descent_continuation_summary"]["final_objective"] < 1.09
+    @test result["reduced_weight_coordinate_descent_continuation_summary"]["final_worst_boundary_forcing_error_w_m2"] < 0.3
+    @test haskey(result, "reduced_weight_coordinate_boundary_polish_summary")
+    @test result["reduced_weight_coordinate_boundary_polish_summary"]["present"]
+    @test result["reduced_weight_coordinate_boundary_polish_summary"]["accepted"]
+    @test result["reduced_weight_coordinate_boundary_polish_summary"]["passed"]
+    @test result["reduced_weight_coordinate_boundary_polish_summary"]["omitted_gpoint"] == 23
+    @test result["reduced_weight_coordinate_boundary_polish_summary"]["accepted_move_count"] == 17
+    @test 0.99 < result["reduced_weight_coordinate_boundary_polish_summary"]["final_objective"] < 1.0
+    @test result["reduced_weight_coordinate_boundary_polish_summary"]["final_worst_boundary_forcing_error_w_m2"] < 0.3
     @test result["breeze_summary"]["runtime_supported"]
     @test result["breeze_summary"]["final_4x_claim_supported"]
 
@@ -91,6 +135,14 @@ end
     @test occursin("ncrcat", markdown)
     @test occursin("Observed derived raw chunk rate", markdown)
     @test occursin("Quantitative Reduced-Model Status", markdown)
+    @test occursin("Reduced near-miss limiter", markdown)
+    @test occursin("Objective-best dense leave-one-out diagnostic", markdown)
+    @test occursin("omitted SW g-point 23", markdown)
+    @test occursin("Exact weight-coordinate improvement", markdown)
+    @test occursin("Exact weight-coordinate descent", markdown)
+    @test occursin("heating_rate_rmse", markdown)
+    @test occursin("Quantitative Training-Recovery Status", markdown)
+    @test occursin("final/target", markdown)
     @test occursin("RH_CKDMIP_DATA_PATH", markdown) ||
           occursin("derived ecCKD", markdown)
 end

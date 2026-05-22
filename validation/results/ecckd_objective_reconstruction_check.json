@@ -1,7 +1,7 @@
 {
   "case": "ecckd_objective_reconstruction_check",
-  "timestamp_utc": "2026-05-20T15:28:16.495",
-  "status": "blocked_missing_original_training_assets",
+  "timestamp_utc": "2026-05-22T00:00:16.859",
+  "status": "ready_to_reconstruct_original_objective",
   "ecrad_source_root": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20",
   "ecckd_source_root": "/shared/home/greg/.julia/artifacts/7b210aef53e908cfe3c709945f0763c37ca82aaa/ecckd-6115f9b8e29a55cb0f48916857bdc77fec41badd",
   "ckdmip_training_root": "/shared/home/greg/data/ckdmip",
@@ -37,10 +37,10 @@
   "blocker": null
 }, {
   "name": "derived ecCKD training flux products",
-  "present": false,
+  "present": true,
   "role": "Derived 5-gas and relative-humidity perturbation flux products consumed by the published ecCKD optimizer scripts.",
   "evidence": ["ckdmip_evaluation1_lw_fluxes_5gas-1120.h5", "ckdmip_evaluation1_lw_fluxes_5gas-180.h5", "ckdmip_evaluation1_lw_fluxes_5gas-2240.h5", "ckdmip_evaluation1_lw_fluxes_5gas-280.h5", "ckdmip_evaluation1_lw_fluxes_5gas-415.h5", "ckdmip_evaluation1_lw_fluxes_5gas-560.h5", "ckdmip_evaluation1_lw_fluxes_rel-1120.h5", "ckdmip_evaluation1_lw_fluxes_rel-180.h5", "ckdmip_evaluation1_lw_fluxes_rel-2240.h5", "ckdmip_evaluation1_lw_fluxes_rel-280.h5", "ckdmip_evaluation1_lw_fluxes_rel-415.h5", "ckdmip_evaluation1_lw_fluxes_rel-560.h5", "ckdmip_evaluation1_sw_fluxes_rel-1120.h5", "ckdmip_evaluation1_sw_fluxes_rel-180.h5", "ckdmip_evaluation1_sw_fluxes_rel-2240.h5", "ckdmip_evaluation1_sw_fluxes_rel-280.h5", "ckdmip_evaluation1_sw_fluxes_rel-415.h5", "ckdmip_evaluation1_sw_fluxes_rel-560.h5"],
-  "blocker": "CKDMIP upstream data is present, but derived ecCKD 5gas/rel training flux products are missing; generate them locally from the spectra before exact objective recovery."
+  "blocker": null
 }, {
   "name": "official ecCKD generator and optimizer source",
   "present": true,
@@ -54,11 +54,11 @@
   "evidence": ["test/config.h", "test/optimize_lut_lw.sh", "test/optimize_lut_sw.sh", "test/do_all_lw.sh", "test/do_all_sw.sh"],
   "blocker": null
 }],
-  "blockers": ["CKDMIP upstream data is present, but derived ecCKD 5gas/rel training flux products are missing; generate them locally from the spectra before exact objective recovery."],
+  "blockers": [],
   "current_supported_recovery": "Teacher-student coefficient recovery against published ecCKD CKD-definition files using Reactant compilation checks and Enzyme gradients.",
   "fixed_objective_manifest": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_published_training_manifest.json",
   "ckdmip_training_data_preflight": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ckdmip_training_data_preflight.json",
-  "ckdmip_training_data_preflight_status": "ready_for_derived_flux_generation",
-  "missing_for_exact_original_recovery": ["derived ecCKD training flux products"],
+  "ckdmip_training_data_preflight_status": "ready_for_original_ecckd_objective",
+  "missing_for_exact_original_recovery": [],
   "next_required_inputs": ["Set RH_CKDMIP_DATA_PATH to a complete CKDMIP tree with public upstream spectra, concentration, and flux inputs.", "Generate the derived ecCKD 5gas/rel training flux products locally from the upstream spectra if they are not already present.", "Encode the original profile set, spectral weights, gases, loss terms, and stopping criteria before varying optimizer settings."]
 }

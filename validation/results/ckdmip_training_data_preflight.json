@@ -1,7 +1,7 @@
 {
   "case": "ckdmip_training_data_preflight",
-  "timestamp_utc": "2026-05-21T15:03:43.646",
-  "status": "ready_for_derived_flux_generation",
+  "timestamp_utc": "2026-05-21T23:58:41.082",
+  "status": "ready_for_original_ecckd_objective",
   "ckdmip_data_root": "/shared/home/greg/data/ckdmip",
   "fixed_objective_manifest": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_published_training_manifest.json",
   "expected_training_flux_file_count": 52,
@@ -218,22 +218,22 @@
   "present": true
 }, {
   "path": "evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-1120.h5",
-  "present": false
+  "present": true
 }, {
   "path": "evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-180.h5",
-  "present": false
+  "present": true
 }, {
   "path": "evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-2240.h5",
-  "present": false
+  "present": true
 }, {
   "path": "evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-280.h5",
-  "present": false
+  "present": true
 }, {
   "path": "evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-415.h5",
-  "present": false
+  "present": true
 }, {
   "path": "evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-560.h5",
-  "present": false
+  "present": true
 }],
   "spectra_directories": [{
   "path": "mmm/lw_spectra",
@@ -261,5 +261,5 @@
   "present": true
 }],
   "blockers": [],
-  "derived_flux_generation_blockers": ["Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-1120.h5", "Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-180.h5", "Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-2240.h5", "Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-280.h5", "Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-415.h5", "Missing derived ecCKD training flux product: evaluation1/sw_fluxes/ckdmip_evaluation1_sw_fluxes_rel-560.h5"]
+  "derived_flux_generation_blockers": []
 }
