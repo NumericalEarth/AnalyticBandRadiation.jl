@@ -1,6 +1,6 @@
 {
   "case": "ecrad_all_sky_ifs_gate",
-  "timestamp_utc": "2026-05-15T18:49:32.112",
+  "timestamp_utc": "2026-05-22T20:56:42.808",
   "status": "passed",
   "accuracy_gate_ecckd_all_sky_passed": true,
   "cloud_scattering_tables_passed": true,

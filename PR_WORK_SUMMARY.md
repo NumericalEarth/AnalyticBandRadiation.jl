@@ -112,9 +112,12 @@ stack.
 
 The branch implements the runtime and validation surface for (a)–(c) and the
 teacher-student recovery path of (d). The derived ecCKD CKDMIP training fluxes
-(`5gas-*` LW, `rel-*` LW, `rel-*` SW) have now been generated locally and the
-preflight reports `ready_for_original_ecckd_objective`; exact
-original-objective recovery is the next substantive implementation step.
+(`5gas-*` LW, `rel-*` LW, `rel-*` SW) have now been generated locally, the
+preflight reports `ready_for_original_ecckd_objective`, and
+`validation/results/ecckd_original_objective_terms.{json,md}` captures the
+official LW/SW cost-function terms and fixed optimizer pass settings from the
+ecCKD source. Exact original-objective recovery is still the next substantive
+implementation step.
 
 ---
 
@@ -250,20 +253,105 @@ gate in `validation/`.
   The current Pareto artifact combines the bespoke reduced-candidate rows,
   simple size-scan rows, leave-one-out official shortwave g-point scans,
   exact weight-coordinate continuation diagnostics, and direct published-model
-  accuracy diagnostics for the official 32×32, 64×64, and 64×96 combinations,
-  giving 106 accuracy-vs-band-count points in
+  accuracy diagnostics for the promoted official 32×32, 32×64, 32×96, 64×32,
+  64×64, and 64×96 combinations, giving 109 accuracy-vs-band-count points in
   `validation/results/ecckd_band_accuracy_pareto.{json,md,csv,svg}`.
   The published-model diagnostic is
-  `validation/results/ecckd_published_model_accuracy.{json,md}`: the 32×32
-  published combination passes the clean package-native reference gate, while
-  the 64×64 and 64×96 combinations currently fail against those same references
-  with hard objectives `≈28.64×`, indicating that the full-accuracy 64/96
-  parity path still needs matching reference/boundary treatment rather than
-  being claimed from inventory alone. The same artifact now includes
-  mixed-component isolation diagnostics: 32-LW×64-SW and 32-LW×96-SW are
-  surface-forcing limited (`≈11.24×` and `≈10.93×`), while 64-LW×32-SW is
-  heating-rate-max limited (`≈28.10×`). That separates the current SW64/96
-  boundary/reference mismatch from the LW64 heating/source-path mismatch.
+  `validation/results/ecckd_published_model_accuracy.{json,md}`: all six
+  promoted published combinations now pass the clean package-native reference
+  gate. The non-32×32 passes required generating matched ecRad reference
+  products; evaluating the 32×64, 32×96, and 64×32 definitions against the old
+  32×32 references failed with hard objectives `≈11.24×`, `≈10.93×`, and
+  `≈28.10×`, respectively. The same artifact retains those old-reference
+  rows as negative-control diagnostics to show why matched spectral-boundary
+  products are required. It also records boundary-array compatibility: all six
+  promoted rows have matching LW surface spectral and SW surface-albedo
+  g-point arrays; incoming solar and
+  direct-albedo spectral arrays are absent or band-level even for passing rows,
+  so those are reported separately instead of treated as a full-gate failure.
+  I also added a diagnostic
+  boundary-projection experiment using official `gpoint_fraction` overlap. It
+  is not accepted as a production fix: SW projection reduces the 32-LW×64/96-SW
+  surface-forcing error from `≈3.3 W m⁻²` to `≈0.39-0.46 W m⁻²`, but still
+  fails on TOA forcing at `≈0.87-0.90 W m⁻²`; naïve LW boundary projection is
+  invalid and blows up the surface forcing. The concrete checklist for matched
+  ecRad/reference boundary products is
+  tracked in `validation/results/ecckd_matched_reference_plan.{json,md}`:
+  all sixteen matched references are now present and boundary-compatible:
+  ten clean references (`32×64`, `32×96`, `64×32`, `64×64`, and `64×96`
+  for tropical and RCEMIP-style column selections) plus all six promoted
+  all-sky tropical-column combinations (`32×32`, `32×64`, `32×96`, `64×32`,
+  `64×64`, and `64×96`). The all-sky products were generated with the
+  Tripleclouds/aerosol ecRad template and model-specific LW/SW gas-optics
+  override files. The package-native all-sky parity check is now separated into
+  `validation/results/ecckd_published_all_sky_accuracy.{json,md}`: it rewrites
+  candidate fluxes for all six promoted all-sky references using model-specific
+  ecCKD gas optics and the same Tripleclouds/aerosol settings as the IFS
+  all-sky gate. That stricter artifact now passes `6/6` promoted rows after
+  the materialized references were switched to model-specific saved-property
+  boundary arrays from normal-driver ecRad runs. The hard objectives are
+  `≈0.37-0.77×`, with all promoted rows below the `1.0×` threshold.
+  The artifact now splits the boundary error into LW and SW components; the
+  failing rows are clearly SW-limited. LW boundary errors are essentially the
+  same as the passing SW32 rows (`≈0.107-0.111 W m⁻²` at TOA and
+  `≈0.006 W m⁻²` at surface), while the unfixed SW64/96 rows contribute the
+  large terms (`≈0.54-0.61 W m⁻²` at the failing boundaries).
+  The materializer now writes model-specific `toa_shortwave_down_spectral`
+  from each matched ecRad output, so those failures are not caused by uniform
+  incoming-SW weights. A simple projection of ecRad's six direct-albedo bands
+  onto 64/96 ecCKD g-points was tested twice (first with the initial interval
+  mapping, then with the corrected `searchsortedlast` mapping visible in
+  ecRad's saved-property output) and rejected because it worsened the hard
+  objective to `~158-166×`. Saved-radiative-properties diagnostics for `32×64`
+  now have tracked artifacts. The no-aerosol/cloud-focused artifact
+  `validation/results/ecrad_all_sky_optics_gap_32x64.{json,md}` shows that the
+  cloudy-region cloud optics are already close
+  (`od_sw_cloud` RMSE `≈0.066`, `ssa_sw_cloud` RMSE `≈0.0065`,
+  `asymmetry_sw_cloud` RMSE `≈0.0016`). The gate-config artifact
+  `validation/results/ecrad_all_sky_optics_gap_32x64_gate.{json,md}` runs the
+  same aerosol/table/Tripleclouds env family as
+  `ecckd_published_all_sky_accuracy`. The diagnostic now compares the same
+  split used by ecRad's solver path: clear-region gas/aerosol optics against
+  `od_sw`, cloud increments against `od_sw_cloud`, and cloudy-region combined
+  optics against `od_sw + od_sw_cloud`. With that corrected split, clear
+  SW gas/aerosol agreement is tight (`od_sw` RMSE `≈1.7e-4`, `ssa_sw` RMSE
+  `≈0.0020`, `asymmetry_sw` RMSE `≈0.010`), while the remaining optical-input
+  mismatch sits in cloud increments and cloudy-region totals. SW cloud
+  increments are small but nonzero (`od_sw_cloud` RMSE `≈0.066`,
+  `ssa_sw_cloud` RMSE `≈0.0065`, `asymmetry_sw_cloud` RMSE `≈0.0016`);
+  LW cloud increments are much larger (`od_lw_cloud` RMSE `≈1.22`). The same
+  artifact also tracks the boundary arrays used by the saved-property solver
+  path. Before the materializer fix, 32×64 materialized incoming SW differed
+  from `radiative_properties.nc` `incoming_sw` by RMSE `≈11.53 W m⁻²`,
+  materialized diffuse albedo differed from `sw_albedo` by RMSE `≈0.044`, and
+  the end-to-end path fell back to diffuse albedo for direct-beam albedo,
+  differing from `sw_albedo_direct` by RMSE `≈0.038`. The materializer now
+  accepts a per-case saved-property file and overwrites matching all-sky
+  g-point boundary arrays. Normal-driver ecRad saved-property files have now
+  been generated and wired for `32×64`, `32×96`, `64×32`, `64×64`, and
+  `64×96`; the all-sky published-model artifact now passes every promoted
+  row. Component boundary errors show the residual rows are small and
+  model-consistent: LW TOA errors are `≈0.107-0.111 W m⁻²`, SW64 contributes
+  `≈0.231 / 0.171 W m⁻²` at TOA/surface, and SW96 contributes only
+  `≈0.0068 / 0.0077 W m⁻²`.
+  The
+  follow-up solver isolation artifact
+  `validation/results/ecrad_reference_optics_solver_gap_32x64.{json,md}` then
+  feeds ecRad's saved 32×64 optical properties directly to the package
+  shortwave solvers. The refreshed diagnostic now reports both comparisons:
+  against the materialized reference and against the exact ecRad output that
+  produced `radiative_properties.nc`, computing output net flux from either
+  `flux_net_sw` or `flux_dn_sw - flux_up_sw`. The important correction is that
+  saved properties must be generated with the normal `ecrad` driver, not
+  `ecrad_ifs`; the IFS driver writes net-only fluxes and follows a different
+  output path. With a normal-driver 32×64 properties run, `tripleclouds_alpha_p2`
+  matches the full-profile materialized reference to `≈2.1e-5 / 3.9e-5 W m⁻²`
+  at TOA/surface, and the materialized reference agrees with the full ecRad
+  output to `≈4.6e-5 / 3.1e-5 W m⁻²`. The old conclusion that the package
+  Tripleclouds solver itself was a `≈20 W m⁻²` 32×64 blocker is superseded.
+  The remaining all-sky parity gap is therefore back in package-generated
+  optical/source inputs for 64/96-SW end-to-end runs, not in the isolated
+  Tripleclouds shortwave transport when fed ecRad's saved optical properties.
   The Pareto Markdown now reports two fronts because they lead to different
   32×31 diagnostics: omitted g25 is the best boundary-forcing row
   (≈0.024 W m⁻², but `≈12.33×` hard objective), while omitted g23 is the best
@@ -382,10 +470,10 @@ Source of truth: `validation/results/recovery_goal_audit.{json,md}` and
 
 | Gate | Status |
 |---|---|
-| ecRad parity for full and reduced ecCKD models | **partial** — full official 32×32 passes both cloudless and all-sky IFS hard gates, and the canonical 32×31 boundary-polished reduced row passes the clean reduced hard gate; reduced 16-g shortwave candidates still fail. |
+| ecRad parity for full and reduced ecCKD models | **partial** — promoted official 32×32, 32×64, 32×96, 64×32, 64×64, and 64×96 published ecCKD combinations pass the clean package-native ecRad hard gate when evaluated against matched references, the matched-reference plan has 6/6 all-sky promoted-combination reference products with compatible spectral boundaries, the stricter package-native all-sky comparison now passes 6/6 promoted rows, and the canonical 32×31 boundary-polished reduced row passes the clean reduced hard gate. Lower-band reduced candidates remain incomplete. |
 | Reduced models vs. RRTMGP on representative states | **partial** — `reduced_ecckd_32g_rrtmgp_comparison` now emits direct package-native RRTMGP metrics for both official 32×32 and the canonical 32×31 boundary-polished reduced row on tropical / RCEMIP-style / all-sky-clear-projection ensembles. |
 | Dynamic Breeze integration with H100 speedup | **passed** — the dedicated Breeze checkout records an H100 RCEMIP-style 32×32×64 / 1024-column benchmark with ≈31× RadiativeHeating / RRTMGP speedup, Nsight Systems + Nsight Compute reports, and a passed `radiative_heating_device_support` preflight on the validated ecCKD path. |
-| Reactant + Enzyme recovery of a published ecCKD model | **partial** — teacher-student coefficient recovery passes for all six published ecCKD definitions, and all CKDMIP upstream + derived ecCKD training flux products are now present; exact original-objective recovery still has to recover a published model quantitatively. |
+| Reactant + Enzyme recovery of a published ecCKD model | **partial** — teacher-student coefficient recovery passes for all six published ecCKD definitions, all CKDMIP upstream + derived ecCKD training flux products are present, and `ecckd_original_objective_terms` now captures the official LW/SW loss terms and fixed pass settings; exact original-objective recovery still has to recover a published model quantitatively. |
 
 Headline reduced-model numbers (will move during the optimization sweep):
 
@@ -599,6 +687,8 @@ RH_CKDMIP_DATA_PATH=$RH_CKDMIP_DATA_PATH \
 RH_CKDMIP_DATA_PATH=$RH_CKDMIP_DATA_PATH \
     julia --project=test validation/ecckd_objective_reconstruction_check.jl
 RH_CKDMIP_DATA_PATH=$RH_CKDMIP_DATA_PATH \
+    julia --project=test validation/ecckd_original_objective_terms.jl
+RH_CKDMIP_DATA_PATH=$RH_CKDMIP_DATA_PATH \
     julia --project=test validation/official_ecckd_training.jl
 RH_CKDMIP_DATA_PATH=$RH_CKDMIP_DATA_PATH \
     julia --project=test validation/recovery_goal_audit.jl
@@ -628,6 +718,47 @@ acquisition. It is replacing the current 48-parameter multi-stage reduced
 optimizer with an optimizer that can recover a published model under the fixed
 ecCKD objective.
 
+The original-objective term-capture artifact now records the concrete loss
+terms that must be implemented in Julia/Reactant before that recovery can be
+claimed. It checks the official C++ source for the longwave per-band heating,
+surface-down and TOA-up flux residuals, interior flux-profile residuals,
+broadband blend, spectral-boundary term, and relative-reference subtraction.
+It also checks the shortwave direct/no-Rayleigh branch, downwelling-only
+heating-rate objective, per-band surface-down residual, the official `20×`
+TOA-up residual, broadband terms, optional spectral-boundary surface-down
+term, and relative-reference subtraction. The artifact status is
+`objective_terms_captured`; implementation remains
+`terms_captured_not_yet_recovered`.
+
+The first executable Julia piece of that objective now lives in
+`validation/ecckd_original_objective_loss.jl`. It implements the CKD objective
+loss assembly once forward fluxes/heating rates are available: LW per-band
+and broadband heating/flux terms, LW spectral-boundary down/up terms, SW
+downwelling-only heating, the official SW `20×` TOA-up per-band term, SW
+broadband albedo-dependent upwelling behavior, and SW spectral-boundary
+surface-down terms. `test/test_ecckd_original_objective_loss.jl` covers those
+formula details on synthetic arrays and now checks the SW per-band objective
+path with Enzyme reverse-mode gradients against finite differences plus a
+Reactant compile probe. The missing implementation work is now the heavier
+part: connect this AD-checked loss core to the differentiable LW/SW transfer,
+then run optimizer-only recovery.
+
+The CKDMIP side of that bridge is started in
+`validation/ckdmip_original_objective_dataset.jl`. It reads representative
+LW/SW `rel-415` training flux products through `NCDatasets`, reproduces
+ecCKD's `sqrt(p)`-weighted layer weights, computes K s⁻¹ heating targets from
+the official flux-divergence convention, and feeds those arrays into the Julia
+loss core. The generated
+`validation/results/ckdmip_original_objective_dataset.{json,md}` artifact is
+`dataset_samples_ready`: all 52 fixed-objective training flux files have the
+expected consumable schema, and the representative LW/SW samples have zero
+self-loss. `validation/ckdmip_original_objective_ad_batch.jl` adds a compact
+real-data optimizer-readiness probe on top of those arrays: a 32-parameter
+finite-difference flux-correction batch reduces the original-objective loss
+from `23.6643` to `14.7675` in one accepted step. Remaining integration is now
+the forward differentiable transfer and full optimizer loop, not flux-product
+ingestion.
+
 The quantitative recovery contract is now recorded in
 `validation/results/ecckd_training_recovery_targets.{json,md}`. It fixes the
 "optimizer-only delta" rule for published-model recovery and records explicit
@@ -638,6 +769,181 @@ error `<= 0.02`, optical-depth log RMSE `<= 0.02`, forcing regression margin
 used for the accuracy-vs-band plot: hard-gate objective `<= 1.0`, TOA and
 surface forcing `<= 0.30 W m⁻²`, heating-rate RMSE `<= 0.05 K day⁻¹`, with
 48-, 63-, and 96-g rows as required plot points.
+
+The published-model target vector is now also explicit in
+`validation/results/ecckd_published_recovery_target.{json,md}`. It enumerates
+all six official ecCKD CKD-definition files and identifies the primary 32-g
+recovery targets: SW `ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc`
+with 172,992 coefficient parameters, and LW
+`ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc` with 193,344 coefficient
+parameters. That artifact is the handoff point for the next heavy run: choose
+one target, keep the source data/objective/evaluation cases fixed, vary only
+optimizer settings, write a recovered CKD-definition, and score it with both
+coefficient/topology metrics and original-objective flux/heating metrics.
+`validation/results/ecckd_published_recovery_vector.{json,md}` adds the
+executable handoff for the SW32 target: it flattens 9 coefficient/support arrays
+into a 204,896-parameter vector, writes the vector back to a CKD-definition
+candidate, and verifies exact round-trip recovery with zero coefficient,
+g-point-weight, and band-weight error. The next optimizer can now replace that
+identity vector with trained parameters while reusing the same writer and
+metrics.
+`validation/results/ecckd_published_recovery_vector_training.{json,md}` then
+exercises that replacement path on a small deterministic slice of the vector:
+64 log-space parameters are perturbed, optimized back to the published target,
+written into a complete CKD-definition candidate, and rescored successfully.
+The default artifact deliberately uses a fast analytic quadratic gradient; the
+full Enzyme/Reactant vector compiler path is parameterized but not enabled by
+default because it is too slow for routine validation, and Enzyme/Reactant
+coverage already lives in the original-objective loss-core tests.
+`validation/results/ecckd_candidate_original_objective_score.{json,md}` connects
+that candidate path to the CKDMIP original-objective scorer. Using the trained
+SW32 candidate and real representative LW/SW `rel-415` flux samples, supplied
+identity forward fluxes give zero original-objective loss and deterministic
+perturbations increase the loss for both LW and SW samples. This does not yet
+compute fluxes from the CKD-definition candidate; it narrows the remaining
+implementation gap to the differentiable transfer from candidate tables to
+forward flux/heating arrays.
+`validation/results/ecckd_candidate_transfer_smoke.{json,md}` takes the next
+step by running real package gas optics and cloudless solvers from the trained
+SW32 candidate plus the official LW32 table on a representative CKDMIP column.
+The smoke artifact records finite optical depths (`0.5868` LW, `0.1458` SW,
+`0.2075` SW Rayleigh) and finite broadband original-objective losses
+(`22144.53` LW, `1947.81` SW) for a 54-layer column. It also projects each
+g-point contribution back onto the 13 CKDMIP target bands through the ecCKD
+`gpoint_fraction` mapping and evaluates projected losses (`356.58` LW,
+`330.40` SW). This proves the candidate NetCDF can be loaded and transported
+through the package path, and removes the previous one-band scoring shortcut.
+It is still a cloudless smoke transfer; the remaining recovery work is the
+fully differentiable spectral/equivalent ecCKD transfer used by the original
+objective.
+`validation/results/ecckd_candidate_transfer_optimizer_probe.{json,md}` then
+puts an optimizer on that candidate-driven projected-transfer loss. It varies
+four global log-scale transfer parameters (LW optical depth, LW source, SW
+optical depth, SW Rayleigh) and accepts a finite-difference descent step that
+reduces the real CKDMIP projected loss from `686.98` to `620.08`
+(`1.11x`). This is deliberately scoped as a transfer optimizer probe, not a
+published CKD-definition recovery: it proves the candidate-transfer objective
+can be parameterized and reduced before replacing the global scales with the
+full trainable CKD-definition parameterization.
+`validation/results/ecckd_candidate_table_parameter_probe.{json,md}` replaces
+those generic transfer scales with four real in-memory ecCKD shortwave table
+multipliers: H2O absorption table, CO2 absorption table, Rayleigh scattering,
+and common SW weight scale. Against the same representative CKDMIP projected
+SW loss, one accepted finite-difference step reduces loss from `330.40` to
+`264.12` (`1.25x`). This still does not write a new CKD-definition file, but it
+does show that actual candidate table components, not just solver-side transfer
+knobs, can be optimized against the projected original-objective loss.
+`validation/results/ecckd_candidate_table_writeback_probe.{json,md}` writes
+those optimized multipliers into a CKD-definition NetCDF candidate and then
+rescans that file through the normal reader. The written candidate reduces the
+representative projected SW loss from `330.40` to `264.12` (`1.25x`) when read
+back from disk. The recovery metrics intentionally fail against the published
+model (`worst log-coefficient RMSE = 0.00382`) because this is a targeted
+loss-reducing perturbation, not a published-model recovery. The important new
+property is that the trainable table update survives NetCDF writeback and normal
+runtime ingestion.
+`validation/results/ecckd_candidate_table_writeback_continuation.{json,md}`
+adds a short four-iteration continuation over the same real table multipliers.
+The in-memory projected SW loss falls from `330.40` to `253.51`; the script
+then writes and rereads every checkpoint and keeps the best written candidate.
+The selected NetCDF candidate reduces the reread projected SW loss from
+`330.40` to `253.51` (`1.30x`) at checkpoint 4. This is still not a
+published recovery because the table perturbation is intentionally targeted,
+but it is the first loop that couples optimization, NetCDF writeback, normal
+runtime ingestion, and projected original-objective scoring.
+`validation/results/ecckd_candidate_table_writeback_multisample.{json,md}`
+then rescans that written continuation candidate across three representative
+CKDMIP SW relative-humidity perturbations. The written candidate improves all
+three available samples: `rel-180` loss ratio `0.766`, `rel-415` `0.767`, and
+`rel-1120` `0.996`. The last row is only a small improvement, so this should be
+read as evidence that the writeback update is not a single-sample serialization
+artifact, not as evidence of full published-model recovery.
+`validation/results/ecckd_candidate_table_multisample_optimizer.{json,md}`
+promotes that check into the optimizer loop by optimizing the four real SW
+table multipliers against the aggregate projected loss over the same three
+scenarios and selecting checkpoints by the written, reread multi-sample score.
+After fixing an uninitialized projection-array bug, the real run accepts two
+aggregate in-memory steps (`809.07 -> 808.94`) and selects checkpoint 2 as the
+best written multi-sample candidate. That selected written candidate improves
+all three scenarios, with worst loss ratio `0.9959` on `rel-1120`.
+`validation/results/ecckd_candidate_table_written_coordinate_scan.{json,md}`
+then performs an exact written-file coordinate scan around that selected
+candidate. It tests 24 one-coordinate moves and finds a small deterministic
+improvement in the written aggregate score (`808.94 -> 808.69`) while keeping
+all three scenarios improved. This is useful discipline for the next larger
+optimizer: written-file validation, not in-memory loss alone, is the acceptance
+criterion.
+`validation/results/ecckd_candidate_table_written_coordinate_descent.{json,md}`
+repeats that exact written-file scan for six accepted moves. It improves the
+written aggregate score from `808.69` to `806.83` while preserving improvement
+on all three scenarios. The tradeoff is clear: the low-/mid-humidity losses
+continue to fall (`rel-180` ratio `0.756`, `rel-415` `0.757`), while the
+high-humidity `rel-1120` row remains barely improved (`0.996`). This identifies
+the next real optimization target: richer humidity-aware parameters or
+scenario weighting, not more blind single-sample tuning.
+`validation/results/ecckd_candidate_table_written_minimax_descent.{json,md}`
+then flips the written-file acceptance rule from average loss to worst scenario
+loss ratio. It tests 144 written moves and accepts six minimax moves. As
+expected, this improves the high-humidity limiter (`rel-1120` ratio
+`0.9962 -> 0.9934`) but gives back aggregate performance (`806.83 -> 848.14`)
+because the low-/mid-humidity ratios rise to `≈0.952`. The two descent artifacts
+therefore bracket the current four-parameter tradeoff: average-loss tuning and
+worst-case tuning both work mechanically, but neither is enough for published
+model recovery.
+`validation/results/ecckd_candidate_table_humidity_split_probe.{json,md}`
+adds the first humidity-aware written-file parameterization by splitting the
+H2O absorption table along the `h2o_mole_fraction` axis into dry and moist
+halves. A 12-move written/reread scan finds small but simultaneous progress:
+the aggregate-best dry-H2O move improves aggregate loss `806.83 -> 806.46`,
+while the minimax dry-H2O move improves the worst scenario ratio
+`0.9962358 -> 0.9961868` without the large aggregate penalty seen in the
+global minimax descent. The improvement is small, but it validates the expected
+direction: humidity-aware table parameters can decouple the representative
+states better than a single global H2O multiplier.
+`validation/results/ecckd_candidate_table_humidity_split_descent.{json,md}`
+extends that split to four aggregate accepted moves. It reduces aggregate loss
+from `806.46` to `804.81` while keeping all scenarios improved; the low- and
+mid-humidity ratios improve to `0.746`, but the high-humidity ratio drifts to
+`0.99653`. A companion minimax run, recorded in
+`validation/results/ecckd_candidate_table_humidity_split_descent_minimax.{json,md}`,
+starts from the minimax split and improves the high-humidity ratio to
+`0.99602` with only a small aggregate penalty (`807.19 -> 808.42`). This is
+still small, but it is a cleaner tradeoff than the global minimax run and is
+the first evidence that adding physically structured humidity parameters is the
+right direction.
+`validation/results/ecckd_candidate_table_humidity_tribin_probe.{json,md}`
+pushes the same idea one step further by splitting the H2O axis into
+low/mid/high humidity thirds. Starting from the aggregate humidity-split
+candidate, the 18-move written/reread scan improves aggregate loss
+`805.1957 -> 804.9002` and improves the minimax worst loss ratio
+`0.9964755 -> 0.9964319`. This is again a small diagnostic improvement, not
+published-model recovery, but it supports using structured H2O-axis
+parameters rather than global table multipliers.
+`validation/results/ecckd_candidate_table_humidity_tribin_descent.{json,md}`
+then repeats the three-bin written/reread moves for four aggregate accepted
+steps. The aggregate objective compounds from `804.9002` to `803.5815`, with
+all three representative scenarios still improved (`rel-180 = 0.739`,
+`rel-415 = 0.740`, `rel-1120 = 0.99674`). The tradeoff is also clear: the
+aggregate path improves low/mid humidity but slightly worsens the high-humidity
+worst ratio versus the one-step seed, so a minimax or weighted objective is
+still needed before this becomes a recovery strategy. A companion minimax run,
+recorded in
+`validation/results/ecckd_candidate_table_humidity_tribin_descent_minimax.{json,md}`,
+improves the high-humidity worst ratio `0.9964319 -> 0.9962811` with a modest
+aggregate penalty (`805.48 -> 806.45`). The aggregate/minimax pair confirms
+the same shape as the two-bin split: structured humidity parameters help, but
+the objective needs explicit scenario weighting or a richer basis before it can
+serve as the published-model recovery path.
+`validation/results/ecckd_candidate_table_humidity_tribin_weighted_descent.{json,md}`
+tests that scenario-weighting idea directly by optimizing a weighted mean of
+per-scenario loss ratios with `rel-1120` weights 2, 4, 8, and 16. All tested
+weights converge to the same aggregate-descent candidate rather than the
+minimax candidate: weighted-ratio reduction is `1.0037×`, aggregate reduction
+is `1.00164×`, and worst-ratio reduction is below one because `rel-1120`
+drifts to `0.99674`. That result is useful because it rules out this simple
+scalarized weighted-ratio objective; the next recovery-oriented step should be
+a constrained or multi-objective optimizer, or a richer humidity/pressure
+basis, not just larger scalar weights on `rel-1120`.
 
 ### 4.4 Reproduce the dedicated Breeze H100 benchmark
 

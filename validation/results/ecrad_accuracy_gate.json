@@ -1,6 +1,6 @@
 {
   "case": "ecrad_accuracy_gate",
-  "date": "2026-05-15T14:35:06.010",
+  "date": "2026-05-22T20:56:40.230",
   "status": "passed",
   "case_scope": "official_ecCKD_hard_gate",
   "candidate_prefix": "radiative_heating_",

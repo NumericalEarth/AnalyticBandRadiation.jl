@@ -2,13 +2,13 @@
 
 Status: **passed**
 
-- Accuracy points: 106
-- Passing accuracy points: 6
+- Accuracy points: 109
+- Passing accuracy points: 11
 - Published ecCKD inventory entries: 6
 - Plot: `/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.svg`
 - CSV: `/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.csv`
 
-This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the official 32x32, 64x64, and 64x96 combinations. Published 64/96 definitions are inventoried and recovered by the teacher-student scan, but the current package-native clean reference gate is only passed by the 32x32 published combination; newly trained intermediate models remain future work.
+This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the promoted official 32x32, 32x64, 32x96, 64x32, 64x64, and 64x96 combinations. Promoted published combinations are inventoried, recovered by the teacher-student scan, and now pass the package-native clean reference gate once evaluated against matched ecRad reference products; newly trained intermediate models remain future work.
 
 The plot keeps boundary forcing on the y-axis because that is the user-facing radiative forcing criterion. The JSON and CSV also report `normalized_objective`, `objective_source`, and `limiting_metric`; for leave-one-out reduced models, the reported ecCKD hard-gate objective can remain above threshold even when boundary forcing is small because the scan artifact does not expose every max-abs/heating component separately.
 
@@ -20,6 +20,7 @@ The plot keeps boundary forcing on the y-axis because that is the user-facing ra
 | 48 | 32 | 16 | false | 2.07524 | 6.91747 | toa_forcing | weighted greedy 16 shortwave g-point subset with boundary-aware table, component, structural, objective-probe, surface-probe, capped table, continuation, post-capped weight, post-weight surface-table, bounded weight, four current component-scale refits, selected current gas-pressure component scan refit, gas-pressure continuation refit, weighted gas-pressure continuation refit, and high-weight gas-pressure continuation refit |
 | 63 | 32 | 31 | false | 0.0242812 | 12.3325 | reported_refit_hardgate_objective | leave-one-out official SW g-point scan with weight refit: omit g25 |
 | 64 | 32 | 32 | true | 0.0140335 | 0.0467785 | surface_forcing | size scan: even_select |
+| 96 | 64 | 32 | true | 0.0137165 | 0.184824 | heating_rate_max_abs | official ecCKD 1.2/1.4 64-LW x 32-SW narrow/rgb model |
 
 ## Normalized-Objective Pareto Front
 

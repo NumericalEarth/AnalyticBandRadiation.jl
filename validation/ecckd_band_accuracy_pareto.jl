@@ -630,7 +630,7 @@ function run_band_accuracy_pareto()
         pareto_front = front,
         objective_front = objective,
         published_inventory = inventory,
-        notes = "This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the official 32x32, 64x64, and 64x96 combinations. Published 64/96 definitions are inventoried and recovered by the teacher-student scan, but the current package-native clean reference gate is only passed by the 32x32 published combination; newly trained intermediate models remain future work.",
+        notes = "This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the promoted official 32x32, 32x64, 32x96, 64x32, 64x64, and 64x96 combinations. Promoted published combinations are inventoried, recovered by the teacher-student scan, and now pass the package-native clean reference gate once evaluated against matched ecRad reference products; newly trained intermediate models remain future work.",
     )
 end
 

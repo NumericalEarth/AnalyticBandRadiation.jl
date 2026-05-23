@@ -1,6 +1,6 @@
 {
   "case": "ecckd_objective_reconstruction_check",
-  "timestamp_utc": "2026-05-22T00:00:16.859",
+  "timestamp_utc": "2026-05-22T23:10:30.622",
   "status": "ready_to_reconstruct_original_objective",
   "ecrad_source_root": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20",
   "ecckd_source_root": "/shared/home/greg/.julia/artifacts/7b210aef53e908cfe3c709945f0763c37ca82aaa/ecckd-6115f9b8e29a55cb0f48916857bdc77fec41badd",

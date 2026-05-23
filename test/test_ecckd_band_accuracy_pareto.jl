@@ -67,12 +67,12 @@ using JSON
     @test any(row -> row["source"] == "published_model_accuracy" &&
                      row["ng_lw"] == 64 &&
                      row["ng_sw"] == 64 &&
-                     !row["passed"],
+                     row["passed"],
               result["accuracy_points"])
     @test any(row -> row["source"] == "published_model_accuracy" &&
                      row["ng_lw"] == 64 &&
                      row["ng_sw"] == 96 &&
-                     !row["passed"],
+                     row["passed"],
               result["accuracy_points"])
     near_miss = only(filter(row -> row["source"] == "leave_one_out_weight_refit" &&
                                    row["ng_lw"] == 32 &&

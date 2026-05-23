@@ -1,0 +1,798 @@
+{
+  "case": "ecckd_published_all_sky_accuracy",
+  "timestamp_utc": "2026-05-22T23:07:53.907",
+  "status": "passed",
+  "model_count": 6,
+  "passed_count": 6,
+  "acceptance_thresholds": {
+  "flux_rmse_w_m2": 1.0,
+  "flux_max_abs_w_m2": 5.0,
+  "heating_rate_rmse_k_day": 0.05,
+  "heating_rate_max_abs_k_day": 0.5,
+  "toa_forcing_abs_error_w_m2": 0.3,
+  "surface_forcing_abs_error_w_m2": 0.3
+},
+  "configuration": [{
+  "variable": "RH_AEROSOL_OPTICS",
+  "value": "true"
+}, {
+  "variable": "RH_CANDIDATE_GAS_OPTICS",
+  "value": "official_ecckd"
+}, {
+  "variable": "RH_CLOUD_FRACTION_EXPONENT",
+  "value": "1.0"
+}, {
+  "variable": "RH_CLOUD_INHOM_OVERLAP_EXPONENT",
+  "value": "2.0"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_LONGWAVE",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_LONGWAVE_RULE",
+  "value": "tripleclouds_alpha"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_RULE",
+  "value": "tripleclouds_alpha"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_SHORTWAVE",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_OVERLAP_USE_CLOUDY_REGION_OPTICS",
+  "value": "true"
+}, {
+  "variable": "RH_CLOUD_SCATTERING_TABLE_OPTICS",
+  "value": "true"
+}, {
+  "variable": "RH_IFS_AEROSOL_TABLE_OPTICS",
+  "value": "true"
+}, {
+  "variable": "RH_LW_CLOUD_SCATTERING",
+  "value": "true"
+}],
+  "models": [{
+  "label": "official ecCKD 1.0 32-LW x 32-SW all-sky climate model",
+  "case": "ecckd_32x32_all_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_all_sky_tropical_column.nc",
+  "ng_lw": 32,
+  "ng_sw": 32,
+  "longwave_file": "ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_file": "ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc",
+  "passed": true,
+  "status": "passed",
+  "hard_objective": 0.38729418855268705,
+  "toa_forcing_max_abs": 0.11618825656580611,
+  "surface_forcing_max_abs": 0.01285362445435112,
+  "limiting_metric": "toa_forcing_abs_error",
+  "limiting_metric_value": 0.11618825656580611,
+  "limiting_metric_threshold": 0.3,
+  "limiting_metric_ratio": 0.38729418855268705,
+  "component_boundary_errors": [{
+  "component": "lw",
+  "boundary": "toa",
+  "max_abs": 0.11146646753496725,
+  "mean_bias": -0.016496170848549242,
+  "mean_abs": 0.01887893769411164
+}, {
+  "component": "lw",
+  "boundary": "surface",
+  "max_abs": 0.0064643903660339674,
+  "mean_bias": -0.0038574981159968046,
+  "mean_abs": 0.0038574981159968046
+}, {
+  "component": "sw",
+  "boundary": "toa",
+  "max_abs": 0.006874839391457499,
+  "mean_bias": -0.003984162880010444,
+  "mean_abs": 0.004364170555254532
+}, {
+  "component": "sw",
+  "boundary": "surface",
+  "max_abs": 0.0076445017215291955,
+  "mean_bias": -0.005241844173295362,
+  "mean_abs": 0.005241844173295362
+}],
+  "comparisons": [{
+  "variable": "lw_up",
+  "candidate_variable": "radiative_heating_lw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.03757815067419145,
+  "max_abs": 0.1475124837447197,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "lw_down",
+  "candidate_variable": "radiative_heating_lw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0018031836520412212,
+  "max_abs": 0.007354324084474229,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_up",
+  "candidate_variable": "radiative_heating_sw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0037348617031503035,
+  "max_abs": 0.006874839391656451,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_down",
+  "candidate_variable": "radiative_heating_sw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0032713239475450143,
+  "max_abs": 0.008614471463488371,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "heating_rate",
+  "candidate_variable": "radiative_heating_heating_rate",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.00575848422016231,
+  "max_abs": 0.07689327914947697,
+  "rmse_threshold": 0.05,
+  "max_abs_threshold": 0.5,
+  "units": "K day^-1",
+  "passed": true,
+  "status": "passed"
+}],
+  "forcing_comparisons": [{
+  "metric": "toa_forcing_abs_error",
+  "boundary": "toa",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.11618825656580611,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "metric": "surface_forcing_abs_error",
+  "boundary": "surface",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.01285362445435112,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}]
+}, {
+  "label": "official ecCKD 1.0/1.2 32-LW x 64-SW all-sky climate/window model",
+  "case": "ecckd_32x64_all_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_32x64_all_sky_tropical_column.nc",
+  "ng_lw": 32,
+  "ng_sw": 64,
+  "longwave_file": "ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_file": "ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
+  "passed": true,
+  "status": "passed",
+  "hard_objective": 0.7713039286371289,
+  "toa_forcing_max_abs": 0.23139117859113867,
+  "surface_forcing_max_abs": 0.17169319048957732,
+  "limiting_metric": "toa_forcing_abs_error",
+  "limiting_metric_value": 0.23139117859113867,
+  "limiting_metric_threshold": 0.3,
+  "limiting_metric_ratio": 0.7713039286371289,
+  "component_boundary_errors": [{
+  "component": "lw",
+  "boundary": "toa",
+  "max_abs": 0.11146646753496725,
+  "mean_bias": -0.016496170848549242,
+  "mean_abs": 0.01887893769411164
+}, {
+  "component": "lw",
+  "boundary": "surface",
+  "max_abs": 0.0064643903660339674,
+  "mean_bias": -0.0038574981159968046,
+  "mean_abs": 0.0038574981159968046
+}, {
+  "component": "sw",
+  "boundary": "toa",
+  "max_abs": 0.2309883754404609,
+  "mean_bias": -0.04309607808428382,
+  "mean_abs": 0.09212068107450477
+}, {
+  "component": "sw",
+  "boundary": "surface",
+  "max_abs": 0.17138458458498462,
+  "mean_bias": -0.06504200316428524,
+  "mean_abs": 0.07893670685291454
+}],
+  "comparisons": [{
+  "variable": "lw_up",
+  "candidate_variable": "radiative_heating_lw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.03757815067419145,
+  "max_abs": 0.1475124837447197,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "lw_down",
+  "candidate_variable": "radiative_heating_lw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0018031836520412212,
+  "max_abs": 0.007354324084474229,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_up",
+  "candidate_variable": "radiative_heating_sw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.09016188792890398,
+  "max_abs": 0.2309883754404609,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_down",
+  "candidate_variable": "radiative_heating_sw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.07494249852105732,
+  "max_abs": 0.3680522353378137,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "heating_rate",
+  "candidate_variable": "radiative_heating_heating_rate",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.009095619127986293,
+  "max_abs": 0.08271788697116467,
+  "rmse_threshold": 0.05,
+  "max_abs_threshold": 0.5,
+  "units": "K day^-1",
+  "passed": true,
+  "status": "passed"
+}],
+  "forcing_comparisons": [{
+  "metric": "toa_forcing_abs_error",
+  "boundary": "toa",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.23139117859113867,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "metric": "surface_forcing_abs_error",
+  "boundary": "surface",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.17169319048957732,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}]
+}, {
+  "label": "official ecCKD 1.0/1.4 32-LW x 96-SW all-sky climate/vfine model",
+  "case": "ecckd_32x96_all_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_32x96_all_sky_tropical_column.nc",
+  "ng_lw": 32,
+  "ng_sw": 96,
+  "longwave_file": "ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_file": "ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
+  "passed": true,
+  "status": "passed",
+  "hard_objective": 0.3871962429911946,
+  "toa_forcing_max_abs": 0.11615887289735838,
+  "surface_forcing_max_abs": 0.012995746809679076,
+  "limiting_metric": "toa_forcing_abs_error",
+  "limiting_metric_value": 0.11615887289735838,
+  "limiting_metric_threshold": 0.3,
+  "limiting_metric_ratio": 0.3871962429911946,
+  "component_boundary_errors": [{
+  "component": "lw",
+  "boundary": "toa",
+  "max_abs": 0.11146646753496725,
+  "mean_bias": -0.016496170848549242,
+  "mean_abs": 0.01887893769411164
+}, {
+  "component": "lw",
+  "boundary": "surface",
+  "max_abs": 0.0064643903660339674,
+  "mean_bias": -0.0038574981159968046,
+  "mean_abs": 0.0038574981159968046
+}, {
+  "component": "sw",
+  "boundary": "toa",
+  "max_abs": 0.006810685256937177,
+  "mean_bias": -0.0040926134806340995,
+  "mean_abs": 0.004260679789990718
+}, {
+  "component": "sw",
+  "boundary": "surface",
+  "max_abs": 0.007745352299593833,
+  "mean_bias": -0.005242619154017802,
+  "mean_abs": 0.005242619154017802
+}],
+  "comparisons": [{
+  "variable": "lw_up",
+  "candidate_variable": "radiative_heating_lw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.03757815067419145,
+  "max_abs": 0.1475124837447197,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "lw_down",
+  "candidate_variable": "radiative_heating_lw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0018031836520412212,
+  "max_abs": 0.007354324084474229,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_up",
+  "candidate_variable": "radiative_heating_sw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0036987594566635753,
+  "max_abs": 0.006815222206242311,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_down",
+  "candidate_variable": "radiative_heating_sw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0032910152490948797,
+  "max_abs": 0.008829683969111102,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "heating_rate",
+  "candidate_variable": "radiative_heating_heating_rate",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.007512727553157306,
+  "max_abs": 0.15678670629142388,
+  "rmse_threshold": 0.05,
+  "max_abs_threshold": 0.5,
+  "units": "K day^-1",
+  "passed": true,
+  "status": "passed"
+}],
+  "forcing_comparisons": [{
+  "metric": "toa_forcing_abs_error",
+  "boundary": "toa",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.11615887289735838,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "metric": "surface_forcing_abs_error",
+  "boundary": "surface",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.012995746809679076,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}]
+}, {
+  "label": "official ecCKD 1.2/1.4 64-LW x 32-SW all-sky narrow/rgb model",
+  "case": "ecckd_64x32_all_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_64x32_all_sky_tropical_column.nc",
+  "ng_lw": 64,
+  "ng_sw": 32,
+  "longwave_file": "ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_file": "ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc",
+  "passed": true,
+  "status": "passed",
+  "hard_objective": 0.37237264673308346,
+  "toa_forcing_max_abs": 0.11171179401992504,
+  "surface_forcing_max_abs": 0.012680119633159848,
+  "limiting_metric": "toa_forcing_abs_error",
+  "limiting_metric_value": 0.11171179401992504,
+  "limiting_metric_threshold": 0.3,
+  "limiting_metric_ratio": 0.37237264673308346,
+  "component_boundary_errors": [{
+  "component": "lw",
+  "boundary": "toa",
+  "max_abs": 0.10699000498897249,
+  "mean_bias": -0.01624917243063777,
+  "mean_abs": 0.018247220374904317
+}, {
+  "component": "lw",
+  "boundary": "surface",
+  "max_abs": 0.0060325436403445565,
+  "mean_bias": -0.003716386240131442,
+  "mean_abs": 0.003716386240131442
+}, {
+  "component": "sw",
+  "boundary": "toa",
+  "max_abs": 0.006874839391457499,
+  "mean_bias": -0.003984162880010444,
+  "mean_abs": 0.004364170555254532
+}, {
+  "component": "sw",
+  "boundary": "surface",
+  "max_abs": 0.0076445017215291955,
+  "mean_bias": -0.005241844173295362,
+  "mean_abs": 0.005241844173295362
+}],
+  "comparisons": [{
+  "variable": "lw_up",
+  "candidate_variable": "radiative_heating_lw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.03618806261623034,
+  "max_abs": 0.14186564719381067,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "lw_down",
+  "candidate_variable": "radiative_heating_lw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0017718881919887744,
+  "max_abs": 0.007272189228103798,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_up",
+  "candidate_variable": "radiative_heating_sw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0037348617031503035,
+  "max_abs": 0.006874839391656451,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_down",
+  "candidate_variable": "radiative_heating_sw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0032713239475450143,
+  "max_abs": 0.008614471463488371,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "heating_rate",
+  "candidate_variable": "radiative_heating_heating_rate",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.005419409490568087,
+  "max_abs": 0.05691387693827288,
+  "rmse_threshold": 0.05,
+  "max_abs_threshold": 0.5,
+  "units": "K day^-1",
+  "passed": true,
+  "status": "passed"
+}],
+  "forcing_comparisons": [{
+  "metric": "toa_forcing_abs_error",
+  "boundary": "toa",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.11171179401992504,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "metric": "surface_forcing_abs_error",
+  "boundary": "surface",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.012680119633159848,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}]
+}, {
+  "label": "official ecCKD 1.2 64-LW x 64-SW all-sky climate model",
+  "case": "ecckd_64x64_all_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_64x64_all_sky_tropical_column.nc",
+  "ng_lw": 64,
+  "ng_sw": 64,
+  "longwave_file": "ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_file": "ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
+  "passed": true,
+  "status": "passed",
+  "hard_objective": 0.7705674357388641,
+  "toa_forcing_max_abs": 0.2311702307216592,
+  "surface_forcing_max_abs": 0.17175512047322172,
+  "limiting_metric": "toa_forcing_abs_error",
+  "limiting_metric_value": 0.2311702307216592,
+  "limiting_metric_threshold": 0.3,
+  "limiting_metric_ratio": 0.7705674357388641,
+  "component_boundary_errors": [{
+  "component": "lw",
+  "boundary": "toa",
+  "max_abs": 0.10699000498897249,
+  "mean_bias": -0.01624917243063777,
+  "mean_abs": 0.018247220374904317
+}, {
+  "component": "lw",
+  "boundary": "surface",
+  "max_abs": 0.0060325436403445565,
+  "mean_bias": -0.003716386240131442,
+  "mean_abs": 0.003716386240131442
+}, {
+  "component": "sw",
+  "boundary": "toa",
+  "max_abs": 0.2309883754404609,
+  "mean_bias": -0.04309607808428382,
+  "mean_abs": 0.09212068107450477
+}, {
+  "component": "sw",
+  "boundary": "surface",
+  "max_abs": 0.17138458458498462,
+  "mean_bias": -0.06504200316428524,
+  "mean_abs": 0.07893670685291454
+}],
+  "comparisons": [{
+  "variable": "lw_up",
+  "candidate_variable": "radiative_heating_lw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.03618806261623034,
+  "max_abs": 0.14186564719381067,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "lw_down",
+  "candidate_variable": "radiative_heating_lw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0017718881919887744,
+  "max_abs": 0.007272189228103798,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_up",
+  "candidate_variable": "radiative_heating_sw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.09016188792890398,
+  "max_abs": 0.2309883754404609,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_down",
+  "candidate_variable": "radiative_heating_sw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.07494249852105732,
+  "max_abs": 0.3680522353378137,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "heating_rate",
+  "candidate_variable": "radiative_heating_heating_rate",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.008709826292882921,
+  "max_abs": 0.07229655677989744,
+  "rmse_threshold": 0.05,
+  "max_abs_threshold": 0.5,
+  "units": "K day^-1",
+  "passed": true,
+  "status": "passed"
+}],
+  "forcing_comparisons": [{
+  "metric": "toa_forcing_abs_error",
+  "boundary": "toa",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.2311702307216592,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "metric": "surface_forcing_abs_error",
+  "boundary": "surface",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.17175512047322172,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}]
+}, {
+  "label": "official ecCKD 1.2/1.4 64-LW x 96-SW all-sky climate/vfine model",
+  "case": "ecckd_64x96_all_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_64x96_all_sky_tropical_column.nc",
+  "ng_lw": 64,
+  "ng_sw": 96,
+  "longwave_file": "ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_file": "ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
+  "passed": true,
+  "status": "passed",
+  "hard_objective": 0.372274701171591,
+  "toa_forcing_max_abs": 0.1116824103514773,
+  "surface_forcing_max_abs": 0.012780970211224485,
+  "limiting_metric": "toa_forcing_abs_error",
+  "limiting_metric_value": 0.1116824103514773,
+  "limiting_metric_threshold": 0.3,
+  "limiting_metric_ratio": 0.372274701171591,
+  "component_boundary_errors": [{
+  "component": "lw",
+  "boundary": "toa",
+  "max_abs": 0.10699000498897249,
+  "mean_bias": -0.01624917243063777,
+  "mean_abs": 0.018247220374904317
+}, {
+  "component": "lw",
+  "boundary": "surface",
+  "max_abs": 0.0060325436403445565,
+  "mean_bias": -0.003716386240131442,
+  "mean_abs": 0.003716386240131442
+}, {
+  "component": "sw",
+  "boundary": "toa",
+  "max_abs": 0.006810685256937177,
+  "mean_bias": -0.0040926134806340995,
+  "mean_abs": 0.004260679789990718
+}, {
+  "component": "sw",
+  "boundary": "surface",
+  "max_abs": 0.007745352299593833,
+  "mean_bias": -0.005242619154017802,
+  "mean_abs": 0.005242619154017802
+}],
+  "comparisons": [{
+  "variable": "lw_up",
+  "candidate_variable": "radiative_heating_lw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.03618806261623034,
+  "max_abs": 0.14186564719381067,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "lw_down",
+  "candidate_variable": "radiative_heating_lw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0017718881919887744,
+  "max_abs": 0.007272189228103798,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_up",
+  "candidate_variable": "radiative_heating_sw_up",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0036987594566635753,
+  "max_abs": 0.006815222206242311,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "sw_down",
+  "candidate_variable": "radiative_heating_sw_down",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.0032910152490948797,
+  "max_abs": 0.008829683969111102,
+  "rmse_threshold": 1.0,
+  "max_abs_threshold": 5.0,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "variable": "heating_rate",
+  "candidate_variable": "radiative_heating_heating_rate",
+  "reference_present": true,
+  "candidate_present": true,
+  "rmse": 0.007818750574354095,
+  "max_abs": 0.13948136665831878,
+  "rmse_threshold": 0.05,
+  "max_abs_threshold": 0.5,
+  "units": "K day^-1",
+  "passed": true,
+  "status": "passed"
+}],
+  "forcing_comparisons": [{
+  "metric": "toa_forcing_abs_error",
+  "boundary": "toa",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.1116824103514773,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}, {
+  "metric": "surface_forcing_abs_error",
+  "boundary": "surface",
+  "missing_reference_variables": [],
+  "missing_candidate_variables": [],
+  "max_abs": 0.012780970211224485,
+  "threshold": 0.3,
+  "units": "W m^-2",
+  "passed": true,
+  "status": "passed"
+}]
+}],
+  "note": "Each row rewrites package candidate variables into the matched all-sky ecRad reference using the same Tripleclouds/aerosol configuration as the current all-sky IFS gate, but with model-specific ecCKD gas-optics and cloud-scattering mapping files."
+}

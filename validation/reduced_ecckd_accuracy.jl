@@ -194,7 +194,9 @@ const REDUCED_MODEL_METADATA = IdDict{Any, NamedTuple}()
 function register_reduced_model(model; lw_indices = nothing, sw_indices = nothing,
                                 lw_groups = nothing, sw_groups = nothing,
                                 full_lw_weights = nothing, full_sw_weights = nothing,
-                                use_reduced_incoming_weights = false)
+                                use_reduced_incoming_weights = false,
+                                lw_boundary_projection = nothing,
+                                sw_boundary_projection = nothing)
     REDUCED_MODEL_METADATA[model] = (
         lw_indices = lw_indices,
         sw_indices = sw_indices,
@@ -203,6 +205,8 @@ function register_reduced_model(model; lw_indices = nothing, sw_indices = nothin
         full_lw_weights = full_lw_weights,
         full_sw_weights = full_sw_weights,
         use_reduced_incoming_weights = use_reduced_incoming_weights,
+        lw_boundary_projection = lw_boundary_projection,
+        sw_boundary_projection = sw_boundary_projection,
     )
     return model
 end
@@ -2670,6 +2674,36 @@ function reduce_gpoint_matrix(values, weights; indices = nothing, groups = nothi
     return values
 end
 
+function gpoint_fraction_projection(source_definition_path, target_definition_path)
+    nc = require_ncdatasets()
+    nc.NCDataset(source_definition_path) do source_dataset
+        nc.NCDataset(target_definition_path) do target_dataset
+            source_fraction = Array(source_dataset["gpoint_fraction"])
+            target_fraction = Array(target_dataset["gpoint_fraction"])
+            size(source_fraction, 1) == size(target_fraction, 1) ||
+                throw(DimensionMismatch("source and target gpoint_fraction grids differ"))
+            wavenumber1 = Array(target_dataset["wavenumber1"])
+            wavenumber2 = Array(target_dataset["wavenumber2"])
+            widths = abs.(wavenumber2 .- wavenumber1)
+            overlap = target_fraction' * (source_fraction .* widths)
+            projection = similar(overlap)
+            for target_index in axes(overlap, 1)
+                total = sum(overlap[target_index, :])
+                projection[target_index, :] .=
+                    total > 0 ? overlap[target_index, :] ./ total :
+                    fill(inv(size(overlap, 2)), size(overlap, 2))
+            end
+            return projection
+        end
+    end
+end
+
+function project_gpoint_matrix(values, projection)
+    values === nothing && return nothing
+    size(values, 1) == size(projection, 2) || return values
+    return projection * values
+end
+
 function reduced_shortwave_boundary_arrays(surface_albedo_spectral,
                                            surface_albedo_direct_spectral,
                                            toa_shortwave_down_spectral,
@@ -2680,6 +2714,18 @@ function reduced_shortwave_boundary_arrays(surface_albedo_spectral,
             toa_shortwave_down_spectral
     full_sw_weights = metadata.full_sw_weights === nothing ?
         gas_optics.shortwave_weights : metadata.full_sw_weights
+    if hasproperty(metadata, :sw_boundary_projection) &&
+       metadata.sw_boundary_projection !== nothing
+        projection = gpoint_fraction_projection(
+            metadata.sw_boundary_projection.source_definition_path,
+            metadata.sw_boundary_projection.target_definition_path,
+        )
+        return (
+            project_gpoint_matrix(surface_albedo_spectral, projection),
+            project_gpoint_matrix(surface_albedo_direct_spectral, projection),
+            project_gpoint_matrix(toa_shortwave_down_spectral, projection),
+        )
+    end
     return (
         reduce_gpoint_matrix(surface_albedo_spectral, full_sw_weights;
             indices = metadata.sw_indices,
@@ -2691,6 +2737,21 @@ function reduced_shortwave_boundary_arrays(surface_albedo_spectral,
             indices = metadata.sw_indices,
             groups = metadata.sw_groups),
     )
+end
+
+function projected_longwave_boundary_array(surface_longwave_up_spectral, gas_optics)
+    surface_longwave_up_spectral === nothing && return nothing
+    metadata = get(REDUCED_MODEL_METADATA, gas_optics, nothing)
+    metadata === nothing && return surface_longwave_up_spectral
+    if hasproperty(metadata, :lw_boundary_projection) &&
+       metadata.lw_boundary_projection !== nothing
+        projection = gpoint_fraction_projection(
+            metadata.lw_boundary_projection.source_definition_path,
+            metadata.lw_boundary_projection.target_definition_path,
+        )
+        return project_gpoint_matrix(surface_longwave_up_spectral, projection)
+    end
+    return surface_longwave_up_spectral
 end
 
 function sw_reference_vector(case)
@@ -2913,6 +2974,8 @@ function candidate_arrays(path, gas_optics)
             Array(dataset["surface_albedo_direct_spectral"]) : nothing
         surface_longwave_up_spectral = "surface_longwave_up_spectral" in variables ?
             Array(dataset["surface_longwave_up_spectral"]) : nothing
+        surface_longwave_up_spectral =
+            projected_longwave_boundary_array(surface_longwave_up_spectral, gas_optics)
         toa_shortwave_down_spectral = "toa_shortwave_down_spectral" in variables ?
             Array(dataset["toa_shortwave_down_spectral"]) : nothing
         surface_albedo_spectral, surface_albedo_direct_spectral,

@@ -12,6 +12,7 @@ const ECRAD_ALL_SKY_PROPERTIES =
     "validation/external/ecrad/test/ifs/radiative_properties_ecckd_tc.nc"
 const ECRAD_ALL_SKY_OUTPUT =
     "validation/external/ecrad/test/ifs/ecrad_meridian_ecckd_tc_out_REFERENCE.nc"
+const REFERENCE_OPTICS_OUTPUT_BASENAME = "ecrad_reference_optics_solver_gap"
 
 function rmse(candidate, reference)
     return sqrt(mean(abs2, vec(candidate .- reference)))
@@ -165,7 +166,23 @@ function clear_direct_profile(properties, reference, original_column, local_colu
     return profile
 end
 
+function ecrad_output_net(output, suffix, original_columns)
+    net_name = "flux_net_sw" * suffix
+    down_name = "flux_dn_sw" * suffix
+    up_name = "flux_up_sw" * suffix
+    if haskey(output, net_name)
+        return Array(output[net_name][:, original_columns])
+    elseif haskey(output, down_name) && haskey(output, up_name)
+        return Array(output[down_name][:, original_columns]) .-
+               Array(output[up_name][:, original_columns])
+    end
+    return nothing
+end
+
 function run_reference_optics_solver_gap()
+    reference_case = get(ENV, "RH_REFERENCE_OPTICS_REFERENCE", ALL_SKY_REFERENCE)
+    properties_case = get(ENV, "RH_REFERENCE_OPTICS_PROPERTIES", ECRAD_ALL_SKY_PROPERTIES)
+    output_case = get(ENV, "RH_REFERENCE_OPTICS_ECRAD_OUTPUT", ECRAD_ALL_SKY_OUTPUT)
     modes = (
         (name = "clear", overlap = :clear, inhomogeneity_overlap_exponent = 2.0),
         (name = "grid_mean", overlap = :grid_mean, inhomogeneity_overlap_exponent = 2.0),
@@ -178,9 +195,9 @@ function run_reference_optics_solver_gap()
         (name = "tripleclouds_alpha_p12", overlap = :tripleclouds_alpha, inhomogeneity_overlap_exponent = 12.0),
         (name = "tripleclouds_alpha_p16", overlap = :tripleclouds_alpha, inhomogeneity_overlap_exponent = 16.0),
     )
-    reference_path = normpath(joinpath(@__DIR__, "..", ALL_SKY_REFERENCE))
-    properties_path = normpath(joinpath(@__DIR__, "..", ECRAD_ALL_SKY_PROPERTIES))
-    output_path = normpath(joinpath(@__DIR__, "..", ECRAD_ALL_SKY_OUTPUT))
+    reference_path = normpath(joinpath(@__DIR__, "..", reference_case))
+    properties_path = normpath(joinpath(@__DIR__, "..", properties_case))
+    output_path = normpath(joinpath(@__DIR__, "..", output_case))
     rows = NamedTuple[]
     NCDataset(reference_path) do reference
         NCDataset(properties_path) do properties
@@ -193,6 +210,10 @@ function run_reference_optics_solver_gap()
                     Array(reference["sw_up_clear"]) : total_reference_up
                 clear_reference_down = haskey(reference, "sw_down_clear") ?
                     Array(reference["sw_down_clear"]) : total_reference_down
+                total_output_net = ecrad_output_net(ecrad_output, "", original_columns)
+                clear_output_net =
+                    ecrad_output_net(ecrad_output, "_clear", original_columns)
+                clear_output_net === nothing && (clear_output_net = total_output_net)
                 clear_direct_reference = haskey(ecrad_output, "flux_dn_direct_sw_clear") ?
                     Array(ecrad_output["flux_dn_direct_sw_clear"][:, original_columns]) :
                     nothing
@@ -219,6 +240,8 @@ function run_reference_optics_solver_gap()
                         clear_reference_up : total_reference_up
                     reference_down = mode.overlap == :clear ?
                         clear_reference_down : total_reference_down
+                    output_net = mode.overlap == :clear ?
+                        clear_output_net : total_output_net
                     net = down .- up
                     reference_net = reference_down .- reference_up
                     push!(rows, (
@@ -235,6 +258,17 @@ function run_reference_optics_solver_gap()
                         toa_net_mean_bias = mean_bias(net[1, :], reference_net[1, :]),
                         surface_net_mean_bias =
                             mean_bias(net[end, :], reference_net[end, :]),
+                        output_toa_net_abs_error = output_net === nothing ? nothing :
+                            max_abs_error(net[1, :], output_net[1, :]),
+                        output_surface_net_abs_error =
+                            output_net === nothing ? nothing :
+                            max_abs_error(net[end, :], output_net[end, :]),
+                        reference_output_toa_net_abs_error =
+                            output_net === nothing ? nothing :
+                            max_abs_error(reference_net[1, :], output_net[1, :]),
+                        reference_output_surface_net_abs_error =
+                            output_net === nothing ? nothing :
+                            max_abs_error(reference_net[end, :], output_net[end, :]),
                         clear_direct_max_abs = direct === nothing ? nothing :
                             max_abs_error(direct, clear_direct_reference),
                     ))
@@ -245,8 +279,9 @@ function run_reference_optics_solver_gap()
     return (
         case = "ecrad_reference_optics_solver_gap",
         date = string(Dates.now()),
-        reference = ALL_SKY_REFERENCE,
-        properties = ECRAD_ALL_SKY_PROPERTIES,
+        reference = reference_case,
+        properties = properties_case,
+        ecrad_output = output_case,
         modes = rows,
     )
 end
@@ -284,13 +319,37 @@ function markdown_report(result)
         "",
         "This diagnostic runs RadiativeHeating shortwave solvers using ecRad's saved all-sky shortwave optical properties. It isolates solver/source treatment from gas, cloud, and aerosol optical-property generation.",
         "",
-        "| Mode | SW up RMSE | SW down RMSE | TOA net max abs | Surface net max abs | TOA net bias | Surface net bias | Clear direct max abs |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "- Reference case: `$(result.reference)`",
+        "- ecRad properties: `$(result.properties)`",
+        "- ecRad output: `$(result.ecrad_output)`",
+        "",
+        "| Mode | SW up RMSE | SW down RMSE | Ref TOA net max abs | Ref surface net max abs | Output TOA net max abs | Output surface net max abs | Ref-output TOA max abs | Ref-output surface max abs | Clear direct max abs |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in result.modes
         direct = row.clear_direct_max_abs === nothing ? "n/a" :
             @sprintf("%.12g", row.clear_direct_max_abs)
-        push!(lines, "| `$(row.mode)` | $(@sprintf("%.12g", row.sw_up_rmse)) | $(@sprintf("%.12g", row.sw_down_rmse)) | $(@sprintf("%.12g", row.toa_net_abs_error)) | $(@sprintf("%.12g", row.surface_net_abs_error)) | $(@sprintf("%.12g", row.toa_net_mean_bias)) | $(@sprintf("%.12g", row.surface_net_mean_bias)) | $(direct) |")
+        output_toa_value = hasproperty(row, :output_toa_net_abs_error) ?
+            row.output_toa_net_abs_error : nothing
+        output_surface_value = hasproperty(row, :output_surface_net_abs_error) ?
+            row.output_surface_net_abs_error : nothing
+        reference_output_toa_value =
+            hasproperty(row, :reference_output_toa_net_abs_error) ?
+            row.reference_output_toa_net_abs_error : nothing
+        reference_output_surface_value =
+            hasproperty(row, :reference_output_surface_net_abs_error) ?
+            row.reference_output_surface_net_abs_error : nothing
+        output_toa = output_toa_value === nothing ? "n/a" :
+            @sprintf("%.12g", output_toa_value)
+        output_surface = output_surface_value === nothing ? "n/a" :
+            @sprintf("%.12g", output_surface_value)
+        reference_output_toa =
+            reference_output_toa_value === nothing ? "n/a" :
+            @sprintf("%.12g", reference_output_toa_value)
+        reference_output_surface =
+            reference_output_surface_value === nothing ? "n/a" :
+            @sprintf("%.12g", reference_output_surface_value)
+        push!(lines, "| `$(row.mode)` | $(@sprintf("%.12g", row.sw_up_rmse)) | $(@sprintf("%.12g", row.sw_down_rmse)) | $(@sprintf("%.12g", row.toa_net_abs_error)) | $(@sprintf("%.12g", row.surface_net_abs_error)) | $(output_toa) | $(output_surface) | $(reference_output_toa) | $(reference_output_surface) | $(direct) |")
     end
     return join(lines, "\n") * "\n"
 end
@@ -299,8 +358,10 @@ function main()
     result = run_reference_optics_solver_gap()
     results_dir = joinpath(@__DIR__, "results")
     mkpath(results_dir)
-    json_path = joinpath(results_dir, "ecrad_reference_optics_solver_gap.json")
-    md_path = joinpath(results_dir, "ecrad_reference_optics_solver_gap.md")
+    output_basename = get(ENV, "RH_REFERENCE_OPTICS_OUTPUT_BASENAME",
+                          REFERENCE_OPTICS_OUTPUT_BASENAME)
+    json_path = joinpath(results_dir, output_basename * ".json")
+    md_path = joinpath(results_dir, output_basename * ".md")
     write(json_path, json_object(result))
     write(md_path, markdown_report(result))
     print(markdown_report(result))
@@ -308,4 +369,6 @@ function main()
     println("Wrote $md_path")
 end
 
-main()
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end

@@ -1,6 +1,6 @@
 {
   "case": "ckdmip_training_data_preflight",
-  "timestamp_utc": "2026-05-21T23:58:41.082",
+  "timestamp_utc": "2026-05-22T23:10:23.722",
   "status": "ready_for_original_ecckd_objective",
   "ckdmip_data_root": "/shared/home/greg/data/ckdmip",
   "fixed_objective_manifest": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_published_training_manifest.json",

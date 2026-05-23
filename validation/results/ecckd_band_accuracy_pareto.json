@@ -1,9 +1,9 @@
 {
   "case": "ecckd_band_accuracy_pareto",
-  "timestamp_utc": "2026-05-22T19:54:37.417",
+  "timestamp_utc": "2026-05-22T20:38:12.611",
   "status": "passed",
-  "point_count": 106,
-  "passed_point_count": 6,
+  "point_count": 109,
+  "passed_point_count": 11,
   "published_inventory_count": 6,
   "plot_path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.svg",
   "csv_path": "/shared/home/greg/Projects/AnalyticBandRadiation.jl/validation/results/ecckd_band_accuracy_pareto.csv",
@@ -1465,32 +1465,74 @@
   "limiting_metric_ratio": 0.18218668324947096
 }, {
   "source": "published_model_accuracy",
+  "label": "official ecCKD 1.0/1.2 32-LW x 64-SW climate/window model",
+  "ng_lw": 32,
+  "ng_sw": 64,
+  "total_gpoints": 96,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.008052858255155115,
+  "worst_surface_forcing_error_w_m2": 0.01414186779402371,
+  "worst_boundary_forcing_error_w_m2": 0.01414186779402371,
+  "normalized_objective": 0.18835331030003566,
+  "objective_source": "published_model_accuracy_hard_objective",
+  "limiting_metric": "heating_rate_max_abs",
+  "limiting_metric_ratio": 0.18835331030003566
+}, {
+  "source": "published_model_accuracy",
+  "label": "official ecCKD 1.0/1.4 32-LW x 96-SW climate/vfine model",
+  "ng_lw": 32,
+  "ng_sw": 96,
+  "total_gpoints": 128,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.008011320117589094,
+  "worst_surface_forcing_error_w_m2": 0.01417032475637825,
+  "worst_boundary_forcing_error_w_m2": 0.01417032475637825,
+  "normalized_objective": 0.16390863960176993,
+  "objective_source": "published_model_accuracy_hard_objective",
+  "limiting_metric": "heating_rate_max_abs",
+  "limiting_metric_ratio": 0.16390863960176993
+}, {
+  "source": "published_model_accuracy",
+  "label": "official ecCKD 1.2/1.4 64-LW x 32-SW narrow/rgb model",
+  "ng_lw": 64,
+  "ng_sw": 32,
+  "total_gpoints": 96,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.008081227188768025,
+  "worst_surface_forcing_error_w_m2": 0.013716479902541323,
+  "worst_boundary_forcing_error_w_m2": 0.013716479902541323,
+  "normalized_objective": 0.18482392946556025,
+  "objective_source": "published_model_accuracy_hard_objective",
+  "limiting_metric": "heating_rate_max_abs",
+  "limiting_metric_ratio": 0.18482392946556025
+}, {
+  "source": "published_model_accuracy",
   "label": "official ecCKD 1.2 64-LW x 64-SW climate model",
   "ng_lw": 64,
   "ng_sw": 64,
   "total_gpoints": 128,
-  "passed": false,
-  "worst_toa_forcing_error_w_m2": 2.9650292621629433,
-  "worst_surface_forcing_error_w_m2": 3.734858006376271,
-  "worst_boundary_forcing_error_w_m2": 3.734858006376271,
-  "normalized_objective": 28.637112946364454,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.00806999830786026,
+  "worst_surface_forcing_error_w_m2": 0.013824800658767344,
+  "worst_boundary_forcing_error_w_m2": 0.013824800658767344,
+  "normalized_objective": 0.15586068441068335,
   "objective_source": "published_model_accuracy_hard_objective",
   "limiting_metric": "heating_rate_max_abs",
-  "limiting_metric_ratio": 28.637112946364454
+  "limiting_metric_ratio": 0.15586068441068335
 }, {
   "source": "published_model_accuracy",
   "label": "official ecCKD 1.2/1.4 64-LW x 96-SW climate/vfine model",
   "ng_lw": 64,
   "ng_sw": 96,
   "total_gpoints": 160,
-  "passed": false,
-  "worst_toa_forcing_error_w_m2": 2.7713113756234407,
-  "worst_surface_forcing_error_w_m2": 3.596213896758627,
-  "worst_boundary_forcing_error_w_m2": 3.596213896758627,
-  "normalized_objective": 28.66072069653073,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.008028460170294238,
+  "worst_surface_forcing_error_w_m2": 0.013853257621121884,
+  "worst_boundary_forcing_error_w_m2": 0.013853257621121884,
+  "normalized_objective": 0.17309316782723094,
   "objective_source": "published_model_accuracy_hard_objective",
   "limiting_metric": "heating_rate_max_abs",
-  "limiting_metric_ratio": 28.66072069653073
+  "limiting_metric_ratio": 0.17309316782723094
 }],
   "pareto_front": [{
   "source": "reduced_accuracy",
@@ -1548,6 +1590,20 @@
   "objective_source": "maximum_reported_threshold_ratio",
   "limiting_metric": "surface_forcing",
   "limiting_metric_ratio": 0.04677849012485543
+}, {
+  "source": "published_model_accuracy",
+  "label": "official ecCKD 1.2/1.4 64-LW x 32-SW narrow/rgb model",
+  "ng_lw": 64,
+  "ng_sw": 32,
+  "total_gpoints": 96,
+  "passed": true,
+  "worst_toa_forcing_error_w_m2": 0.008081227188768025,
+  "worst_surface_forcing_error_w_m2": 0.013716479902541323,
+  "worst_boundary_forcing_error_w_m2": 0.013716479902541323,
+  "normalized_objective": 0.18482392946556025,
+  "objective_source": "published_model_accuracy_hard_objective",
+  "limiting_metric": "heating_rate_max_abs",
+  "limiting_metric_ratio": 0.18482392946556025
 }],
   "objective_front": [{
   "source": "reduced_accuracy",
@@ -1655,5 +1711,5 @@
   "source_tables_present": false,
   "rayleigh_tables_present": true
 }],
-  "notes": "This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the official 32x32, 64x64, and 64x96 combinations. Published 64/96 definitions are inventoried and recovered by the teacher-student scan, but the current package-native clean reference gate is only passed by the 32x32 published combination; newly trained intermediate models remain future work."
+  "notes": "This artifact plots all currently available ecCKD accuracy rows, including reduced candidates, size scans, leave-one-out official shortwave g-point scans, and direct published-model accuracy diagnostics for the promoted official 32x32, 32x64, 32x96, 64x32, 64x64, and 64x96 combinations. Promoted published combinations are inventoried, recovered by the teacher-student scan, and now pass the package-native clean reference gate once evaluated against matched ecRad reference products; newly trained intermediate models remain future work."
 }

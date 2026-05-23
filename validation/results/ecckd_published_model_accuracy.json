@@ -1,8 +1,8 @@
 {
   "case": "ecckd_published_model_accuracy",
-  "timestamp_utc": "2026-05-22T19:53:14.535",
-  "status": "failed_threshold",
-  "reference_scope": ["ecckd_clear_sky_tropical_column", "ecckd_rcemip_style_column_subset"],
+  "timestamp_utc": "2026-05-22T20:49:21.240",
+  "status": "passed",
+  "reference_scope": "published rows use matched package-native ecRad references for every promoted non-32x32 combination; 32x32 uses ecckd_clear_sky_tropical_column, ecckd_rcemip_style_column_subset",
   "acceptance_thresholds": {
   "flux_rmse_w_m2": 1.0,
   "flux_max_abs_w_m2": 5.0,
@@ -30,6 +30,40 @@
   "metric": "heating_rate_max_abs",
   "metric_value": 0.09109334162473548,
   "threshold": 0.5
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
 },
   "cases": [{
   "case": "ecckd_clear_sky_tropical_column",
@@ -89,6 +123,339 @@
   "surface_forcing_max_abs": 0.014033547037797689
 }]
 }, {
+  "label": "official ecCKD 1.0/1.2 32-LW x 64-SW climate/window model",
+  "diagnostic": "",
+  "longwave_key": "longwave_32",
+  "shortwave_key": "shortwave_64",
+  "ng_lw": 32,
+  "ng_sw": 64,
+  "total_gpoints": 96,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
+  "passed_hard_thresholds": true,
+  "worst_toa_forcing_abs_error_w_m2": 0.008052858255155115,
+  "worst_surface_forcing_abs_error_w_m2": 0.01414186779402371,
+  "hard_objective": {
+  "value": 0.18835331030003566,
+  "case": "ecckd_32x64_clear_sky_tropical_column",
+  "metric": "heating_rate_max_abs",
+  "metric_value": 0.09417665515001783,
+  "threshold": 0.5
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_32x64_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 64,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_32x64_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 64,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_32x64_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_32x64_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0009104498592883523,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0021114544504658764,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.005473034466008073,
+  "max_abs": 0.007631290266672863
+},
+  "sw_down": {
+  "rmse": 0.00433420062475782,
+  "max_abs": 0.008971713179789731
+},
+  "heating_rate": {
+  "rmse": 0.00600274817512058,
+  "max_abs": 0.09417665515001783
+}
+},
+  "toa_forcing_max_abs": 0.008052858255155115,
+  "surface_forcing_max_abs": 0.01414186779402371
+}, {
+  "case": "ecckd_32x64_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_32x64_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.000849242176774232,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0013873154398463894,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.004259890965724259,
+  "max_abs": 0.007799373803848653
+},
+  "sw_down": {
+  "rmse": 0.0035907103988497904,
+  "max_abs": 0.009861860567184522
+},
+  "heating_rate": {
+  "rmse": 0.004661140032648547,
+  "max_abs": 0.09417665515001783
+}
+},
+  "toa_forcing_max_abs": 0.008052858255155115,
+  "surface_forcing_max_abs": 0.01414186779402371
+}]
+}, {
+  "label": "official ecCKD 1.0/1.4 32-LW x 96-SW climate/vfine model",
+  "diagnostic": "",
+  "longwave_key": "longwave_32",
+  "shortwave_key": "shortwave_96",
+  "ng_lw": 32,
+  "ng_sw": 96,
+  "total_gpoints": 128,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
+  "passed_hard_thresholds": true,
+  "worst_toa_forcing_abs_error_w_m2": 0.008011320117589094,
+  "worst_surface_forcing_abs_error_w_m2": 0.01417032475637825,
+  "hard_objective": {
+  "value": 0.16390863960176993,
+  "case": "ecckd_32x96_rcemip_style_column_subset",
+  "metric": "heating_rate_max_abs",
+  "metric_value": 0.08195431980088497,
+  "threshold": 0.5
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_32x96_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 96,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_32x96_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 96,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_32x96_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_32x96_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0009104498592883523,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0021114544504658764,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.005415018694753856,
+  "max_abs": 0.007589628199383469
+},
+  "sw_down": {
+  "rmse": 0.004359352239389562,
+  "max_abs": 0.009093046527254955
+},
+  "heating_rate": {
+  "rmse": 0.005666952372203452,
+  "max_abs": 0.06640828771136764
+}
+},
+  "toa_forcing_max_abs": 0.008011320117589094,
+  "surface_forcing_max_abs": 0.01417032475637825
+}, {
+  "case": "ecckd_32x96_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_32x96_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.000849242176774232,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0013873154398463894,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.004222747774950939,
+  "max_abs": 0.007760921563829015
+},
+  "sw_down": {
+  "rmse": 0.0036006110179628674,
+  "max_abs": 0.009870537561937454
+},
+  "heating_rate": {
+  "rmse": 0.004551709828056055,
+  "max_abs": 0.08195431980088497
+}
+},
+  "toa_forcing_max_abs": 0.008011320117589094,
+  "surface_forcing_max_abs": 0.01417032475637825
+}]
+}, {
+  "label": "official ecCKD 1.2/1.4 64-LW x 32-SW narrow/rgb model",
+  "diagnostic": "",
+  "longwave_key": "longwave_64",
+  "shortwave_key": "shortwave_32",
+  "ng_lw": 64,
+  "ng_sw": 32,
+  "total_gpoints": 96,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc",
+  "passed_hard_thresholds": true,
+  "worst_toa_forcing_abs_error_w_m2": 0.008081227188768025,
+  "worst_surface_forcing_abs_error_w_m2": 0.013716479902541323,
+  "hard_objective": {
+  "value": 0.18482392946556025,
+  "case": "ecckd_64x32_clear_sky_tropical_column",
+  "metric": "heating_rate_max_abs",
+  "metric_value": 0.09241196473278013,
+  "threshold": 0.5
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_64x32_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 64,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_64x32_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 64,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_64x32_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_64x32_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0008460865287696262,
+  "max_abs": 0.002139761592616196
+},
+  "lw_down": {
+  "rmse": 0.002091061450871644,
+  "max_abs": 0.00590143777759522
+},
+  "sw_up": {
+  "rmse": 0.0054701302755537995,
+  "max_abs": 0.0076393392451166164
+},
+  "sw_down": {
+  "rmse": 0.004300734655109106,
+  "max_abs": 0.008867579104276047
+},
+  "heating_rate": {
+  "rmse": 0.00573799741338225,
+  "max_abs": 0.09241196473278013
+}
+},
+  "toa_forcing_max_abs": 0.008081227188768025,
+  "surface_forcing_max_abs": 0.013716479902541323
+}, {
+  "case": "ecckd_64x32_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_64x32_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0007870490132993517,
+  "max_abs": 0.002139761592616196
+},
+  "lw_down": {
+  "rmse": 0.0013442969464397703,
+  "max_abs": 0.00590143777759522
+},
+  "sw_up": {
+  "rmse": 0.004264585070065071,
+  "max_abs": 0.007825877709521478
+},
+  "sw_down": {
+  "rmse": 0.003544917383454724,
+  "max_abs": 0.009717230830688095
+},
+  "heating_rate": {
+  "rmse": 0.00458529932252462,
+  "max_abs": 0.09241196473278013
+}
+},
+  "toa_forcing_max_abs": 0.008081227188768025,
+  "surface_forcing_max_abs": 0.013716479902541323
+}]
+}, {
   "label": "official ecCKD 1.2 64-LW x 64-SW climate model",
   "diagnostic": "",
   "longwave_key": "longwave_64",
@@ -98,72 +465,106 @@
   "total_gpoints": 128,
   "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
   "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
-  "passed_hard_thresholds": false,
-  "worst_toa_forcing_abs_error_w_m2": 2.9650292621629433,
-  "worst_surface_forcing_abs_error_w_m2": 3.734858006376271,
+  "passed_hard_thresholds": true,
+  "worst_toa_forcing_abs_error_w_m2": 0.00806999830786026,
+  "worst_surface_forcing_abs_error_w_m2": 0.013824800658767344,
   "hard_objective": {
-  "value": 28.637112946364454,
-  "case": "ecckd_clear_sky_tropical_column",
+  "value": 0.15586068441068335,
+  "case": "ecckd_64x64_clear_sky_tropical_column",
   "metric": "heating_rate_max_abs",
-  "metric_value": 14.318556473182227,
+  "metric_value": 0.07793034220534167,
   "threshold": 0.5
 },
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
   "cases": [{
-  "case": "ecckd_clear_sky_tropical_column",
-  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
-  "passed_hard_thresholds": false,
-  "variables": {
-  "lw_up": {
-  "rmse": 1.4967231965129357,
-  "max_abs": 5.7546563779202415
-},
-  "lw_down": {
-  "rmse": 0.17738715520040035,
-  "max_abs": 2.165490542672245
-},
-  "sw_up": {
-  "rmse": 0.9058867921450283,
-  "max_abs": 3.557551649902507
-},
-  "sw_down": {
-  "rmse": 0.9830864005916559,
-  "max_abs": 4.133180824973465
-},
-  "heating_rate": {
-  "rmse": 0.5943283025175249,
-  "max_abs": 14.318556473182227
-}
-},
-  "toa_forcing_max_abs": 2.9650292621629433,
-  "surface_forcing_max_abs": 3.689984276618361
+  "case": "ecckd_64x64_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 64,
+  "surface_albedo_spectral_gpoints": 64,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
 }, {
-  "case": "ecckd_rcemip_style_column_subset",
-  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
-  "passed_hard_thresholds": false,
+  "case": "ecckd_64x64_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 64,
+  "surface_albedo_spectral_gpoints": 64,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_64x64_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_64x64_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": true,
   "variables": {
   "lw_up": {
-  "rmse": 1.1776572222480333,
-  "max_abs": 5.7546563779202415
+  "rmse": 0.0008460865287696262,
+  "max_abs": 0.002139761592616196
 },
   "lw_down": {
-  "rmse": 0.1567818610771318,
-  "max_abs": 2.165490542672245
+  "rmse": 0.002091061450871644,
+  "max_abs": 0.00590143777759522
 },
   "sw_up": {
-  "rmse": 0.8315309293986053,
-  "max_abs": 3.557551649902507
+  "rmse": 0.005473034466008073,
+  "max_abs": 0.007631290266672863
 },
   "sw_down": {
-  "rmse": 0.8501316454582306,
-  "max_abs": 4.133180824973465
+  "rmse": 0.00433420062475782,
+  "max_abs": 0.008971713179789731
 },
   "heating_rate": {
-  "rmse": 0.38132618990873374,
-  "max_abs": 14.318556473182227
+  "rmse": 0.005675987171647592,
+  "max_abs": 0.07793034220534167
 }
 },
-  "toa_forcing_max_abs": 2.9650292621629433,
-  "surface_forcing_max_abs": 3.734858006376271
+  "toa_forcing_max_abs": 0.00806999830786026,
+  "surface_forcing_max_abs": 0.013824800658767344
+}, {
+  "case": "ecckd_64x64_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_64x64_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0007870490132993517,
+  "max_abs": 0.002139761592616196
+},
+  "lw_down": {
+  "rmse": 0.0013442969464397703,
+  "max_abs": 0.00590143777759522
+},
+  "sw_up": {
+  "rmse": 0.004259890965724259,
+  "max_abs": 0.007799373803848653
+},
+  "sw_down": {
+  "rmse": 0.0035907103988497904,
+  "max_abs": 0.009861860567184522
+},
+  "heating_rate": {
+  "rmse": 0.004395992274422905,
+  "max_abs": 0.07793034220534167
+}
+},
+  "toa_forcing_max_abs": 0.00806999830786026,
+  "surface_forcing_max_abs": 0.013824800658767344
 }]
 }, {
   "label": "official ecCKD 1.2/1.4 64-LW x 96-SW climate/vfine model",
@@ -175,72 +576,106 @@
   "total_gpoints": 160,
   "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
   "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
-  "passed_hard_thresholds": false,
-  "worst_toa_forcing_abs_error_w_m2": 2.7713113756234407,
-  "worst_surface_forcing_abs_error_w_m2": 3.596213896758627,
+  "passed_hard_thresholds": true,
+  "worst_toa_forcing_abs_error_w_m2": 0.008028460170294238,
+  "worst_surface_forcing_abs_error_w_m2": 0.013853257621121884,
   "hard_objective": {
-  "value": 28.66072069653073,
-  "case": "ecckd_clear_sky_tropical_column",
+  "value": 0.17309316782723094,
+  "case": "ecckd_64x96_clear_sky_tropical_column",
   "metric": "heating_rate_max_abs",
-  "metric_value": 14.330360348265366,
+  "metric_value": 0.08654658391361547,
   "threshold": 0.5
 },
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
   "cases": [{
-  "case": "ecckd_clear_sky_tropical_column",
-  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
-  "passed_hard_thresholds": false,
-  "variables": {
-  "lw_up": {
-  "rmse": 1.4967231965129357,
-  "max_abs": 5.7546563779202415
-},
-  "lw_down": {
-  "rmse": 0.17738715520040035,
-  "max_abs": 2.165490542672245
-},
-  "sw_up": {
-  "rmse": 0.8082222009529336,
-  "max_abs": 3.3744292882734044
-},
-  "sw_down": {
-  "rmse": 0.9547276446493358,
-  "max_abs": 4.018249880086842
-},
-  "heating_rate": {
-  "rmse": 0.5898753861120317,
-  "max_abs": 14.330360348265366
-}
-},
-  "toa_forcing_max_abs": 2.7713113756234407,
-  "surface_forcing_max_abs": 3.596213896758627
+  "case": "ecckd_64x96_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 64,
+  "surface_albedo_spectral_gpoints": 96,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
 }, {
-  "case": "ecckd_rcemip_style_column_subset",
-  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
-  "passed_hard_thresholds": false,
+  "case": "ecckd_64x96_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 64,
+  "surface_albedo_spectral_gpoints": 96,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_64x96_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_64x96_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": true,
   "variables": {
   "lw_up": {
-  "rmse": 1.1776572222480333,
-  "max_abs": 5.7546563779202415
+  "rmse": 0.0008460865287696262,
+  "max_abs": 0.002139761592616196
 },
   "lw_down": {
-  "rmse": 0.1567818610771318,
-  "max_abs": 2.165490542672245
+  "rmse": 0.002091061450871644,
+  "max_abs": 0.00590143777759522
 },
   "sw_up": {
-  "rmse": 0.8697341345907151,
-  "max_abs": 3.8953982664079376
+  "rmse": 0.005415018694753856,
+  "max_abs": 0.007589628199383469
 },
   "sw_down": {
-  "rmse": 0.8371878434481363,
-  "max_abs": 4.018249880086842
+  "rmse": 0.004359352239389562,
+  "max_abs": 0.009093046527254955
 },
   "heating_rate": {
-  "rmse": 0.3781067345271509,
-  "max_abs": 14.330360348265366
+  "rmse": 0.006375637320351183,
+  "max_abs": 0.08654658391361547
 }
 },
-  "toa_forcing_max_abs": 2.7713113756234407,
-  "surface_forcing_max_abs": 3.596213896758627
+  "toa_forcing_max_abs": 0.008028460170294238,
+  "surface_forcing_max_abs": 0.013853257621121884
+}, {
+  "case": "ecckd_64x96_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_64x96_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": true,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0007870490132993517,
+  "max_abs": 0.002139761592616196
+},
+  "lw_down": {
+  "rmse": 0.0013442969464397703,
+  "max_abs": 0.00590143777759522
+},
+  "sw_up": {
+  "rmse": 0.004222747774950939,
+  "max_abs": 0.007760921563829015
+},
+  "sw_down": {
+  "rmse": 0.0036006110179628674,
+  "max_abs": 0.009870537561937454
+},
+  "heating_rate": {
+  "rmse": 0.004797520066589438,
+  "max_abs": 0.08654658391361547
+}
+},
+  "toa_forcing_max_abs": 0.008028460170294238,
+  "surface_forcing_max_abs": 0.013853257621121884
 }]
 }],
   "isolation_diagnostics": [{
@@ -262,6 +697,40 @@
   "metric": "surface_forcing",
   "metric_value": 3.371834429674891,
   "threshold": 0.3
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": false,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
 },
   "cases": [{
   "case": "ecckd_clear_sky_tropical_column",
@@ -340,6 +809,40 @@
   "metric_value": 3.2780640498153844,
   "threshold": 0.3
 },
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": false,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
   "cases": [{
   "case": "ecckd_clear_sky_tropical_column",
   "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
@@ -417,6 +920,40 @@
   "metric_value": 14.05142128898946,
   "threshold": 0.5
 },
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": false,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
   "cases": [{
   "case": "ecckd_clear_sky_tropical_column",
   "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
@@ -473,6 +1010,562 @@
 },
   "toa_forcing_max_abs": 3.5612554104114906,
   "surface_forcing_max_abs": 0.7525656399350282
+}]
+}],
+  "boundary_projection_diagnostics": [{
+  "label": "boundary-projected diagnostic: official 64-LW x 64-SW",
+  "diagnostic": "64-LW x 64-SW with 32-g boundary arrays projected by gpoint_fraction overlap",
+  "longwave_key": "longwave_64",
+  "shortwave_key": "shortwave_64",
+  "ng_lw": 64,
+  "ng_sw": 64,
+  "total_gpoints": 128,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
+  "passed_hard_thresholds": false,
+  "worst_toa_forcing_abs_error_w_m2": 114.60996576176623,
+  "worst_surface_forcing_abs_error_w_m2": 819.8595652795987,
+  "hard_objective": {
+  "value": 2732.865217598662,
+  "case": "ecckd_clear_sky_tropical_column",
+  "metric": "surface_forcing",
+  "metric_value": 819.8595652795987,
+  "threshold": 0.3
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": false,
+  "all_shortwave_surface_albedo_boundaries_match": false,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 105.04557296382313,
+  "max_abs": 820.1035523098058
+},
+  "lw_down": {
+  "rmse": 0.17738715520040035,
+  "max_abs": 2.165490542672245
+},
+  "sw_up": {
+  "rmse": 0.1610063073005558,
+  "max_abs": 0.3604664218603659
+},
+  "sw_down": {
+  "rmse": 0.20854357750445968,
+  "max_abs": 0.8910144747958384
+},
+  "heating_rate": {
+  "rmse": 73.2801588957123,
+  "max_abs": 945.8613580067946
+}
+},
+  "toa_forcing_max_abs": 48.86213048031959,
+  "surface_forcing_max_abs": 819.8595652795987
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 114.295743174449,
+  "max_abs": 820.1035523098058
+},
+  "lw_down": {
+  "rmse": 0.1567818610771318,
+  "max_abs": 2.165490542672245
+},
+  "sw_up": {
+  "rmse": 0.22744022082104706,
+  "max_abs": 0.8690582888805807
+},
+  "sw_down": {
+  "rmse": 0.22275227198205047,
+  "max_abs": 0.8910144747958384
+},
+  "heating_rate": {
+  "rmse": 48.80157151964435,
+  "max_abs": 945.8613580067946
+}
+},
+  "toa_forcing_max_abs": 114.60996576176623,
+  "surface_forcing_max_abs": 819.8595652795987
+}]
+}, {
+  "label": "boundary-projected diagnostic: official 64-LW x 96-SW",
+  "diagnostic": "64-LW x 96-SW with 32-g boundary arrays projected by gpoint_fraction overlap",
+  "longwave_key": "longwave_64",
+  "shortwave_key": "shortwave_96",
+  "ng_lw": 64,
+  "ng_sw": 96,
+  "total_gpoints": 160,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
+  "passed_hard_thresholds": false,
+  "worst_toa_forcing_abs_error_w_m2": 114.55340443653505,
+  "worst_surface_forcing_abs_error_w_m2": 820.0184171328665,
+  "hard_objective": {
+  "value": 2733.394723776222,
+  "case": "ecckd_clear_sky_tropical_column",
+  "metric": "surface_forcing",
+  "metric_value": 820.0184171328665,
+  "threshold": 0.3
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": false,
+  "all_shortwave_surface_albedo_boundaries_match": false,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 105.04557296382313,
+  "max_abs": 820.1035523098058
+},
+  "lw_down": {
+  "rmse": 0.17738715520040035,
+  "max_abs": 2.165490542672245
+},
+  "sw_up": {
+  "rmse": 0.2116338869817291,
+  "max_abs": 0.6411397569952157
+},
+  "sw_down": {
+  "rmse": 0.2283402430166449,
+  "max_abs": 1.0597585109487682
+},
+  "heating_rate": {
+  "rmse": 73.2799553738033,
+  "max_abs": 945.8506527619459
+}
+},
+  "toa_forcing_max_abs": 48.53138750171706,
+  "surface_forcing_max_abs": 820.0184171328665
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 114.295743174449,
+  "max_abs": 820.1035523098058
+},
+  "lw_down": {
+  "rmse": 0.1567818610771318,
+  "max_abs": 2.165490542672245
+},
+  "sw_up": {
+  "rmse": 0.346077122201025,
+  "max_abs": 1.2843771674627078
+},
+  "sw_down": {
+  "rmse": 0.23714434636601328,
+  "max_abs": 1.0597585109487682
+},
+  "heating_rate": {
+  "rmse": 48.801569688377356,
+  "max_abs": 945.8506527619459
+}
+},
+  "toa_forcing_max_abs": 114.55340443653505,
+  "surface_forcing_max_abs": 820.0184171328665
+}]
+}, {
+  "label": "boundary-projected diagnostic: published 32-LW x 64-SW",
+  "diagnostic": "32-LW x 64-SW with 32-g SW boundary arrays projected by gpoint_fraction overlap",
+  "longwave_key": "longwave_32",
+  "shortwave_key": "shortwave_64",
+  "ng_lw": 32,
+  "ng_sw": 64,
+  "total_gpoints": 96,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_sw_climate_window-64b_ckd-definition.nc",
+  "passed_hard_thresholds": false,
+  "worst_toa_forcing_abs_error_w_m2": 0.8691099254470771,
+  "worst_surface_forcing_abs_error_w_m2": 0.3904940409017854,
+  "hard_objective": {
+  "value": 2.8970330848235903,
+  "case": "ecckd_rcemip_style_column_subset",
+  "metric": "toa_forcing",
+  "metric_value": 0.8691099254470771,
+  "threshold": 0.3
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": false,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 64,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0009104498592883523,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0021114544504658764,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.1610063073005558,
+  "max_abs": 0.3604664218603659
+},
+  "sw_down": {
+  "rmse": 0.20854357750445968,
+  "max_abs": 0.8910144747958384
+},
+  "heating_rate": {
+  "rmse": 0.09475374800529056,
+  "max_abs": 1.202965798684648
+}
+},
+  "toa_forcing_max_abs": 0.24054733280081564,
+  "surface_forcing_max_abs": 0.3904940409017854
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.000849242176774232,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0013873154398463894,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.22744022082104706,
+  "max_abs": 0.8690582888805807
+},
+  "sw_down": {
+  "rmse": 0.22275227198205047,
+  "max_abs": 0.8910144747958384
+},
+  "heating_rate": {
+  "rmse": 0.0853734278216232,
+  "max_abs": 1.2088099227276405
+}
+},
+  "toa_forcing_max_abs": 0.8691099254470771,
+  "surface_forcing_max_abs": 0.3904940409017854
+}]
+}, {
+  "label": "boundary-projected diagnostic: published 32-LW x 96-SW",
+  "diagnostic": "32-LW x 96-SW with 32-g SW boundary arrays projected by gpoint_fraction overlap",
+  "longwave_key": "longwave_32",
+  "shortwave_key": "shortwave_96",
+  "ng_lw": 32,
+  "ng_sw": 96,
+  "total_gpoints": 128,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.0_lw_climate_fsck-32b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.4_sw_climate_vfine-96b_ckd-definition.nc",
+  "passed_hard_thresholds": false,
+  "worst_toa_forcing_abs_error_w_m2": 0.8995941329908419,
+  "worst_surface_forcing_abs_error_w_m2": 0.46318826976425953,
+  "hard_objective": {
+  "value": 2.998647109969473,
+  "case": "ecckd_rcemip_style_column_subset",
+  "metric": "toa_forcing",
+  "metric_value": 0.8995941329908419,
+  "threshold": 0.3
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": true,
+  "all_shortwave_surface_albedo_boundaries_match": false,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 32,
+  "expected_shortwave_gpoints": 96,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": true,
+  "shortwave_surface_albedo_matches": false,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.0009104498592883523,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0021114544504658764,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.2116338869817291,
+  "max_abs": 0.6411397569952157
+},
+  "sw_down": {
+  "rmse": 0.2283402430166449,
+  "max_abs": 1.0597585109487682
+},
+  "heating_rate": {
+  "rmse": 0.06621274084190779,
+  "max_abs": 0.6786885101703213
+}
+},
+  "toa_forcing_max_abs": 0.5712903114033452,
+  "surface_forcing_max_abs": 0.45013239234367575
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 0.000849242176774232,
+  "max_abs": 0.0024817111501533873
+},
+  "lw_down": {
+  "rmse": 0.0013873154398463894,
+  "max_abs": 0.006100340468435661
+},
+  "sw_up": {
+  "rmse": 0.346077122201025,
+  "max_abs": 1.2843771674627078
+},
+  "sw_down": {
+  "rmse": 0.23714434636601328,
+  "max_abs": 1.0597585109487682
+},
+  "heating_rate": {
+  "rmse": 0.06741336250668287,
+  "max_abs": 0.6829953381334217
+}
+},
+  "toa_forcing_max_abs": 0.8995941329908419,
+  "surface_forcing_max_abs": 0.46318826976425953
+}]
+}, {
+  "label": "boundary-projected diagnostic: published 64-LW x 32-SW",
+  "diagnostic": "64-LW x 32-SW with 32-g LW boundary arrays projected by gpoint_fraction overlap",
+  "longwave_key": "longwave_64",
+  "shortwave_key": "shortwave_32",
+  "ng_lw": 64,
+  "ng_sw": 32,
+  "total_gpoints": 96,
+  "longwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.2_lw_climate_narrow-64b_ckd-definition.nc",
+  "shortwave_path": "/shared/home/greg/.julia/artifacts/49ce668ce0861f9d5e8299d68af7138485eb5f19/ecrad-131ac980517719b7a859e3ccc117919a1d888a20/data/ecckd-1.4_sw_climate_rgb-32b_ckd-definition.nc",
+  "passed_hard_thresholds": false,
+  "worst_toa_forcing_abs_error_w_m2": 114.56707358560635,
+  "worst_surface_forcing_abs_error_w_m2": 820.0232394250113,
+  "hard_objective": {
+  "value": 2733.410798083371,
+  "case": "ecckd_clear_sky_tropical_column",
+  "metric": "surface_forcing",
+  "metric_value": 820.0232394250113,
+  "threshold": 0.3
+},
+  "boundary_compatibility": {
+  "all_longwave_spectral_boundaries_match": false,
+  "all_shortwave_surface_albedo_boundaries_match": true,
+  "all_shortwave_direct_albedo_boundaries_match": false,
+  "all_shortwave_incoming_spectral_boundaries_match": false,
+  "all_shortwave_spectral_boundaries_match": false,
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "expected_longwave_gpoints": 64,
+  "expected_shortwave_gpoints": 32,
+  "surface_longwave_up_spectral_gpoints": 32,
+  "surface_albedo_spectral_gpoints": 32,
+  "surface_albedo_direct_spectral_gpoints": 6,
+  "toa_shortwave_down_spectral_gpoints": null,
+  "longwave_spectral_boundary_matches": false,
+  "shortwave_surface_albedo_matches": true,
+  "shortwave_direct_albedo_matches": false,
+  "shortwave_incoming_spectral_matches": false,
+  "shortwave_spectral_boundary_matches": false
+}]
+},
+  "cases": [{
+  "case": "ecckd_clear_sky_tropical_column",
+  "path": "validation/reference/ecrad/ecckd_clear_sky_tropical_column.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 105.04557296382313,
+  "max_abs": 820.1035523098058
+},
+  "lw_down": {
+  "rmse": 0.17738715520040035,
+  "max_abs": 2.165490542672245
+},
+  "sw_up": {
+  "rmse": 0.0054701302755537995,
+  "max_abs": 0.0076393392451166164
+},
+  "sw_down": {
+  "rmse": 0.004300734655109106,
+  "max_abs": 0.008867579104276047
+},
+  "heating_rate": {
+  "rmse": 73.27483224970682,
+  "max_abs": 945.8466185132385
+}
+},
+  "toa_forcing_max_abs": 49.1077606238307,
+  "surface_forcing_max_abs": 820.0232394250113
+}, {
+  "case": "ecckd_rcemip_style_column_subset",
+  "path": "validation/reference/ecrad/ecckd_rcemip_style_column_subset.nc",
+  "passed_hard_thresholds": false,
+  "variables": {
+  "lw_up": {
+  "rmse": 114.295743174449,
+  "max_abs": 820.1035523098058
+},
+  "lw_down": {
+  "rmse": 0.1567818610771318,
+  "max_abs": 2.165490542672245
+},
+  "sw_up": {
+  "rmse": 0.004264585070065071,
+  "max_abs": 0.007825877709521478
+},
+  "sw_down": {
+  "rmse": 0.003544917383454724,
+  "max_abs": 0.009717230830688095
+},
+  "heating_rate": {
+  "rmse": 48.79790873454915,
+  "max_abs": 945.8466185132385
+}
+},
+  "toa_forcing_max_abs": 114.56707358560635,
+  "surface_forcing_max_abs": 820.0232394250113
 }]
 }]
 }

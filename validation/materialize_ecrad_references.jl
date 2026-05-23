@@ -47,6 +47,44 @@ function mean_surface_albedo(sw_albedo)
     return vec(dropdims(mean(sw_albedo; dims = 1); dims = 1))
 end
 
+function copy_gpoint_matrix!(dataset, variable_name, values, dim_name = "shortwave_gpoint")
+    if !haskey(dataset.dim, dim_name)
+        NCDATASETS.defDim(dataset, dim_name, size(values, 1))
+    elseif dataset.dim[dim_name] != size(values, 1)
+        return false
+    end
+    if haskey(dataset, variable_name)
+        size(dataset[variable_name], 1) == size(values, 1) || return false
+        dataset[variable_name][:] = values
+    else
+        var = NCDATASETS.defVar(dataset, variable_name, Float64,
+                                (dim_name, "column"))
+        var[:] = values
+    end
+    return true
+end
+
+function copy_saved_shortwave_boundaries!(dataset, properties, columns)
+    property_variables = String.(collect(keys(properties)))
+    copied = String[]
+    if "sw_albedo" in property_variables
+        diffuse_albedo = Array(properties["sw_albedo"][:, columns])
+        copy_gpoint_matrix!(dataset, "surface_albedo_spectral", diffuse_albedo) &&
+            push!(copied, "surface_albedo_spectral")
+    end
+    if "sw_albedo_direct" in property_variables
+        direct_albedo = Array(properties["sw_albedo_direct"][:, columns])
+        copy_gpoint_matrix!(dataset, "surface_albedo_direct_gpoint", direct_albedo) &&
+            push!(copied, "surface_albedo_direct_gpoint")
+    end
+    if "incoming_sw" in property_variables
+        incoming_sw = Array(properties["incoming_sw"][:, columns])
+        copy_gpoint_matrix!(dataset, "toa_shortwave_down_spectral", incoming_sw) &&
+            push!(copied, "toa_shortwave_down_spectral")
+    end
+    return copied
+end
+
 function column_or_scalar(input, name, columns)
     values = Array(input[name])
     ndims(values) == 0 && return fill(Float64(values[]), length(columns))
@@ -65,7 +103,8 @@ function liquid_water_path(q_liquid, p_interface)
 end
 
 function write_reference_case(output_path; input_path, output_reference_path,
-                              columns, all_sky, clear_fluxes = false)
+                              columns, all_sky, clear_fluxes = false,
+                              properties_path = ECRAD_TC_PROPERTIES)
     nc = require_ncdatasets()
     mkpath(dirname(output_path))
     nc.NCDataset(input_path) do input
@@ -153,6 +192,10 @@ function write_reference_case(output_path; input_path, output_reference_path,
                     var = nc.defVar(dataset, "surface_albedo_spectral", Float64,
                                     ("shortwave_gpoint", "column"))
                     var[:] = spectral_albedo
+                    toa_down = Array(reference["spectral_flux_dn_sw" * spectral_suffix][:, 1, columns])
+                    var = nc.defVar(dataset, "toa_shortwave_down_spectral", Float64,
+                                    ("shortwave_gpoint", "column"))
+                    var[:] = toa_down
                 end
 
                 if "sw_albedo_direct" in String.(collect(keys(input)))
@@ -165,48 +208,19 @@ function write_reference_case(output_path; input_path, output_reference_path,
                     var[:] = direct_albedo
                 end
 
-                if all_sky && isfile(ECRAD_TC_PROPERTIES)
-                    nc.NCDataset(ECRAD_TC_PROPERTIES) do properties
+                if all_sky && isfile(properties_path)
+                    nc.NCDataset(properties_path) do properties
                         property_variables = String.(collect(keys(properties)))
-                        if all(name in property_variables for name in
-                               ("sw_albedo", "sw_albedo_direct"))
-                            diffuse_albedo = Array(properties["sw_albedo"][:, columns])
-                            direct_albedo = Array(properties["sw_albedo_direct"][:, columns])
-                            if !haskey(dataset.dim, "shortwave_gpoint")
-                                nc.defDim(dataset, "shortwave_gpoint",
-                                          size(diffuse_albedo, 1))
-                            end
-                            if haskey(dataset, "surface_albedo_spectral")
-                                dataset["surface_albedo_spectral"][:] = diffuse_albedo
-                            else
-                                var = nc.defVar(dataset, "surface_albedo_spectral",
-                                                Float64,
-                                                ("shortwave_gpoint", "column"))
-                                var[:] = diffuse_albedo
-                            end
-                            if haskey(dataset, "surface_albedo_direct_gpoint")
-                                dataset["surface_albedo_direct_gpoint"][:] = direct_albedo
-                            else
-                                var = nc.defVar(dataset, "surface_albedo_direct_gpoint",
-                                                Float64,
-                                                ("shortwave_gpoint", "column"))
-                                var[:] = direct_albedo
-                            end
-                        end
+                        copied_boundaries =
+                            copy_saved_shortwave_boundaries!(dataset, properties, columns)
+                        dataset.attrib["saved_shortwave_boundary_source"] = properties_path
+                        dataset.attrib["saved_shortwave_boundaries"] =
+                            join(copied_boundaries, ",")
                         if "q_sat_liquid" in property_variables && !haskey(dataset, "h2o_sat_liq")
                             saturation = Array(properties["q_sat_liquid"][:, columns])
                             var = nc.defVar(dataset, "h2o_sat_liq", Float64,
                                             ("layer", "column"))
                             var[:] = saturation
-                        end
-                        if "incoming_sw" in property_variables && !haskey(dataset, "toa_shortwave_down_spectral")
-                            incoming_sw = Array(properties["incoming_sw"][:, columns])
-                            if !haskey(dataset.dim, "shortwave_gpoint")
-                                nc.defDim(dataset, "shortwave_gpoint", size(incoming_sw, 1))
-                            end
-                            var = nc.defVar(dataset, "toa_shortwave_down_spectral",
-                                            Float64, ("shortwave_gpoint", "column"))
-                            var[:] = incoming_sw
                         end
                     end
                 end
@@ -280,6 +294,53 @@ function materialize_references()
     all_sky_output = joinpath(ECRAD_IFS, "ecrad_meridian_default_out_REFERENCE.nc")
     ecckd_all_sky_tc_output = joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_tc_out_REFERENCE.nc")
     ecckd_cloudless_noaer_output = joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_cloudless_noaer_out.nc")
+    ecckd_32x64_cloudless_noaer_output =
+        joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_32x64_cloudless_noaer_out.nc")
+    ecckd_32x96_cloudless_noaer_output =
+        joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_32x96_cloudless_noaer_out.nc")
+    ecckd_64x32_cloudless_noaer_output =
+        joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_64x32_cloudless_noaer_out.nc")
+    ecckd_64x64_cloudless_noaer_output =
+        joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_64x64_cloudless_noaer_out.nc")
+    ecckd_64x96_cloudless_noaer_output =
+        joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_64x96_cloudless_noaer_out.nc")
+    matched_all_sky_outputs = (
+        (
+            output_reference_path =
+                joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_32x64_all_sky_out.nc"),
+            output_path = joinpath(@__DIR__, "reference", "ecrad",
+                                   "ecckd_32x64_all_sky_tropical_column.nc"),
+            properties_path = joinpath(ECRAD_IFS, "radiative_properties_ecckd_32x64.nc"),
+        ),
+        (
+            output_reference_path =
+                joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_32x96_all_sky_out.nc"),
+            output_path = joinpath(@__DIR__, "reference", "ecrad",
+                                   "ecckd_32x96_all_sky_tropical_column.nc"),
+            properties_path = joinpath(ECRAD_IFS, "radiative_properties_ecckd_32x96.nc"),
+        ),
+        (
+            output_reference_path =
+                joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_64x32_all_sky_out.nc"),
+            output_path = joinpath(@__DIR__, "reference", "ecrad",
+                                   "ecckd_64x32_all_sky_tropical_column.nc"),
+            properties_path = joinpath(ECRAD_IFS, "radiative_properties_ecckd_64x32.nc"),
+        ),
+        (
+            output_reference_path =
+                joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_64x64_all_sky_out.nc"),
+            output_path = joinpath(@__DIR__, "reference", "ecrad",
+                                   "ecckd_64x64_all_sky_tropical_column.nc"),
+            properties_path = joinpath(ECRAD_IFS, "radiative_properties_ecckd_64x64.nc"),
+        ),
+        (
+            output_reference_path =
+                joinpath(ECRAD_IFS, "ecrad_meridian_ecckd_64x96_all_sky_out.nc"),
+            output_path = joinpath(@__DIR__, "reference", "ecrad",
+                                   "ecckd_64x96_all_sky_tropical_column.nc"),
+            properties_path = joinpath(ECRAD_IFS, "radiative_properties_ecckd_64x96.nc"),
+        ),
+    )
     tropical_columns = 12:21
     rcemip_style_columns = 1:32
 
@@ -312,6 +373,18 @@ function materialize_references()
         columns = tropical_columns,
         all_sky = true,
     ))
+    for case in matched_all_sky_outputs
+        if isfile(case.output_reference_path)
+            push!(outputs, write_reference_case(
+                case.output_path;
+                input_path,
+                output_reference_path = case.output_reference_path,
+                columns = tropical_columns,
+                all_sky = true,
+                properties_path = case.properties_path,
+            ))
+        end
+    end
     push!(outputs, write_reference_case(
         joinpath(@__DIR__, "reference", "ecrad", "rcemip_style_column_subset.nc");
         input_path,
@@ -326,6 +399,96 @@ function materialize_references()
         columns = rcemip_style_columns,
         all_sky = false,
     ))
+    if isfile(ecckd_32x64_cloudless_noaer_output)
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_32x64_clear_sky_tropical_column.nc");
+            input_path,
+            output_reference_path = ecckd_32x64_cloudless_noaer_output,
+            columns = tropical_columns,
+            all_sky = false,
+        ))
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_32x64_rcemip_style_column_subset.nc");
+            input_path,
+            output_reference_path = ecckd_32x64_cloudless_noaer_output,
+            columns = rcemip_style_columns,
+            all_sky = false,
+        ))
+    end
+    if isfile(ecckd_32x96_cloudless_noaer_output)
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_32x96_clear_sky_tropical_column.nc");
+            input_path,
+            output_reference_path = ecckd_32x96_cloudless_noaer_output,
+            columns = tropical_columns,
+            all_sky = false,
+        ))
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_32x96_rcemip_style_column_subset.nc");
+            input_path,
+            output_reference_path = ecckd_32x96_cloudless_noaer_output,
+            columns = rcemip_style_columns,
+            all_sky = false,
+        ))
+    end
+    if isfile(ecckd_64x32_cloudless_noaer_output)
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_64x32_clear_sky_tropical_column.nc");
+            input_path,
+            output_reference_path = ecckd_64x32_cloudless_noaer_output,
+            columns = tropical_columns,
+            all_sky = false,
+        ))
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_64x32_rcemip_style_column_subset.nc");
+            input_path,
+            output_reference_path = ecckd_64x32_cloudless_noaer_output,
+            columns = rcemip_style_columns,
+            all_sky = false,
+        ))
+    end
+    if isfile(ecckd_64x64_cloudless_noaer_output)
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_64x64_clear_sky_tropical_column.nc");
+            input_path,
+            output_reference_path = ecckd_64x64_cloudless_noaer_output,
+            columns = tropical_columns,
+            all_sky = false,
+        ))
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_64x64_rcemip_style_column_subset.nc");
+            input_path,
+            output_reference_path = ecckd_64x64_cloudless_noaer_output,
+            columns = rcemip_style_columns,
+            all_sky = false,
+        ))
+    end
+    if isfile(ecckd_64x96_cloudless_noaer_output)
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_64x96_clear_sky_tropical_column.nc");
+            input_path,
+            output_reference_path = ecckd_64x96_cloudless_noaer_output,
+            columns = tropical_columns,
+            all_sky = false,
+        ))
+        push!(outputs, write_reference_case(
+            joinpath(@__DIR__, "reference", "ecrad",
+                     "ecckd_64x96_rcemip_style_column_subset.nc");
+            input_path,
+            output_reference_path = ecckd_64x96_cloudless_noaer_output,
+            columns = rcemip_style_columns,
+            all_sky = false,
+        ))
+    end
     return outputs
 end
 

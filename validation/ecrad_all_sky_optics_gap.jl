@@ -9,6 +9,7 @@ include(joinpath(@__DIR__, "write_ecrad_candidates.jl"))
 const ALL_SKY_REFERENCE = "validation/reference/ecrad/ecckd_all_sky_tropical_column.nc"
 const ECRAD_ALL_SKY_PROPERTIES =
     "validation/external/ecrad/test/ifs/radiative_properties_ecckd_tc.nc"
+const ALL_SKY_OPTICS_OUTPUT_BASENAME = "ecrad_all_sky_optics_gap"
 
 const ALL_SKY_OPTICS_ENV = Dict(
     "RH_CANDIDATE_GAS_OPTICS" => "official_ecckd",
@@ -32,13 +33,38 @@ const ALL_SKY_OPTICS_ENV = Dict(
     "RH_CLOUD_OVERLAP_SHORTWAVE" => "false",
     "RH_CLOUD_OVERLAP_RULE" => "maximum",
     "RH_AEROSOL_OPTICS" => "false",
+    "RH_IFS_AEROSOL_TABLE_OPTICS" => "false",
 )
+const ALL_SKY_OPTICS_RECORDED_ENV = (
+    "RH_ECCKD_LW_PATH",
+    "RH_ECCKD_SW_PATH",
+    "RH_CLOUD_LW_MAPPING_PATH",
+    "RH_CLOUD_SW_MAPPING_PATH",
+    "RH_LW_CLOUD_SCATTERING",
+    "RH_CLOUD_OVERLAP_USE_CLOUDY_REGION_OPTICS",
+    "RH_CLOUD_INHOM_OVERLAP_EXPONENT",
+    "RH_CLOUD_OVERLAP_LONGWAVE",
+    "RH_CLOUD_OVERLAP_LONGWAVE_RULE",
+    "RH_ALL_SKY_OPTICS_REFERENCE",
+    "RH_ALL_SKY_OPTICS_PROPERTIES",
+    "RH_ALL_SKY_OPTICS_OUTPUT_BASENAME",
+)
+
+function all_sky_optics_configuration()
+    rows = [(variable = key, value = get(ENV, key, ALL_SKY_OPTICS_ENV[key]))
+            for key in sort(collect(keys(ALL_SKY_OPTICS_ENV)))]
+    for key in ALL_SKY_OPTICS_RECORDED_ENV
+        haskey(ENV, key) || continue
+        push!(rows, (variable = key, value = ENV[key]))
+    end
+    return rows
+end
 
 function with_all_sky_optics_env(f)
     previous = Dict(key => get(ENV, key, nothing) for key in keys(ALL_SKY_OPTICS_ENV))
     try
         for (key, value) in ALL_SKY_OPTICS_ENV
-            ENV[key] = value
+            haskey(ENV, key) || (ENV[key] = value)
         end
         return f()
     finally
@@ -288,10 +314,14 @@ function candidate_all_sky_optics(reference)
     ng_sw = size(gas_optics.shortwave_absorption, 1)
 
     lw_total = zeros(Float64, ng_lw, nlayers, ncolumns)
+    clear_lw_total = zeros(Float64, ng_lw, nlayers, ncolumns)
     lw_cloud = zeros(Float64, ng_lw, nlayers, ncolumns)
     sw_total = zeros(Float64, ng_sw, nlayers, ncolumns)
     sw_ssa = zeros(Float64, ng_sw, nlayers, ncolumns)
     sw_asymmetry = zeros(Float64, ng_sw, nlayers, ncolumns)
+    clear_sw_total = zeros(Float64, ng_sw, nlayers, ncolumns)
+    clear_sw_ssa = zeros(Float64, ng_sw, nlayers, ncolumns)
+    clear_sw_asymmetry = zeros(Float64, ng_sw, nlayers, ncolumns)
     sw_cloud = zeros(Float64, ng_sw, nlayers, ncolumns)
     sw_cloud_ssa = zeros(Float64, ng_sw, nlayers, ncolumns)
     sw_cloud_asymmetry = zeros(Float64, ng_sw, nlayers, ncolumns)
@@ -316,19 +346,29 @@ function candidate_all_sky_optics(reference)
             surface = (;),
             geometry = (; cos_zenith = cos_zenith[j]),
         )
-        longwave = LongwaveOpticalProperties(zeros(Float64, ng_lw, nlayers),
-                                             zeros(Float64, ng_lw, nlayers))
+        use_lw_scattering = env_bool("RH_LW_CLOUD_SCATTERING", false)
+        longwave = LongwaveOpticalProperties(
+            zeros(Float64, ng_lw, nlayers),
+            zeros(Float64, ng_lw, nlayers);
+            single_scattering_albedo =
+                use_lw_scattering ? zeros(Float64, ng_lw, nlayers) : nothing,
+            scattering_asymmetry =
+                use_lw_scattering ? zeros(Float64, ng_lw, nlayers) : nothing,
+        )
         shortwave = ShortwaveOpticalProperties(zeros(Float64, ng_sw, nlayers))
         optical_properties!(longwave, shortwave, gas_optics, atmosphere)
-        gas_lw = copy(longwave.optical_depth)
-        gas_sw_abs = copy(shortwave.optical_depth)
-        gas_sw_scat = copy(shortwave.rayleigh_optical_depth)
-        gas_sw_total = gas_sw_abs .+ gas_sw_scat
 
         region_lw, region_lw_scat, region_lw_asymmetry,
             region_sw_abs, region_sw_scat, region_sw_asymmetry =
             cloudy_region_cloud_arrays(reference, j, ng_lw, ng_sw)
-        region_total = gas_sw_total .+ region_sw_abs .+ region_sw_scat
+
+        maybe_add_aerosol_optics!(longwave, shortwave, reference, pressure_interfaces, j)
+        clear_total, clear_ssa, clear_asymmetry = total_sw_optics(shortwave)
+        clear_lw = copy(longwave.optical_depth)
+        clear_sw_abs = copy(shortwave.optical_depth)
+        clear_sw_scat = copy(shortwave.rayleigh_optical_depth)
+
+        region_total = clear_total .+ region_sw_abs .+ region_sw_scat
         region_ssa = similar(region_total)
         region_asymmetry = similar(region_total)
         region_cloud_total = region_sw_abs .+ region_sw_scat
@@ -337,16 +377,23 @@ function candidate_all_sky_optics(reference)
         for index in eachindex(region_total)
             region_ssa[index] =
                 region_total[index] == 0 ? 0 :
-                (gas_sw_scat[index] + region_sw_scat[index]) / region_total[index]
+                (clear_sw_scat[index] + region_sw_scat[index]) / region_total[index]
             region_asymmetry[index] =
-                region_sw_scat[index] == 0 ? 0 : region_sw_asymmetry[index]
+                clear_sw_scat[index] + region_sw_scat[index] == 0 ? 0 :
+                (clear_sw_scat[index] * clear_asymmetry[index] +
+                 region_sw_scat[index] * region_sw_asymmetry[index]) /
+                (clear_sw_scat[index] + region_sw_scat[index])
             region_cloud_ssa[index] =
                 region_cloud_total[index] == 0 ? 0 :
                 region_sw_scat[index] / region_cloud_total[index]
             region_cloud_asymmetry[index] =
                 region_sw_scat[index] == 0 ? 0 : region_sw_asymmetry[index]
         end
-        cloudy_region_od_lw[:, :, j] = gas_lw .+ region_lw
+        clear_lw_total[:, :, j] = clear_lw
+        clear_sw_total[:, :, j] = clear_total
+        clear_sw_ssa[:, :, j] = clear_ssa
+        clear_sw_asymmetry[:, :, j] = clear_asymmetry
+        cloudy_region_od_lw[:, :, j] = clear_lw .+ region_lw
         cloudy_region_lw_cloud[:, :, j] = region_lw
         region_lw_ssa = similar(region_lw)
         for index in eachindex(region_lw)
@@ -363,11 +410,10 @@ function candidate_all_sky_optics(reference)
         cloudy_region_asymmetry_sw[:, :, j] = region_asymmetry
 
         maybe_add_cloud_optics!(longwave, shortwave, reference, j)
-        maybe_add_aerosol_optics!(longwave, shortwave, reference, pressure_interfaces, j)
 
         total, ssa, asymmetry = total_sw_optics(shortwave)
-        cloud_total = total .- gas_sw_abs .- gas_sw_scat
-        cloud_scat = shortwave.rayleigh_optical_depth .- gas_sw_scat
+        cloud_total = total .- clear_sw_abs .- clear_sw_scat
+        cloud_scat = shortwave.rayleigh_optical_depth .- clear_sw_scat
         cloud_ssa = similar(cloud_total)
         cloud_asymmetry = similar(cloud_total)
         for index in eachindex(cloud_total)
@@ -376,7 +422,7 @@ function candidate_all_sky_optics(reference)
         end
 
         lw_total[:, :, j] = longwave.optical_depth
-        lw_cloud[:, :, j] = longwave.optical_depth .- gas_lw
+        lw_cloud[:, :, j] = longwave.optical_depth .- clear_lw
         sw_total[:, :, j] = total
         sw_ssa[:, :, j] = ssa
         sw_asymmetry[:, :, j] = asymmetry
@@ -386,6 +432,10 @@ function candidate_all_sky_optics(reference)
     end
 
     return (
+        clear_od_lw = clear_lw_total,
+        clear_od_sw = clear_sw_total,
+        clear_ssa_sw = clear_sw_ssa,
+        clear_asymmetry_sw = clear_sw_asymmetry,
         od_lw = lw_total,
         od_lw_cloud = lw_cloud,
         od_sw = sw_total,
@@ -407,77 +457,184 @@ function candidate_all_sky_optics(reference)
     )
 end
 
-function push_optics_gap_rows!(rows, properties, candidate, original_columns, candidate_kind, mapping)
+function push_optics_gap_row!(rows, reference_values, candidate_values,
+                              candidate_kind, variable, candidate_variable, units)
+    stats = compare_stats(candidate_values, reference_values)
+    push!(rows, (
+        candidate_kind = candidate_kind,
+        variable = variable,
+        candidate_variable = candidate_variable,
+        units = units,
+        rmse = stats.rmse,
+        max_abs = stats.max_abs,
+        mean_bias = stats.mean_bias,
+        mean_abs = stats.mean_abs,
+        reference_mean = stats.reference_mean,
+        candidate_mean = stats.candidate_mean,
+    ))
+    return rows
+end
+
+function push_optics_gap_rows!(rows, properties, candidate, original_columns,
+                               candidate_kind, mapping)
     for variable in mapping
         haskey(properties, variable.reference) || continue
         reference_values = Array(properties[variable.reference][:, :, original_columns])
         candidate_values = getproperty(candidate, Symbol(variable.candidate))
-        stats = compare_stats(candidate_values, reference_values)
-        push!(rows, (
-            candidate_kind = candidate_kind,
-            variable = variable.reference,
-            candidate_variable = variable.candidate,
-            units = variable.units,
-            rmse = stats.rmse,
-            max_abs = stats.max_abs,
-            mean_bias = stats.mean_bias,
-            mean_abs = stats.mean_abs,
-            reference_mean = stats.reference_mean,
-            candidate_mean = stats.candidate_mean,
-        ))
+        push_optics_gap_row!(rows, reference_values, candidate_values,
+                             candidate_kind, variable.reference,
+                             variable.candidate, variable.units)
     end
     return rows
+end
+
+function cloudy_reference_sw(properties, original_columns)
+    clear_total = Array(properties["od_sw"][:, :, original_columns])
+    clear_ssa = Array(properties["ssa_sw"][:, :, original_columns])
+    clear_asymmetry = Array(properties["asymmetry_sw"][:, :, original_columns])
+    cloud_total = Array(properties["od_sw_cloud"][:, :, original_columns])
+    cloud_ssa = Array(properties["ssa_sw_cloud"][:, :, original_columns])
+    cloud_asymmetry = Array(properties["asymmetry_sw_cloud"][:, :, original_columns])
+    total = clear_total .+ cloud_total
+    clear_scattering = clear_ssa .* clear_total
+    cloud_scattering = cloud_ssa .* cloud_total
+    scattering = clear_scattering .+ cloud_scattering
+    ssa = similar(total)
+    asymmetry = similar(total)
+    for index in eachindex(total)
+        ssa[index] = total[index] == 0 ? 0.0 : scattering[index] / total[index]
+        asymmetry[index] = scattering[index] == 0 ? 0.0 :
+            (clear_scattering[index] * clear_asymmetry[index] +
+             cloud_scattering[index] * cloud_asymmetry[index]) / scattering[index]
+    end
+    return total, ssa, asymmetry
 end
 
 function optics_gap_rows(reference, properties, candidate)
     original_columns = round.(Int, Array(reference["column"]))
     rows = NamedTuple[]
-    grid_mean_mapping = (
-        (reference = "od_lw", candidate = "od_lw", units = "1"),
-        (reference = "od_lw_cloud", candidate = "od_lw_cloud", units = "1"),
-        (reference = "od_sw", candidate = "od_sw", units = "1"),
-        (reference = "ssa_sw", candidate = "ssa_sw", units = "1"),
-        (reference = "asymmetry_sw", candidate = "asymmetry_sw", units = "1"),
-        (reference = "od_sw_cloud", candidate = "od_sw_cloud", units = "1"),
-        (reference = "ssa_sw_cloud", candidate = "ssa_sw_cloud", units = "1"),
-        (reference = "asymmetry_sw_cloud", candidate = "asymmetry_sw_cloud", units = "1"),
+    clear_mapping = (
+        (reference = "od_lw", candidate = "clear_od_lw", units = "1"),
+        (reference = "od_sw", candidate = "clear_od_sw", units = "1"),
+        (reference = "ssa_sw", candidate = "clear_ssa_sw", units = "1"),
+        (reference = "asymmetry_sw", candidate = "clear_asymmetry_sw", units = "1"),
     )
-    cloudy_region_mapping = (
-        (reference = "od_lw", candidate = "cloudy_region_od_lw", units = "1"),
+    cloud_mapping = (
         (reference = "od_lw_cloud", candidate = "cloudy_region_od_lw_cloud", units = "1"),
         (reference = "ssa_lw_cloud", candidate = "cloudy_region_ssa_lw_cloud", units = "1"),
         (reference = "asymmetry_lw_cloud", candidate = "cloudy_region_asymmetry_lw_cloud", units = "1"),
-        (reference = "od_sw", candidate = "cloudy_region_od_sw", units = "1"),
-        (reference = "ssa_sw", candidate = "cloudy_region_ssa_sw", units = "1"),
-        (reference = "asymmetry_sw", candidate = "cloudy_region_asymmetry_sw", units = "1"),
         (reference = "od_sw_cloud", candidate = "cloudy_region_od_sw_cloud", units = "1"),
         (reference = "ssa_sw_cloud", candidate = "cloudy_region_ssa_sw_cloud", units = "1"),
         (reference = "asymmetry_sw_cloud", candidate = "cloudy_region_asymmetry_sw_cloud", units = "1"),
     )
     push_optics_gap_rows!(rows, properties, candidate, original_columns,
-                          "grid_mean_current", grid_mean_mapping)
+                          "clear_region_current", clear_mapping)
     cloudy_region_kind = env_bool("RH_CLOUD_SCATTERING_DELTA_EDDINGTON_SCALE", true) ?
         "cloudy_region_delta_scaled" : "cloudy_region_unscaled"
     push_optics_gap_rows!(rows, properties, candidate, original_columns,
-                          cloudy_region_kind, cloudy_region_mapping)
+                          cloudy_region_kind, cloud_mapping)
+    push_optics_gap_row!(
+        rows,
+        Array(properties["od_lw"][:, :, original_columns]) .+
+            Array(properties["od_lw_cloud"][:, :, original_columns]),
+        candidate.cloudy_region_od_lw,
+        cloudy_region_kind,
+        "od_lw+od_lw_cloud",
+        "cloudy_region_od_lw",
+        "1",
+    )
+    sw_total, sw_ssa, sw_asymmetry = cloudy_reference_sw(properties, original_columns)
+    push_optics_gap_row!(rows, sw_total, candidate.cloudy_region_od_sw,
+                         cloudy_region_kind, "od_sw+od_sw_cloud",
+                         "cloudy_region_od_sw", "1")
+    push_optics_gap_row!(rows, sw_ssa, candidate.cloudy_region_ssa_sw,
+                         cloudy_region_kind, "combined_ssa_sw",
+                         "cloudy_region_ssa_sw", "1")
+    push_optics_gap_row!(rows, sw_asymmetry, candidate.cloudy_region_asymmetry_sw,
+                         cloudy_region_kind, "combined_asymmetry_sw",
+                         "cloudy_region_asymmetry_sw", "1")
+    return rows
+end
+
+function push_boundary_gap_row!(rows, reference_values, candidate_values,
+                                variable, candidate_variable, units)
+    push_optics_gap_row!(rows, reference_values, candidate_values,
+                         "boundary_materialized", variable,
+                         candidate_variable, units)
+    return rows
+end
+
+function boundary_gap_rows(reference, properties)
+    original_columns = round.(Int, Array(reference["column"]))
+    variables = String.(collect(keys(reference)))
+    rows = NamedTuple[]
+    if "toa_shortwave_down_spectral" in variables &&
+       haskey(properties, "incoming_sw")
+        push_boundary_gap_row!(
+            rows,
+            Array(properties["incoming_sw"][:, original_columns]),
+            Array(reference["toa_shortwave_down_spectral"]),
+            "incoming_sw",
+            "toa_shortwave_down_spectral",
+            "W m^-2",
+        )
+    end
+    if "surface_albedo_spectral" in variables && haskey(properties, "sw_albedo")
+        push_boundary_gap_row!(
+            rows,
+            Array(properties["sw_albedo"][:, original_columns]),
+            Array(reference["surface_albedo_spectral"]),
+            "sw_albedo",
+            "surface_albedo_spectral",
+            "1",
+        )
+    end
+    if haskey(properties, "sw_albedo_direct")
+        ng = size(properties["sw_albedo_direct"], 1)
+        candidate = if "surface_albedo_direct_gpoint" in variables &&
+                       size(reference["surface_albedo_direct_gpoint"], 1) == ng
+            (name = "surface_albedo_direct_gpoint",
+             values = Array(reference["surface_albedo_direct_gpoint"]))
+        elseif "surface_albedo_direct_spectral" in variables &&
+               size(reference["surface_albedo_direct_spectral"], 1) == ng
+            (name = "surface_albedo_direct_spectral",
+             values = Array(reference["surface_albedo_direct_spectral"]))
+        elseif "surface_albedo_spectral" in variables &&
+               size(reference["surface_albedo_spectral"], 1) == ng
+            (name = "surface_albedo_spectral_fallback_for_direct",
+             values = Array(reference["surface_albedo_spectral"]))
+        else
+            nothing
+        end
+        if candidate !== nothing
+            push_boundary_gap_row!(
+                rows,
+                Array(properties["sw_albedo_direct"][:, original_columns]),
+                candidate.values,
+                "sw_albedo_direct",
+                candidate.name,
+                "1",
+            )
+        end
+    end
     return rows
 end
 
 function run_all_sky_optics_gap()
+    reference_case = get(ENV, "RH_ALL_SKY_OPTICS_REFERENCE", ALL_SKY_REFERENCE)
+    properties_path = get(ENV, "RH_ALL_SKY_OPTICS_PROPERTIES", ECRAD_ALL_SKY_PROPERTIES)
     return with_all_sky_optics_env() do
-        NCDATASETS.NCDataset(reference_path(ALL_SKY_REFERENCE)) do reference
-            NCDATASETS.NCDataset(reference_path(ECRAD_ALL_SKY_PROPERTIES)) do properties
+        NCDATASETS.NCDataset(reference_path(reference_case)) do reference
+            NCDATASETS.NCDataset(reference_path(properties_path)) do properties
                 candidate = candidate_all_sky_optics(reference)
                 rows = optics_gap_rows(reference, properties, candidate)
+                append!(rows, boundary_gap_rows(reference, properties))
                 return (
                     case = "ecrad_all_sky_optics_gap",
                     date = string(Dates.now()),
-                    reference_case = ALL_SKY_REFERENCE,
-                    ecrad_properties = ECRAD_ALL_SKY_PROPERTIES,
-                    candidate_configuration = [
-                        (variable = key, value = ALL_SKY_OPTICS_ENV[key])
-                        for key in sort(collect(keys(ALL_SKY_OPTICS_ENV)))
-                    ],
+                    reference_case = reference_case,
+                    ecrad_properties = properties_path,
+                    candidate_configuration = all_sky_optics_configuration(),
                     rows = rows,
                 )
             end
@@ -486,10 +643,17 @@ function run_all_sky_optics_gap()
 end
 
 function markdown_all_sky_optics_gap(result)
+    reference_case = hasproperty(result, :reference_case) ?
+        result.reference_case : ALL_SKY_REFERENCE
+    properties_path = hasproperty(result, :ecrad_properties) ?
+        result.ecrad_properties : ECRAD_ALL_SKY_PROPERTIES
     lines = String[
         "# ecRad All-Sky Optics Gap",
         "",
-        "This diagnostic compares candidate optical properties against ecRad's saved all-sky `radiative_properties_ecckd_tc.nc` before radiative-transfer solving.",
+        "This diagnostic compares candidate optical properties against ecRad's saved all-sky radiative properties before radiative-transfer solving.",
+        "",
+        "- Reference case: `$(reference_case)`",
+        "- ecRad properties: `$(properties_path)`",
         "",
         "| Candidate kind | Variable | RMSE | Max abs | Mean bias | Mean abs | Reference mean | Candidate mean |",
         "|---|---|---:|---:|---:|---:|---:|---:|",
@@ -514,8 +678,10 @@ function all_sky_optics_gap_main()
     result = run_all_sky_optics_gap()
     results_dir = joinpath(@__DIR__, "results")
     mkpath(results_dir)
-    json_path = joinpath(results_dir, "ecrad_all_sky_optics_gap.json")
-    md_path = joinpath(results_dir, "ecrad_all_sky_optics_gap.md")
+    output_basename = get(ENV, "RH_ALL_SKY_OPTICS_OUTPUT_BASENAME",
+                          ALL_SKY_OPTICS_OUTPUT_BASENAME)
+    json_path = joinpath(results_dir, output_basename * ".json")
+    md_path = joinpath(results_dir, output_basename * ".md")
     write(json_path, json_object(result))
     write(md_path, markdown_all_sky_optics_gap(result))
     print(markdown_all_sky_optics_gap(result))
