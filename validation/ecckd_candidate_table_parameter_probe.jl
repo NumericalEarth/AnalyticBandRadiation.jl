@@ -31,7 +31,7 @@ function scaled_shortwave_table_model(model, log_parameters)
     end
 
     return EcCKDTabulatedGasOpticsModel(
-        gas_names = Lightflux.gas_names(model),
+        gas_names = NumericalRadiation.gas_names(model),
         pressure_grid = model.pressure_grid,
         temperature_grid = model.temperature_grid,
         h2o_mole_fraction_grid = model.h2o_mole_fraction_grid,

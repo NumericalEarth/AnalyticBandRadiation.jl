@@ -1,7 +1,7 @@
 """
     AbstractRadiationScheme
 
-Root type for column radiation schemes defined by `Lightflux`.
+Root type for column radiation schemes defined by `NumericalRadiation`.
 """
 abstract type AbstractRadiationScheme end
 

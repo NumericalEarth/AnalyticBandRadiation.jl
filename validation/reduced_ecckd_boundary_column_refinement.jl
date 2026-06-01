@@ -86,7 +86,7 @@ function boundary_column_candidates(full_model, model, breakdown, worst_column;
         temperature_layers = Array(dataset["temperature_layer"])
         gas_amounts = gas_column_amounts(dataset, pressure_interfaces).amounts
         gases = Dict(Symbol(name) => values for (name, values) in gas_amounts)
-        gas_names_tuple = Lightflux.gas_names(full_model)
+        gas_names_tuple = NumericalRadiation.gas_names(full_model)
         references = full_model.gas_reference_mole_fractions
         nlayers = size(pressure_layers, 1)
         column = worst_column.column

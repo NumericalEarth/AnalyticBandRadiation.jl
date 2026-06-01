@@ -1,8 +1,8 @@
 using Test
-using Lightflux
+using NumericalRadiation
 using Dates
 
-@testset "Lightflux" begin
+@testset "NumericalRadiation" begin
     include("test_planck.jl")
     include("test_absorption.jl")
     include("test_williams_longwave.jl")

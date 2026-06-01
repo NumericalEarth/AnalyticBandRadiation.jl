@@ -1,4 +1,4 @@
-# Lightflux.jl
+# NumericalRadiation.jl
 
 [![Docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://NumericalEarth.github.io/AnalyticBandRadiation.jl/dev/)
 [![CI](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/NumericalEarth/AnalyticBandRadiation.jl/actions/workflows/CI.yml)
@@ -40,7 +40,7 @@ buffers into a single [`RadiativeTransferColumn`](@ref) and call the solvers
 with one argument:
 
 ```julia
-using Lightflux
+using NumericalRadiation
 
 nlayers = 8
 σ_half  = collect(range(0.0, 1.0, length = nlayers + 1))
@@ -90,14 +90,14 @@ constructors: `AnalyticBandLongwave(Float32)`,
 
 ## With SpeedyWeather.jl
 
-The `LightfluxSpeedyWeatherExt` extension defines a
+The `NumericalRadiationSpeedyWeatherExt` extension defines a
 `SpeedyAnalyticBandLongwave` scheme that subtypes `SpeedyWeather.AbstractLongwave`
 and can be passed directly to `PrimitiveWetModel`:
 
 ```julia
-using SpeedyWeather, Lightflux
-const SpeedyExt = Base.get_extension(Lightflux,
-                                     :LightfluxSpeedyWeatherExt)
+using SpeedyWeather, NumericalRadiation
+const SpeedyExt = Base.get_extension(NumericalRadiation,
+                                     :NumericalRadiationSpeedyWeatherExt)
 
 spectral_grid = SpectralGrid(trunc = 31, nlayers = 8)
 longwave      = SpeedyExt.SpeedyAnalyticBandLongwave(spectral_grid)

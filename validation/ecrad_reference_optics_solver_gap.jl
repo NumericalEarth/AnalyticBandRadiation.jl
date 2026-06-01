@@ -4,7 +4,7 @@ using Statistics
 
 push!(LOAD_PATH, normpath(joinpath(@__DIR__, "..")))
 
-using Lightflux
+using NumericalRadiation
 using NCDatasets
 
 const ALL_SKY_REFERENCE = "validation/reference/ecrad/ecckd_all_sky_tropical_column.nc"
@@ -153,11 +153,11 @@ function clear_direct_profile(properties, reference, original_column, local_colu
     for k in 1:nlayers
         for ig in 1:ng
             gamma1, gamma2, gamma3 =
-                Lightflux._sw_two_stream_gammas(Float64, μ0,
+                NumericalRadiation._sw_two_stream_gammas(Float64, μ0,
                                                             ssa[ig, k],
                                                             asymmetry[ig, k])
             _, _, _, _, trans_dir_dir =
-                Lightflux._sw_reflectance_transmittance(
+                NumericalRadiation._sw_reflectance_transmittance(
                     Float64, μ0, od[ig, k], ssa[ig, k], gamma1, gamma2, gamma3)
             direct[ig] *= trans_dir_dir
         end

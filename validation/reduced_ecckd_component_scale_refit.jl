@@ -71,7 +71,7 @@ function component_scaled_model(base_model, deltas)
     end
 
     model = EcCKDTabulatedGasOpticsModel(
-        gas_names = Lightflux.gas_names(base_model),
+        gas_names = NumericalRadiation.gas_names(base_model),
         pressure_grid = base_model.pressure_grid,
         temperature_grid = base_model.temperature_grid,
         h2o_mole_fraction_grid = base_model.h2o_mole_fraction_grid,

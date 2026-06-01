@@ -2,11 +2,11 @@ using Dates
 using JSON
 
 const ABR_ROOT = normpath(joinpath(@__DIR__, ".."))
-if Base.find_package("Lightflux") === nothing
+if Base.find_package("NumericalRadiation") === nothing
     push!(LOAD_PATH, ABR_ROOT)
 end
 
-using Lightflux
+using NumericalRadiation
 
 const TRAINING_MANIFEST_JSON =
     joinpath(@__DIR__, "results", "ecckd_published_training_manifest.json")

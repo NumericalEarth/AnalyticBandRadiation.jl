@@ -67,7 +67,7 @@ function gas_component_trial(full_model, moves)
 end
 
 function gas_component_candidates(full_model)
-    names = Lightflux.gas_names(full_model)
+    names = NumericalRadiation.gas_names(full_model)
     rows = NamedTuple[]
     for ig in gas_component_gpoints()
         for gas_index in eachindex(names)

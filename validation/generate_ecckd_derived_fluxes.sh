@@ -14,7 +14,7 @@ if [[ -z "${RH_CKDMIP_DATA_PATH:-}" ]]; then
 fi
 
 if [[ -z "${RH_ECCKD_SOURCE_PATH:-}" ]]; then
-    RH_ECCKD_SOURCE_PATH=$(julia --project="${PROJECT_ROOT}" -e 'using Lightflux; print(Lightflux.ecckd_source_path(require=true))')
+    RH_ECCKD_SOURCE_PATH=$(julia --project="${PROJECT_ROOT}" -e 'using NumericalRadiation; print(NumericalRadiation.ecckd_source_path(require=true))')
 fi
 
 if [[ "${RH_ECCKD_DERIVED_FLUX_DRY_RUN}" != "true" && -z "${RH_CKDMIP_TOOL_DIR:-}" ]]; then

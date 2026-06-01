@@ -1,12 +1,12 @@
-module LightfluxNCDatasetsExt
+module NumericalRadiationNCDatasetsExt
 
-using Lightflux
+using NumericalRadiation
 using NCDatasets
 
-import Lightflux: EcCKDDefinition, EcCKDTabulatedGasOpticsModel
-import Lightflux: CloudScatteringTable, EcCKDSpectralMapping
-import Lightflux: read_ecckd_definition, read_ecckd_tabulated_gas_optics
-import Lightflux: read_cloud_scattering_table, read_ecckd_spectral_mapping
+import NumericalRadiation: EcCKDDefinition, EcCKDTabulatedGasOpticsModel
+import NumericalRadiation: CloudScatteringTable, EcCKDSpectralMapping
+import NumericalRadiation: read_ecckd_definition, read_ecckd_tabulated_gas_optics
+import NumericalRadiation: read_cloud_scattering_table, read_ecckd_spectral_mapping
 
 _sym(name) = Symbol(String(name))
 

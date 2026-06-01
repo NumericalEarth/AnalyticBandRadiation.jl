@@ -3,11 +3,11 @@ using JSON
 using NCDatasets
 
 const ABR_ROOT = normpath(joinpath(@__DIR__, ".."))
-if Base.find_package("Lightflux") === nothing
+if Base.find_package("NumericalRadiation") === nothing
     push!(LOAD_PATH, ABR_ROOT)
 end
 
-using Lightflux
+using NumericalRadiation
 
 include(joinpath(@__DIR__, "ecckd_candidate_original_objective_score.jl"))
 

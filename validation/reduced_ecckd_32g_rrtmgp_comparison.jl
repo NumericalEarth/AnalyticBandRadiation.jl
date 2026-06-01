@@ -5,7 +5,7 @@ using Statistics
 
 push!(LOAD_PATH, normpath(joinpath(@__DIR__, "..")))
 
-using Lightflux
+using NumericalRadiation
 using NCDatasets
 using RRTMGP
 
@@ -111,8 +111,8 @@ function atmosphere_from_dataset(ds, column)
 end
 
 function rrtmgp_fluxes!(fluxes, model, atmosphere, ds, column, workspace)
-    ext = Base.get_extension(Lightflux, :LightfluxRRTMGPExt)
-    ext === nothing && error("LightfluxRRTMGPExt did not load")
+    ext = Base.get_extension(NumericalRadiation, :NumericalRadiationRRTMGPExt)
+    ext === nothing && error("NumericalRadiationRRTMGPExt did not load")
     boundary = ext.RRTMGPBoundaryConditions(
         surface_temperature = Array(ds["surface_temperature"])[column],
         surface_emissivity = 0.98,
@@ -223,8 +223,8 @@ function model_passed_in_reduced_accuracy(ng_lw, ng_sw, label_fragment)
 end
 
 function run_comparison()
-    ext = Base.get_extension(Lightflux, :LightfluxRRTMGPExt)
-    ext === nothing && error("LightfluxRRTMGPExt did not load")
+    ext = Base.get_extension(NumericalRadiation, :NumericalRadiationRRTMGPExt)
+    ext === nothing && error("NumericalRadiationRRTMGPExt did not load")
     model = ext.RRTMGPClearSkyModel(Float64)
     reduced_model = reduced_boundary_polish_model()
     cases = [case_result(spec, model, reduced_model) for spec in CASES]

@@ -1,6 +1,6 @@
 # PR: ecCKD / ecRad radiation platform and validation harness
 
-This branch rebuilds Lightflux.jl into the standalone, ecRad/ecCKD-
+This branch rebuilds NumericalRadiation.jl into the standalone, ecRad/ecCKD-
 compatible "RadiativeHeating-class" radiation package described in
 `radiative_heating.md`. It adds the staged runtime API, official ecCKD file
 ingestion, cloudless and cloud-overlap solvers, cloud and aerosol optics
@@ -154,7 +154,7 @@ validation harness depend on.
   `EcCKDGasOpticsModel` (fixed-coefficient toy path retained for
   unit/teacher-student work) and `EcCKDTabulatedGasOpticsModel` (official
   pressure/temperature/H₂O-mole-fraction LUT path).
-- `ext/LightfluxNCDatasetsExt.jl` — NetCDF-backed
+- `ext/NumericalRadiationNCDatasetsExt.jl` — NetCDF-backed
   `read_ecckd_definition(path)`, `read_ecckd_tabulated_gas_optics(path)`,
   `read_cloud_scattering_table(path)`, `read_ecckd_spectral_mapping(path)`,
   so `NCDatasets` stays an optional dependency of the standalone runtime.
@@ -201,7 +201,7 @@ plumbing also supports IFS aerosol-table variants in the all-sky cloud sweep.
 
 ### 2.5 Optional RRTMGP comparison extension
 
-`ext/LightfluxRRTMGPExt.jl` adds `RRTMGPClearSkyModel`,
+`ext/NumericalRadiationRRTMGPExt.jl` adds `RRTMGPClearSkyModel`,
 `RRTMGPBoundaryConditions`, reusable RRTMGP workspaces, and a
 `radiative_fluxes!(::RadiativeFluxes, ::RRTMGPClearSkyModel, ::ColumnAtmosphere, …)`
 method. This is the package-native comparison surface used by
@@ -456,7 +456,7 @@ checkout (see §4.2).
 
 ### 2.11 Old Breeze extension removed
 
-`ext/LightfluxBreezeExt.jl` is deleted. The Breeze integration is
+`ext/NumericalRadiationBreezeExt.jl` is deleted. The Breeze integration is
 owned by Breeze in `Breeze.jl/ext/BreezeRadiativeHeatingExt/`, in a dedicated
 checkout (see §4.2). The Project.toml drops the weak `Breeze` /
 `KernelAbstractions` / `Oceananigans` deps.
@@ -499,7 +499,7 @@ dedicated Breeze checkout described in §4.2 and an H100 allocation.
 
 ```sh
 git clone https://github.com/NumericalEarth/AnalyticBandRadiation.jl
-cd Lightflux.jl
+cd NumericalRadiation.jl
 git checkout glw/ecckd-radiation-platform
 
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
@@ -666,7 +666,7 @@ if [ "$#" -lt 2 ]; then
     exit 2
 fi
 
-repo="/shared/home/greg/Projects/Lightflux.jl"
+repo="/shared/home/greg/Projects/NumericalRadiation.jl"
 exec julia --project="${repo}/test" "${repo}/validation/concat_ckdmip_flux_chunks.jl" "$@"
 EOF
 chmod +x /shared/home/greg/.local/bin/ncrcat

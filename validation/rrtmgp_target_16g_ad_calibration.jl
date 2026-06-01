@@ -4,7 +4,7 @@ using Printf
 
 push!(LOAD_PATH, normpath(joinpath(@__DIR__, "..")))
 
-using Lightflux
+using NumericalRadiation
 using NCDatasets
 using RRTMGP
 
@@ -71,8 +71,8 @@ function empty_fluxes(nlayers)
 end
 
 function rrtmgp_reference_fluxes(atmosphere)
-    ext = Base.get_extension(Lightflux, :LightfluxRRTMGPExt)
-    ext === nothing && error("LightfluxRRTMGPExt did not load")
+    ext = Base.get_extension(NumericalRadiation, :NumericalRadiationRRTMGPExt)
+    ext === nothing && error("NumericalRadiationRRTMGPExt did not load")
     model = ext.RRTMGPClearSkyModel(Float64)
     boundary = ext.RRTMGPBoundaryConditions(
         surface_temperature = 300.0,
@@ -588,7 +588,7 @@ function rrtmgp_target_16g_ad_calibration()
         case = "rrtmgp_target_16g_ad_calibration",
         timestamp_utc = string(Dates.now()),
         status = full_ad_training ? "passed" : "blocked_on_full_reactant_enzyme_training",
-        reference_model = "RRTMGP clear-sky fluxes through LightfluxRRTMGPExt",
+        reference_model = "RRTMGP clear-sky fluxes through NumericalRadiationRRTMGPExt",
         candidate_model = "16-g EcCKDGasOpticsModel shortwave absorption/weight prototype",
         loss = "mean squared shortwave flux residual plus scaled shortwave heating-rate residual against package-native RRTMGP reference",
         parameterization = "16 softmax shortwave weights, 16 H2O absorption log-scales, 16 CO2 absorption log-scales",

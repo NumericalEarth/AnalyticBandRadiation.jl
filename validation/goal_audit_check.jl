@@ -183,7 +183,7 @@ end
 const REQUIRED_ARTIFACTS = (
     (
         name = "old ABR Breeze extension removed",
-        path = joinpath(ABR_ROOT, "ext", "LightfluxBreezeExt.jl"),
+        path = joinpath(ABR_ROOT, "ext", "NumericalRadiationBreezeExt.jl"),
         required_text = "",
         forbidden_text = "",
         expected_present = false,
@@ -400,8 +400,8 @@ const REQUIRED_ARTIFACTS = (
     ),
     (
         name = "package-native RRTMGP comparison extension",
-        path = joinpath(ABR_ROOT, "ext", "LightfluxRRTMGPExt.jl"),
-        required_text = "module LightfluxRRTMGPExt",
+        path = joinpath(ABR_ROOT, "ext", "NumericalRadiationRRTMGPExt.jl"),
+        required_text = "module NumericalRadiationRRTMGPExt",
         forbidden_text = "",
         expected_present = true,
         completion_blocker = false,

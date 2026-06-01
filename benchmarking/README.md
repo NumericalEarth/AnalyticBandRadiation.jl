@@ -1,6 +1,6 @@
 # Benchmarking
 
-Independent H100 / CPU benchmark for `Lightflux.jl` against
+Independent H100 / CPU benchmark for `NumericalRadiation.jl` against
 RRTMGP.jl, driven through Breeze's `update_radiation!` so the comparison runs
 under the same call surface production uses. The project path-deps onto a
 developing Breeze checkout so we can evolve the gas-optics + transport kernels
@@ -15,7 +15,7 @@ so persistent storage scales as `Nx * Ny * Nz` only.
 ## Layout
 
 - `Project.toml` — environment. `[sources]` path-deps onto this repo's
-  `Lightflux.jl` and the developing Breeze checkout at
+  `NumericalRadiation.jl` and the developing Breeze checkout at
   `/shared/home/greg/Projects/BreezeRadiativeHeatingDev/Breeze.jl`.
 - `rcemip_h100_benchmark.jl` — the benchmark script. ENV-configurable for
   k-model, grid, samples, output dir.
@@ -34,8 +34,8 @@ RADIATIVE_HEATING_BACKEND=CPU \
 RADIATIVE_HEATING_NX=4 RADIATIVE_HEATING_NY=4 RADIATIVE_HEATING_NZ=16 \
 RADIATIVE_HEATING_SAMPLES=2 \
 RADIATIVE_HEATING_GAS_MODEL_SOURCE=validated_ecCKD \
-RADIATIVE_HEATING_ECCKD_LW_PATH=$(julia --project=. -e 'using Lightflux; print(official_ecckd_definition_path(:longwave_32))') \
-RADIATIVE_HEATING_ECCKD_SW_PATH=$(julia --project=. -e 'using Lightflux; print(official_ecckd_definition_path(:shortwave_32))') \
+RADIATIVE_HEATING_ECCKD_LW_PATH=$(julia --project=. -e 'using NumericalRadiation; print(official_ecckd_definition_path(:longwave_32))') \
+RADIATIVE_HEATING_ECCKD_SW_PATH=$(julia --project=. -e 'using NumericalRadiation; print(official_ecckd_definition_path(:shortwave_32))') \
 RADIATIVE_HEATING_OUTPUT_DIR=benchmarking/results/cpu_smoke \
 julia --project=benchmarking benchmarking/rcemip_h100_benchmark.jl
 

@@ -43,10 +43,10 @@ end
     dν̃ = (lw.wavenumber_max - lw.wavenumber_min) / (lw.nwavenumber - 1)
 
     for k in 1:nlayers
-        Δτ_win      = Lightflux.williams_delta_tau(k, NF(1000), NF(0),   T, q, pₛ, geom, lw, g)
-        Δτ_rot      = Lightflux.williams_delta_tau(k, NF(400),  NF(0),   T, q, pₛ, geom, lw, g)
-        Δτ_no_co2   = Lightflux.williams_delta_tau(k, NF(667),  NF(0),   T, q, pₛ, geom, lw, g)
-        Δτ_with_co2 = Lightflux.williams_delta_tau(k, NF(667),  NF(280), T, q, pₛ, geom, lw, g)
+        Δτ_win      = NumericalRadiation.williams_delta_tau(k, NF(1000), NF(0),   T, q, pₛ, geom, lw, g)
+        Δτ_rot      = NumericalRadiation.williams_delta_tau(k, NF(400),  NF(0),   T, q, pₛ, geom, lw, g)
+        Δτ_no_co2   = NumericalRadiation.williams_delta_tau(k, NF(667),  NF(0),   T, q, pₛ, geom, lw, g)
+        Δτ_with_co2 = NumericalRadiation.williams_delta_tau(k, NF(667),  NF(280), T, q, pₛ, geom, lw, g)
 
         @test Δτ_win > 0
         @test Δτ_rot > Δτ_win
@@ -54,7 +54,7 @@ end
 
         for iv in 1:lw.nwavenumber
             ν̃ = lw.wavenumber_min + (iv - 1) * dν̃
-            @test Lightflux.williams_delta_tau(k, NF(ν̃), NF(0), T, q, pₛ, geom, lw, g) >= 0
+            @test NumericalRadiation.williams_delta_tau(k, NF(ν̃), NF(0), T, q, pₛ, geom, lw, g) >= 0
         end
     end
 end

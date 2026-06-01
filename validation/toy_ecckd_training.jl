@@ -1,4 +1,4 @@
-using Lightflux
+using NumericalRadiation
 using Dates
 using LinearAlgebra: norm
 using Printf

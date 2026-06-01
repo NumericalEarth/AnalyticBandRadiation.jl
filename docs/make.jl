@@ -1,9 +1,9 @@
 using Documenter
-using Lightflux
+using NumericalRadiation
 
 makedocs(
-    sitename = "Lightflux.jl",
-    modules = [Lightflux],
+    sitename = "NumericalRadiation.jl",
+    modules = [NumericalRadiation],
     authors = "NumericalEarth organization and contributors",
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", "false") == "true",

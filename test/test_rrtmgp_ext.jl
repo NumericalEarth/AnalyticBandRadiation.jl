@@ -1,10 +1,10 @@
-using Lightflux
+using NumericalRadiation
 using ClimaComms
 using NCDatasets
 using RRTMGP
 
 @testset "RRTMGP extension direct ColumnAtmosphere comparison" begin
-    ext = Base.get_extension(Lightflux, :LightfluxRRTMGPExt)
+    ext = Base.get_extension(NumericalRadiation, :NumericalRadiationRRTMGPExt)
     @test ext !== nothing
 
     pressure_interfaces = [1.0e3, 2.0e4, 5.0e4, 8.0e4, 1.0e5]

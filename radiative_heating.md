@@ -2,13 +2,13 @@
 
 **Prepared:** 2026-05-12  
 **Intended use:** paste into Codex with `/goal`, or use as a project brief for staged implementation.  
-**Current working package name:** `Lightflux.jl`  
+**Current working package name:** `NumericalRadiation.jl`  
 **Target package name:** `RadiativeHeating.jl`  
 **Target Breeze integration location:** `Breeze.jl/ext/BreezeRadiativeHeatingExt.jl`
 
 **Rename decision for this active `/goal`:** defer the package rename until
 after the three acceptance gates are complete. The current implementation and
-artifacts may keep the `Lightflux.jl` module/repository name while
+artifacts may keep the `NumericalRadiation.jl` module/repository name while
 building the RadiativeHeating APIs, validation gates, and Breeze-owned
 extension. A final rename to `RadiativeHeating.jl` remains a release/staging
 task, but it is not a blocker for the current accuracy/performance gates unless
@@ -1178,7 +1178,7 @@ This gives validation code a direct way to compare RadiativeHeating and RRTMGP
 on identical package-native single-column or batched-column inputs without
 going through Breeze.
 
-Current status: `LightfluxRRTMGPExt` computes RRTMGP clear-sky
+Current status: `NumericalRadiationRRTMGPExt` computes RRTMGP clear-sky
 fluxes from a `ColumnAtmosphere` into caller-owned `RadiativeFluxes`, and
 `radiative_flux_error_metrics` compares RadiativeHeating and RRTMGP fluxes
 through all LW/SW up/down components plus flux-divergence heating rates and
@@ -1881,7 +1881,7 @@ docs build
 
 ## Goal
 
-Rename `Lightflux.jl` to `RadiativeHeating.jl` while preserving existing functionality under the new interface.
+Rename `NumericalRadiation.jl` to `RadiativeHeating.jl` while preserving existing functionality under the new interface.
 
 ## Tasks
 
@@ -1965,7 +1965,7 @@ Establish a reliable, reproducible RRTMGP.jl baseline before optimizing Radiativ
 3. Benchmark full RRTMGP.jl clear-sky radiation.
 4. Benchmark full RRTMGP.jl cloudy radiation if available/used in Breeze.
 5. Benchmark current Breeze + RRTMGP radiation update.
-6. Add `LightfluxRRTMGPExt` or an equivalent optional extension
+6. Add `NumericalRadiationRRTMGPExt` or an equivalent optional extension
    for direct `ColumnAtmosphere` / `RadiativeFluxes` comparisons.
 7. Add tests that compute RadiativeHeating and RRTMGP fluxes from identical
    package-native column inputs and emit flux/heating metrics.
@@ -2480,18 +2480,18 @@ Current dedicated checkout:
 
 It was freshly cloned from `https://github.com/NumericalEarth/Breeze.jl` at
 commit `05c8fafbb0522e9c7cbc72dc89d0523083cd6810`. The old
-`LightfluxBreezeExt` extension in this package has been removed;
+`NumericalRadiationBreezeExt` extension in this package has been removed;
 Breeze integration work belongs in `BreezeRadiativeHeatingExt` inside the
 dedicated Breeze checkout.
 
 Current implementation status: the dedicated Breeze checkout now contains a
 `BreezeRadiativeHeatingExt` weak extension with a `RadiativeHeatingOptics()`
 constructor that allocates Breeze-owned flux fields, stores an
-`Lightflux.AbstractGasOpticsModel`, and runs a first CPU runtime
+`NumericalRadiation.AbstractGasOpticsModel`, and runs a first CPU runtime
 path for both `EcCKDGasOpticsModel` and `EcCKDTabulatedGasOpticsModel`. That
 path extracts Breeze temperature,
 reference pressure, and water vapor into caller-owned column buffers, calls the
-Lightflux optical-property APIs, optionally composes cloud and
+NumericalRadiation optical-property APIs, optionally composes cloud and
 aerosol optical depth, calls the cloudless flux APIs, and writes flux
 divergence back to Breeze. The targeted Breeze test
 `julia --project=test test/runtests.jl radiative_heating_extension` passes
@@ -2499,7 +2499,7 @@ with 52 assertions, including typed `NamedTuple` gas-column storage, tabulated
 ecCKD runtime evaluation, optional aerosol optics, direct final-4x benchmark
 acceptance checks, and equality
 of Breeze-owned flux fields and flux
-divergence against a standalone Lightflux column calculation. The
+divergence against a standalone NumericalRadiation column calculation. The
 test now also verifies Breeze thermodynamic tendency coupling in zero-motion CPU
 cases: `Gρe` receives the RadiativeHeating flux divergence for
 `:StaticEnergy`, and `:LiquidIcePotentialTemperature` produces a nonzero
@@ -2517,7 +2517,7 @@ they lack H100/Nsight profiling, full Breeze timestep integration, and a
 production gas-optics equivalence claim. The artifacts now record isolated
 `update_radiation!` timing and Breeze `update_state!` timing, which includes
 radiation plus Breeze tendency computation, along with Julia version, Breeze
-and Lightflux checkout paths and git SHAs, dirty-worktree flags,
+and NumericalRadiation checkout paths and git SHAs, dirty-worktree flags,
 command-line arguments, and Nsight Systems / Nsight Compute command templates
 for rerunning the same case under NVIDIA profilers.
 The regenerated default fixed-coefficient 32/32 CPU scaffold artifact with
@@ -2721,10 +2721,10 @@ projected hard-gate/max-norm subset with a forcing-objective lower bound of
 about `18.4` relative to the target `1.0`.
 
 The dedicated Breeze extension also accepts optional
-`Lightflux.AbstractCloudOpticsModel` through the `cloud_optics`
+`NumericalRadiation.AbstractCloudOpticsModel` through the `cloud_optics`
 keyword. Its CPU runtime path evaluates cloud optical properties, adds them to
 gas optical depths, and then calls the same longwave/shortwave solver path.
-It also accepts optional `Lightflux.AbstractAerosolOpticsModel`
+It also accepts optional `NumericalRadiation.AbstractAerosolOpticsModel`
 through the `aerosol_optics` keyword and composes aerosol optical depth in the
 same staged path.
 `julia --project=test test/runtests.jl radiative_heating_extension` in the

@@ -83,7 +83,7 @@ end
 
 function flux_pair_tabulated_model(full_model, groups)
     reduced = EcCKDTabulatedGasOpticsModel(
-        gas_names = Lightflux.gas_names(full_model),
+        gas_names = NumericalRadiation.gas_names(full_model),
         pressure_grid = full_model.pressure_grid,
         temperature_grid = full_model.temperature_grid,
         h2o_mole_fraction_grid = full_model.h2o_mole_fraction_grid,

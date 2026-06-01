@@ -210,7 +210,7 @@ end
 
 function interpolation_pairs(model, pressure, temperature)
     if model.temperature_grid isa AbstractMatrix
-        ip0, ip1, wp = Lightflux._pressure_bracket(model.pressure_grid, pressure)
+        ip0, ip1, wp = NumericalRadiation._pressure_bracket(model.pressure_grid, pressure)
         temperature_origin = (1 - wp) * model.temperature_grid[ip0, 1] +
                              wp * model.temperature_grid[ip1, 1]
         temperature_step = model.temperature_grid[1, 2] - model.temperature_grid[1, 1]
@@ -223,8 +223,8 @@ function interpolation_pairs(model, pressure, temperature)
         it1 = it0 + 1
         wt = temperature_index - it0
     else
-        ip0, ip1, wp = Lightflux._bracket(model.pressure_grid, pressure)
-        it0, it1, wt = Lightflux._bracket(model.temperature_grid, temperature)
+        ip0, ip1, wp = NumericalRadiation._bracket(model.pressure_grid, pressure)
+        it0, it1, wt = NumericalRadiation._bracket(model.temperature_grid, temperature)
     end
     return (
         (ip0, it0, (1 - wp) * (1 - wt)),
@@ -237,7 +237,7 @@ end
 function h2o_interpolation_pairs(model, pressure, temperature, h2o_mole_fraction)
     isempty(model.h2o_mole_fraction_grid) && return Tuple{}()
     pressure_temperature_pairs = interpolation_pairs(model, pressure, temperature)
-    ih0, ih1, wh = Lightflux._log_bracket(
+    ih0, ih1, wh = NumericalRadiation._log_bracket(
         model.h2o_mole_fraction_grid,
         h2o_mole_fraction,
     )
@@ -251,22 +251,22 @@ end
 
 function coefficient_fit_parameter_count(model)
     np = length(model.pressure_grid)
-    nt = Lightflux._temperature_grid_length(model.temperature_grid)
+    nt = NumericalRadiation._temperature_grid_length(model.temperature_grid)
     nh2o = length(model.h2o_mole_fraction_grid)
-    return length(Lightflux.gas_names(model)) * np * nt +
+    return length(NumericalRadiation.gas_names(model)) * np * nt +
            (nh2o == 0 ? 0 : np * nt * nh2o) + 1
 end
 
 function absorption_parameter_index(model, gas_index, ip, it)
     np = length(model.pressure_grid)
-    nt = Lightflux._temperature_grid_length(model.temperature_grid)
+    nt = NumericalRadiation._temperature_grid_length(model.temperature_grid)
     return ((gas_index - 1) * np + (ip - 1)) * nt + it
 end
 
 function h2o_parameter_index(model, ip, it, ih)
     np = length(model.pressure_grid)
-    nt = Lightflux._temperature_grid_length(model.temperature_grid)
-    ngas = length(Lightflux.gas_names(model))
+    nt = NumericalRadiation._temperature_grid_length(model.temperature_grid)
+    ngas = length(NumericalRadiation.gas_names(model))
     return ngas * np * nt + ((ip - 1) * nt + (it - 1)) *
            length(model.h2o_mole_fraction_grid) + ih
 end
@@ -287,7 +287,7 @@ function coefficient_fit_design(case, model, target_model)
         nparameters = coefficient_fit_parameter_count(model)
         nsamples = nlayers * ncolumns
         design = zeros(Float64, nsamples, nparameters)
-        gas_names = Lightflux.gas_names(model)
+        gas_names = NumericalRadiation.gas_names(model)
         references = model.gas_reference_mole_fractions
         target, _ = optical_depth_training_arrays(case, target_model, model)
 
@@ -299,10 +299,10 @@ function coefficient_fit_design(case, model, target_model)
             gases = Dict(name => values[:, j] for (name, values) in gas_amounts.amounts)
             for (ip, it, weight) in interpolation_pairs(model, pressure, temperature)
                 for (igas, name) in enumerate(gas_names)
-                    amount = Lightflux._gas_value(gases, name, k)
+                    amount = NumericalRadiation._gas_value(gases, name, k)
                     reference = references[igas]
                     if reference != 0 && haskey(gases, :composite)
-                        amount -= reference * Lightflux._gas_value(gases, :composite, k)
+                        amount -= reference * NumericalRadiation._gas_value(gases, :composite, k)
                     end
                     design[row, absorption_parameter_index(model, igas, ip, it)] +=
                         weight * amount
@@ -311,7 +311,7 @@ function coefficient_fit_design(case, model, target_model)
 
             if !isempty(model.h2o_mole_fraction_grid)
                 h2o_mole_fraction =
-                    Lightflux._h2o_mole_fraction(Float64,
+                    NumericalRadiation._h2o_mole_fraction(Float64,
                         ColumnAtmosphere(
                             pressure_layers = pressure_layers[:, j],
                             pressure_interfaces = pressure_interfaces[:, j],
@@ -323,7 +323,7 @@ function coefficient_fit_design(case, model, target_model)
                         ),
                         k,
                     )
-                h2o_amount = Lightflux._gas_value(gases, :h2o, k)
+                h2o_amount = NumericalRadiation._gas_value(gases, :h2o, k)
                 for (ip, it, ih, weight) in h2o_interpolation_pairs(
                         model, pressure, temperature, h2o_mole_fraction)
                     design[row, h2o_parameter_index(model, ip, it, ih)] +=
@@ -357,8 +357,8 @@ end
 
 function coefficient_table_from_fit(full_model, base_model, fitted_parameters)
     np = length(base_model.pressure_grid)
-    nt = Lightflux._temperature_grid_length(base_model.temperature_grid)
-    ngas = length(Lightflux.gas_names(base_model))
+    nt = NumericalRadiation._temperature_grid_length(base_model.temperature_grid)
+    ngas = length(NumericalRadiation.gas_names(base_model))
     ng = size(base_model.shortwave_absorption, 1)
     shortwave_absorption = similar(base_model.shortwave_absorption)
     shortwave_h2o_absorption = similar(base_model.shortwave_h2o_absorption)
@@ -380,7 +380,7 @@ function coefficient_table_from_fit(full_model, base_model, fitted_parameters)
     end
 
     fitted = EcCKDTabulatedGasOpticsModel(
-        gas_names = Lightflux.gas_names(full_model),
+        gas_names = NumericalRadiation.gas_names(full_model),
         pressure_grid = full_model.pressure_grid,
         temperature_grid = full_model.temperature_grid,
         h2o_mole_fraction_grid = full_model.h2o_mole_fraction_grid,
@@ -409,8 +409,8 @@ end
 
 function coefficient_parameters_from_model(model)
     np = length(model.pressure_grid)
-    nt = Lightflux._temperature_grid_length(model.temperature_grid)
-    ngas = length(Lightflux.gas_names(model))
+    nt = NumericalRadiation._temperature_grid_length(model.temperature_grid)
+    ngas = length(NumericalRadiation.gas_names(model))
     ng = size(model.shortwave_absorption, 1)
     parameters = [zeros(Float64, coefficient_fit_parameter_count(model)) for _ in 1:ng]
     for ig in 1:ng

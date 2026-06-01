@@ -23,7 +23,7 @@ end
     thermo = ThermodynamicConstants{NF}()
     dTdt = zeros(NF, nlayers)
     diag = ShortwaveDiagnostics{NF}(nlayers)
-    solve_shortwave!(dTdt, diag, Lightflux.TransparentShortwave(), profile, geom, surface, constants, thermo)
+    solve_shortwave!(dTdt, diag, NumericalRadiation.TransparentShortwave(), profile, geom, surface, constants, thermo)
 
     @test diag.surface_shortwave_down ≈ constants.solar_constant * 0.5f0
     @test diag.outgoing_shortwave ≈ 0.2f0 * constants.solar_constant * 0.5f0
@@ -45,7 +45,7 @@ end
     dTdt = zeros(NF, nlayers)
     t_scratch = similar(profile.temperature)
     diag = ShortwaveDiagnostics{NF}(nlayers)
-    scheme = Lightflux.OneBandGreyShortwave(NF)
+    scheme = NumericalRadiation.OneBandGreyShortwave(NF)
     solve_shortwave!(dTdt, diag, scheme, profile, geom, surface, constants, thermo;
                      transmissivity_scratch = t_scratch)
 
@@ -76,7 +76,7 @@ end
     dTdt = zeros(NF, nlayers)
     t_scratch = similar(profile.temperature)
     diag = ShortwaveDiagnostics{NF}(nlayers)
-    scheme = Lightflux.OneBandShortwave(NF)
+    scheme = NumericalRadiation.OneBandShortwave(NF)
     solve_shortwave!(dTdt, diag, scheme, profile, geom, surface, constants, thermo;
                      transmissivity_scratch = t_scratch)
 

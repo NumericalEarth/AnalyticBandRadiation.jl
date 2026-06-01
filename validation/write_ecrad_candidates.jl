@@ -1,7 +1,7 @@
 using Dates
 using Printf
 
-using Lightflux
+using NumericalRadiation
 
 include(joinpath(@__DIR__, "ecrad_reference_manifest.jl"))
 
@@ -662,7 +662,7 @@ function maybe_add_cloud_optics!(longwave, shortwave, dataset, column)
         cloud_fraction_exponent =
             env_float("RH_CLOUD_FRACTION_EXPONENT", 1.0),
     )
-    Lightflux.cloud_optical_properties!(cloud, cloud_model, (;))
+    NumericalRadiation.cloud_optical_properties!(cloud, cloud_model, (;))
     add_cloud_optical_depths!(longwave, shortwave, cloud)
     return true
 end
@@ -879,8 +879,8 @@ function _mapped_ifs_aerosol_properties()
             single_scattering_albedo = zeros(length(wavenumber), 1),
             asymmetry_factor = zeros(length(wavenumber), 1),
         )
-        sw_weights = Lightflux._ecrad_cloud_mapping_matrix(table, sw_mapping)
-        lw_weights = Lightflux._ecrad_cloud_mapping_matrix(table, lw_mapping)
+        sw_weights = NumericalRadiation._ecrad_cloud_mapping_matrix(table, sw_mapping)
+        lw_weights = NumericalRadiation._ecrad_cloud_mapping_matrix(table, lw_mapping)
         rh_lower = Float64.(Array(dataset["relative_humidity1"]))
         ng_sw = size(sw_weights, 1)
         ng_lw = size(lw_weights, 1)
@@ -1026,7 +1026,7 @@ function longwave_surface_boundary(gas_optics, surface_temperature, target_broad
     if gas_optics isa EcCKDTabulatedGasOpticsModel &&
        gas_optics.longwave_source_table !== nothing
         spectral = [
-            Lightflux._longwave_source(gas_optics, ig, surface_temperature)
+            NumericalRadiation._longwave_source(gas_optics, ig, surface_temperature)
             for ig in axes(gas_optics.longwave_absorption, 1)
         ]
         broadband = sum(gas_optics.longwave_weights .* spectral)
@@ -1388,11 +1388,11 @@ function run_candidate_for_file!(path)
         write_variable!(dataset, CANDIDATE_PREFIX * "sw_down_clear", clear_sw_down, ("interface", "column"))
         write_variable!(dataset, CANDIDATE_PREFIX * "heating_rate_clear", clear_heating, ("layer", "column"))
         dataset.attrib["radiative_heating_candidate"] =
-            "Lightflux staged EcCKDGasOpticsModel + CloudlessLongwave/CloudlessShortwave"
+            "NumericalRadiation staged EcCKDGasOpticsModel + CloudlessLongwave/CloudlessShortwave"
         dataset.attrib["radiative_heating_candidate_gas_optics_mode"] = candidate_mode()
         dataset.attrib["radiative_heating_candidate_gas_amount_units"] = gas_amounts.units
         dataset.attrib["radiative_heating_candidate_gases"] =
-            join(string.(Lightflux.gas_names(gas_optics)), ",")
+            join(string.(NumericalRadiation.gas_names(gas_optics)), ",")
         dataset.attrib["radiative_heating_longwave_interface_sources"] =
             string(use_interface_sources)
         dataset.attrib["radiative_heating_candidate_cos_zenith"] =

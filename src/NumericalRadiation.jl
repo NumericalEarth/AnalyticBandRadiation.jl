@@ -1,4 +1,4 @@
-module Lightflux
+module NumericalRadiation
 
 using Adapt
 using Dates

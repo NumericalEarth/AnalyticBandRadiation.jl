@@ -8,7 +8,7 @@ Molteni & Bracco, 2006, Appendix B) with the same parameter defaults.
 ## Transmissivity sensitivity to zenith angle
 
 ```@example sw_zenith
-using Lightflux
+using NumericalRadiation
 using CairoMakie
 
 nlayers = 32
@@ -23,7 +23,7 @@ profile = AtmosphereProfile(
 )
 constants = PhysicalConstants{Float64}()
 thermo    = ThermodynamicConstants{Float64}()
-scheme    = Lightflux.OneBandShortwave(Float64)
+scheme    = NumericalRadiation.OneBandShortwave(Float64)
 
 cos_zeniths = [0.2, 0.4, 0.6, 0.8, 1.0]
 fig = Figure(size = (780, 420))
@@ -64,7 +64,7 @@ Repeating the same column but sweeping the cloud cover through the
 diagnostic scheme's precipitation term shows the surface-insolation response.
 
 ```@example sw_clouds
-using Lightflux
+using NumericalRadiation
 using CairoMakie
 
 nlayers = 16
@@ -98,7 +98,7 @@ for r in rain_rates
     dT   = zeros(nlayers)
     dg   = ShortwaveDiagnostics{Float64}(nlayers)
     tbuf = similar(profile.temperature)
-    solve_shortwave!(dT, dg, Lightflux.OneBandShortwave(Float64), profile, geom,
+    solve_shortwave!(dT, dg, NumericalRadiation.OneBandShortwave(Float64), profile, geom,
                      surface, constants, thermo; transmissivity_scratch = tbuf)
     push!(ssr, dg.surface_shortwave_down)
     push!(olw_r, dg.outgoing_shortwave)

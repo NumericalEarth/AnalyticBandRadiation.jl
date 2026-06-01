@@ -1,4 +1,4 @@
-using Lightflux
+using NumericalRadiation
 using Dates
 
 const REQUIRED_EXPORTS = (
@@ -41,11 +41,11 @@ const REQUIRED_EXPORTS = (
 )
 
 function exported_symbol_status(name)
-    names = Base.names(Lightflux)
+    names = Base.names(NumericalRadiation)
     return (
         name = string(name),
         exported = name in names,
-        defined = isdefined(Lightflux, name),
+        defined = isdefined(NumericalRadiation, name),
     )
 end
 

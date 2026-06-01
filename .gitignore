@@ -16,3 +16,8 @@ validation/results/ecckd_recovered_sw32_candidate.nc
 # These are user-provided or artifact-backed via Artifacts.toml; do not
 # track them in this repository.
 validation/external/
+
+# Local session/tooling state
+.claude/
+.handoff_monitor.log
+.handoff_monitor.pid
