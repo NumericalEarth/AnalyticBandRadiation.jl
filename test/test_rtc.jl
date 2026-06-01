@@ -53,7 +53,7 @@ end
     )
     rtm = RadiativeTransferColumn(; grid, profile, surface,
         longwave_scheme = AnalyticBandLongwave(NF),
-        shortwave_scheme = AnalyticBandRadiation.OneBandShortwave(NF),
+        shortwave_scheme = NumericalRadiation.OneBandShortwave(NF),
         physical_constants = PhysicalConstants{NF}(),
         thermodynamic_constants = ThermodynamicConstants{NF}())
     solve_longwave!(rtm)

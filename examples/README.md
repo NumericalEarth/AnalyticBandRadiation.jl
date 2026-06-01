@@ -1,6 +1,6 @@
 # Examples
 
-Standalone scripts that exercise `AnalyticBandRadiation` in richer settings
+Standalone scripts that exercise `NumericalRadiation` in richer settings
 than the docs examples. They live in their own Julia environment
 (`examples/Project.toml`) so the main package stays dep-light.
 
@@ -12,7 +12,7 @@ shared idealized tropical column.
 Breeze's `RadiativeTransferModel(grid, ClearSkyOptics(), …)` provides the
 RRTMGP reference; we extract the same `T(z)`, `qᵥ(z)`, and reference-state
 pressure profile and feed them to
-[`AnalyticBandRadiation.solve_longwave!`](../src/longwave/williams_longwave.jl).
+[`NumericalRadiation.solve_longwave!`](../src/longwave/williams_longwave.jl).
 
 ### Run it
 
@@ -51,3 +51,13 @@ scheme, which is the claim of the paper.
 
 The script writes `rrtmgp_comparison.png` next to itself: a temperature
 profile on the left and the two heating-rate profiles overlaid on the right.
+
+## `analytic_column.jl`
+
+Run a single analytic-band column through the staged `radiative_heating!`
+wrapper and print surface fluxes, TOA flux, column-integrated heating, energy
+closure residual, and runtime.
+
+```bash
+julia --project=. examples/analytic_column.jl
+```

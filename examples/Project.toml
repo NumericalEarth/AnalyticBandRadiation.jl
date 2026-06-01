@@ -1,5 +1,5 @@
 [deps]
-AnalyticBandRadiation = "cd8119b0-1744-44d6-9ede-6ad1ad750b26"
+NumericalRadiation = "cd8119b0-1744-44d6-9ede-6ad1ad750b26"
 Breeze = "660aa2fb-d4c8-4359-a52c-9c057bc511da"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimaComms = "3a4d1b5c-c61d-41fd-a00a-5873ba7a1b0d"

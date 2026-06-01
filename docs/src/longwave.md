@@ -16,7 +16,7 @@ at each of `nwavenumber = 41` evenly spaced wavenumbers between 10 and
 The scheme represents three analytic sources of clear-sky absorption:
 
 ```@example absorption
-using AnalyticBandRadiation
+using NumericalRadiation
 using CairoMakie
 
 lw = AnalyticBandLongwave(Float64)
@@ -58,7 +58,7 @@ atmosphere from 220 K at the top to 295 K at the surface with constant
 specific humidity `q = 5 g kg⁻¹` and surface pressure 1000 hPa.
 
 ```@example forcing
-using AnalyticBandRadiation
+using NumericalRadiation
 using CairoMakie
 
 nlayers = 32

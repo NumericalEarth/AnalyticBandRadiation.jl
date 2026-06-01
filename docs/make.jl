@@ -1,9 +1,9 @@
 using Documenter
-using AnalyticBandRadiation
+using NumericalRadiation
 
 makedocs(
-    sitename = "AnalyticBandRadiation.jl",
-    modules = [AnalyticBandRadiation],
+    sitename = "NumericalRadiation.jl",
+    modules = [NumericalRadiation],
     authors = "NumericalEarth organization and contributors",
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", "false") == "true",
@@ -12,6 +12,11 @@ makedocs(
     ),
     pages = [
         "Home" => "index.md",
+        "Architecture" => "architecture.md",
+        "Gas optics" => [
+            "ecCKD files" => "gas_optics/ecckd_files.md",
+            "CKDMIP training data" => "gas_optics/ckdmip_training_data.md",
+        ],
         "Longwave" => "longwave.md",
         "Shortwave" => "shortwave.md",
         "Single-column examples" => "single_column.md",

@@ -1,18 +1,18 @@
-# Single-column comparison: AnalyticBandRadiation (Williams 2026) vs RRTMGP
+# Single-column comparison: NumericalRadiation (Williams 2026) vs RRTMGP
 # clear-sky longwave, on a shared idealized tropical atmosphere.
 #
 # This script uses Breeze as the host for RRTMGP (via BreezeRRTMGPExt). It
 # builds one atmospheric column with Breeze's `AnelasticDynamics` + RRTMGP
 # `ClearSkyOptics`, extracts T(z) and qᵥ(z) from the initialized model,
 # converts height-centered layers into sigma coordinates, then runs
-# `AnalyticBandRadiation.AnalyticBandLongwave` on the same profile and plots
+# `NumericalRadiation.AnalyticBandLongwave` on the same profile and plots
 # both heating-rate profiles together.
 #
 # Run from the package root with
 #     julia --project=examples examples/rrtmgp_comparison.jl
 # (the `examples/Project.toml` brings in Breeze, RRTMGP, NCDatasets, etc.)
 
-import AnalyticBandRadiation as ABR
+import NumericalRadiation as ABR
 using Breeze
 using Oceananigans
 using Oceananigans.Units
@@ -76,7 +76,7 @@ qᵛ     = Array(interior(qᵛ_field, 1, 1, :))
 p_ref  = Array(interior(reference_state.pressure, 1, 1, :))
 z_full = znodes(grid, Center())
 
-# Ordering convention: AnalyticBandRadiation uses top-down (k=1 is TOA). Breeze
+# Ordering convention: NumericalRadiation uses top-down (k=1 is TOA). Breeze
 # uses bottom-up (k=1 is surface). Reverse now.
 T_top_down      = reverse(T)
 qᵛ_top_down     = reverse(qᵛ)
