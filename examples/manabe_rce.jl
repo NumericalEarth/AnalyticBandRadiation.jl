@@ -6,10 +6,9 @@
 # This page runs a Manabe-*style* version of that calculation: radiation heats and cools each level, convection
 # instantly clamps the column onto a critical lapse-rate profile anchored at the surface, the surface temperature
 # is solved from top-of-atmosphere energy balance, and — their famous choice — *relative* humidity stays fixed,
-# so water vapor rises and falls with temperature. The formulation follows the RRTMGP.jl Manabe tutorial: level
-# temperatures are prognostic, convective adjustment is a one-line clamp at a fixed trial surface temperature,
-# and the surface temperature is solved externally from top-of-atmosphere balance. RRTMGP is a source reference
-# only — nothing here imports or calls it.
+# so water vapor rises and falls with temperature. Level temperatures are prognostic, convective adjustment is a
+# one-line clamp at a fixed trial surface temperature, and the surface temperature is solved externally from
+# top-of-atmosphere balance.
 #
 # ## Configuration
 #
@@ -46,10 +45,9 @@ nothing #hide
 
 # ## The atmospheric profile and grid
 #
-# The initial state is an analytic midlatitude-summer standard atmosphere, transcribed locally from RRTMGP.jl's
-# `standard_atmosphere` source (AFGL-style two-segment temperature, exact hydrostatic pressure, and
-# log-pressure-Gaussian ozone). Transcribed, not imported. The tropopause sits at zᵗʳ and the stratosphere warms
-# at the rate Γˢᵗ:
+# The initial state is an analytic, AFGL-style midlatitude-summer atmosphere: a two-segment temperature profile,
+# exact hydrostatic pressure, and log-pressure-Gaussian ozone. The tropopause sits at zᵗʳ and the stratosphere
+# warms at the rate Γˢᵗ:
 
 T₀  = 294                             # K, midlatitude-summer surface temperature
 zᵗʳ = 13e3                            # m, idealized tropopause height
@@ -138,12 +136,12 @@ nothing #hide
 
 # ## The radiative-convective march
 #
-# `equilibrate!` marches the column at a *fixed* trial surface temperature, in the RRTMGP tutorial's exact order
-# and stopping rule: clamp faces onto the critical profile ``T_c(p) = Tₛ (p/pₛ)^{Γ R^{\mathrm{d}}/g}``; set
-# cell-center temperatures to adjacent-face means; update humidity and fluxes; stop when one successive adjusted
-# face profile changes by less than `tolerance` (kelvin); otherwise map cell-center heating to face tendencies
-# (interior faces take the mean of the adjacent cell rates, the end faces take the edge rate) and march with the
-# tutorial's ±2 K increment clamp, up to `max_steps` steps.
+# `equilibrate!` marches the column at a *fixed* trial surface temperature. Each step clamps faces onto the critical
+# profile ``T_c(p) = Tₛ (p/pₛ)^{Γ R^{\mathrm{d}}/g}``, sets cell-center temperatures to adjacent-face means, and
+# updates humidity and radiative fluxes. The march stops when successive adjusted face profiles differ by less
+# than `tolerance` (kelvin); otherwise cell-center heating is mapped to face tendencies (interior faces take the
+# mean of adjacent cell rates, while end faces take the edge rate) and applied with a ±2 K increment clamp, up to
+# `max_steps` steps.
 
 function equilibrate!(Tᶠ, Tₛ; χCO₂, ozone = χO₃_ext, fixed_water_vapor = nothing,
                       Δt = 8 * 3_600, max_steps = 20_000, tolerance = 1e-4)
@@ -309,8 +307,8 @@ end
 # same quadrupled CO₂ warms the surface nearly twice as much when the vapor is allowed to rise with temperature
 # as when it is frozen at the control field.
 #
-# The solver marches face temperatures; the figures show the derived cell-center profiles, where gas optical
-# properties and heating rates are evaluated, as the current RRTMGP tutorial does.
+# The solver marches face temperatures; the figures show the derived cell-center profiles, the natural grid for
+# evaluating gas optical properties and heating rates.
 
 pressure_ticks = ([0.3, 1, 3, 10, 30, 100, 300, 1000],
                   ["0.3", "1", "3", "10", "30", "100", "300", "1000"])
@@ -419,9 +417,7 @@ verify_equilibria([("control", control), ("2×", doubled),
 #     it uses ecCKD correlated-k gas optics, a clear sky, an analytic midlatitude-summer initial state and
 #     idealized ozone, prescribed insolation over an α = 0.3 surface, 60 altitude-uniform layers to 60 km, and
 #     one isothermal lookup-boundary layer above that supplies the downwelling flux a truncated column would
-#     miss. Manabe and Wetherald reported roughly 2–3 K per doubling depending on cloud treatment, and a modern
-#     [RRTMGP.jl calculation](https://clima.caltech.edu/2026/08/19/a-nobel-winning-calculation-runnable-in-minutes-rrtmgp-jl/)
-#     — whose formulation this page follows — reports 2.9 K; the numbers above are outcomes of *this*
-#     configuration. Build-time gates assert inner convergence at every trial surface temperature, final
-#     top-of-atmosphere closure, cell/face consistency, the isothermal top, a tropospheric inversion limit, and
-#     surface-emission consistency.
+#     miss. Manabe and Wetherald reported roughly 2–3 K per doubling depending on cloud treatment; the numbers
+#     above are outcomes of *this* configuration. Build-time gates assert inner convergence at every trial surface
+#     temperature, final top-of-atmosphere closure, cell/face consistency, the isothermal top, a tropospheric
+#     inversion limit, and surface-emission consistency.
