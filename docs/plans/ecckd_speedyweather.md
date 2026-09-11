@@ -86,8 +86,11 @@ via `Pkg.develop`). Depends on **U1** being *released* only for CI.
 
 - [x] Bump compat in `Project.toml` to `SpeedyWeather = "0.23"`. Pkg accepts the
       developed `0.23.0-DEV` under this compat. Until 0.23 is registered,
-      `Pkg.test` in CI cannot resolve SpeedyWeather; run the extension tests in
-      an environment that develops the local SpeedyWeather checkout.
+      `test/Project.toml` carries a `[sources]` entry pointing at the
+      `mg/numericalradiation` branch of SpeedyWeather.jl (monorepo subdir
+      `SpeedyWeather`). `[sources]` needs Julia ≥ 1.11, so the package's Julia
+      compat and the CI matrix moved from 1.10 to 1.11. Remove the entry once
+      SpeedyWeather 0.23 is released.
 - [x] Port `SpeedyAnalyticBandLongwave` to 0.22+ accessors
       (`get_prognostic_step` / `get_tendency_step`, `vars.parameterizations.surface_pressure`,
       `land_sea_mask.land_fraction`, `vars.dynamics.geopotential`, stepped SST) and to
