@@ -5,9 +5,7 @@ using SpeedyWeather
 using Adapt
 
 import NumericalRadiation: AtmosphereProfile, ColumnGrid, SurfaceState,
-    PhysicalConstants, ThermodynamicConstants, LongwaveDiagnostics,
-    ShortwaveDiagnostics, solve_longwave!, solve_shortwave!,
-    AnalyticBandLongwave, TransparentShortwave, OneBandShortwave, OneBandGreyShortwave
+    PhysicalConstants, LongwaveDiagnostics, solve_longwave!, AnalyticBandLongwave
 
 # -----------------------------------------------------------------------------
 # Longwave adapter
@@ -16,14 +14,16 @@ import NumericalRadiation: AtmosphereProfile, ColumnGrid, SurfaceState,
 """
     SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
 
-SpeedyWeather wrapper around [`NumericalRadiation.AnalyticBandLongwave`](@ref). 
-Allows for setting the default CO₂ concentration [ppmv], if the model does not specify one.
+SpeedyWeather wrapper around [`NumericalRadiation.AnalyticBandLongwave`](@ref).
+Allows for setting the default CO₂ concentration [ppmv], used when the model has
+no `greenhouse_gases` component with a `co2` entry.
 
-Usage: 
+Usage:
 
-```julia 
+```julia
 spectral_grid = SpectralGrid()
-model = PrimitiveWetModel(spectral_grid; longwave_radiation = SpeedyAnalyticBandLongwave(spectral_grid; CO₂=280))
+longwave = SpeedyAnalyticBandLongwave(spectral_grid; CO₂ = 280)
+model = PrimitiveWetModel(spectral_grid; radiation = Radiation(spectral_grid; longwave))
 ```
 """
 struct SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
@@ -57,15 +57,21 @@ end
     return ColumnGrid(geom.σ_levels_full, geom.σ_levels_half, geom.σ_levels_thick)
 end
 
-function SpeedyWeather.parameterization!(ij::Integer, vars,
-                                         rad::SpeedyAnalyticBandLongwave{NF},
-                                         model) where NF
-    nlayers = size(vars.grid.temperature_prev, 2)
+Base.@propagate_inbounds function SpeedyWeather.parameterization!(ij, vars,
+                                                                   rad::SpeedyAnalyticBandLongwave{NF},
+                                                                   model) where NF
+    time_stepping = model.time_stepping
+    T_all    = SpeedyWeather.get_prognostic_step(vars.grid.temperature, time_stepping, rad)
+    q_all    = SpeedyWeather.get_prognostic_step(vars.grid.humidity, time_stepping, rad)
+    dTdt_all = SpeedyWeather.get_tendency_step(vars.tendencies.grid.temperature, time_stepping, rad)
+    sst_all  = SpeedyWeather.get_prognostic_step(vars.prognostic.ocean.sea_surface_temperature,
+                                                 time_stepping, rad)
 
-    T  = @view vars.grid.temperature_prev[ij, :]
-    q  = @view vars.grid.humidity_prev[ij, :]
-    Φ  = @view vars.grid.geopotential[ij, :]
-    pₛ = vars.grid.pressure_prev[ij]
+    T    = @view T_all[ij, :]
+    q    = @view q_all[ij, :]
+    Φ    = @view vars.dynamics.geopotential[ij, :]
+    dTdt = @view dTdt_all[ij, :]
+    pₛ   = vars.parameterizations.surface_pressure[ij]            # [Pa]
 
     CO₂ = let prog = vars.prognostic
         if hasproperty(prog, :greenhouse_gases) && haskey(prog.greenhouse_gases, :co2)
@@ -76,24 +82,23 @@ function SpeedyWeather.parameterization!(ij::Integer, vars,
     end
 
     profile  = AtmosphereProfile(temperature = T, humidity = q,
-                                 geopotential = Φ, surface_pressure = pₛ, 
+                                 geopotential = Φ, surface_pressure = pₛ,
                                  CO₂ = CO₂)
-                             
+
     geometry = speedy_column_geometry(model)
     surface  = SurfaceState{NF}(
-        sea_surface_temperature  = vars.prognostic.ocean.sea_surface_temperature[ij],
+        sea_surface_temperature  = sst_all[ij],
         land_surface_temperature = vars.prognostic.land.soil_temperature[ij, 1],
-        land_fraction            = model.land_sea_mask.mask[ij],
+        land_fraction            = model.land_sea_mask.land_fraction[ij],
     )
     constants = speedy_physical_constants(model)
     diag = LongwaveDiagnostics{NF}()
-    dTdt = @view vars.tendencies.grid.temperature[ij, :]
 
     solve_longwave!(dTdt, diag, rad.scheme, profile, geometry, surface, constants)
 
-    vars.parameterizations.outgoing_longwave[ij]        = diag.outgoing_longwave
-    vars.parameterizations.surface_longwave_down[ij]    = diag.surface_longwave_down
-    vars.parameterizations.surface_longwave_up[ij]      = diag.surface_longwave_up
+    vars.parameterizations.outgoing_longwave[ij]         = diag.outgoing_longwave
+    vars.parameterizations.surface_longwave_down[ij]     = diag.surface_longwave_down
+    vars.parameterizations.surface_longwave_up[ij]       = diag.surface_longwave_up
     vars.parameterizations.ocean.surface_longwave_up[ij] = diag.ocean_surface_longwave_up
     vars.parameterizations.land.surface_longwave_up[ij]  = diag.land_surface_longwave_up
 
