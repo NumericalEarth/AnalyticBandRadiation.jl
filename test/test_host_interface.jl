@@ -1,9 +1,12 @@
-using Test
-using NumericalRadiation
-
 # Host-model facing preparations: in-place surface emission,
 # element-type conversion of tabulated models, and ColumnAtmosphere built from
-# views of differently shaped host arrays.
+# views of differently shaped host arrays. Wrapped in a module so the fixture
+# helpers cannot clash with other test files.
+
+module TestHostInterface
+
+using Test
+using NumericalRadiation
 
 # Small tabulated model with every optional table populated, in Float64.
 function host_fixture_model()
@@ -120,6 +123,24 @@ end
     @test isempty(plain32.h2o_mole_fraction_grid)
     @test plain32.longwave_source_table === nothing
     @test eltype(plain32.longwave_weights) === Float32
+
+    # Reference-file-sized grids survive the Float32 round trip: the constructor
+    # re-validates log-uniform spacing to 1e-5 relative, and a 53-point pressure
+    # grid over five decades deviates by a few 1e-6 in Float32 arithmetic.
+    np, nh2o = 53, 12
+    wide = EcCKDTabulatedGasOpticsModel(
+        names = (:h2o, :co2),
+        pressure_grid = Float64.(Float32.(exp.(range(log(1.0), log(1.1e5), length = np)))),
+        temperature_grid = [200.0, 250.0, 300.0],
+        h2o_mole_fraction_grid = Float64.(Float32.(exp.(range(log(1e-7), log(0.1), length = nh2o)))),
+        longwave_absorption = ones(2, 2, np, 3),
+        shortwave_absorption = ones(2, 2, np, 3),
+        longwave_h2o_absorption = ones(2, np, 3, nh2o),
+        shortwave_h2o_absorption = ones(2, np, 3, nh2o),
+    )
+    wide32 = EcCKDTabulatedGasOpticsModel{Float32}(wide)
+    @test eltype(wide32.pressure_grid) === Float32
+    @test length(wide32.h2o_mole_fraction_grid) == nh2o
 end
 
 @testset "ColumnAtmosphere from differently shaped host views" begin
@@ -172,3 +193,5 @@ end
     end
     @test all(isfinite, results[1][4])
 end
+
+end # module TestHostInterface

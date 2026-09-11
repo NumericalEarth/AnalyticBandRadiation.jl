@@ -143,6 +143,15 @@ in the extension goes into `src/`; host glue moves to Phase 2. Done on
 Moved to Phase 2 (extension, host glue): gas amounts from specific humidity,
 interface temperatures from layer temperatures.
 
+Re-audit 2026-09-11: no defects found in the committed code. Verified that
+reference-sized grids (53-point pressure grid over five decades, 12-point H2O
+grid) pass the constructor's 1e-5 log-uniform re-validation after the Float32
+round trip with about a threefold margin, and added that as a regression
+test. Wrapped the test file in a module like the other consolidated tests, and
+corrected the `ColumnAtmosphere` docstring, which overstated that the arrays
+"need not share an element type": the kernels do convert on read, but `FT`
+remains the working precision. Deferred items unchanged.
+
 ## Phase 2. `EcCKDRadiation` SpeedyWeather component in the extension
 
 Depends on Phase 0 and Phase 1.

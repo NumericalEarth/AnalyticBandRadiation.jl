@@ -8,8 +8,9 @@ The existing analytic-band solvers use [`AtmosphereProfile`](@ref),
 is a host-model-facing container for newer gas-optics and solver paths where
 layer/interface pressure and temperature arrays need to be carried together.
 The four arrays may have different array types (host-model views into arrays
-of different shape); they need not share an element type either, `FT` is that
-of `temperature_layers`.
+of different shape). `FT` is the element type of `temperature_layers`; the
+gas-optics and solver kernels convert the other arrays' values to their own
+working precision as they read them.
 
 Fields are
 
