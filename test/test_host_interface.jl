@@ -194,4 +194,71 @@ end
     @test all(isfinite, results[1][4])
 end
 
+@testset "CloudlessShortwave with a caller-owned workspace" begin
+    model = host_fixture_model()
+    nlayers = 3
+    atmosphere = ColumnAtmosphere(
+        pressure_layers = [7_500.0, 33_000.0, 88_000.0],
+        pressure_interfaces = [1_000.0, 14_000.0, 52_000.0, 101_000.0],
+        temperature_layers = [217.3, 263.9, 291.4],
+        temperature_interfaces = [205.1, 231.7, 279.2, 297.8],
+        gases = (h2o = [3.1, 12.7, 41.9], co2 = 8.3, composite = [4.2e2, 1.1e3, 2.6e3]),
+        surface = (;), geometry = (; cos_zenith = 0.6))
+    longwave, shortwave = host_fixture_optics(Float64, model, nlayers)
+    optical_properties!(longwave, shortwave, model, atmosphere)
+    @test any(>(0), shortwave.rayleigh_optical_depth)      # the scattering path is exercised
+
+    boundary = ShortwaveBoundaryConditions(toa_shortwave_down = 800.0, surface_albedo = 0.2)
+    make_fluxes() = RadiativeFluxes(longwave_up = zeros(nlayers + 1), longwave_down = zeros(nlayers + 1),
+                                    shortwave_up = zeros(nlayers + 1), shortwave_down = zeros(nlayers + 1))
+    allocating = radiative_fluxes!(make_fluxes(), CloudlessShortwave(), shortwave, atmosphere, boundary)
+
+    workspace = radiation_workspace(CloudlessShortwave(), shortwave)
+    @test workspace isa CloudlessShortwaveWorkspace
+    reused = make_fluxes()
+    radiative_fluxes!(reused, CloudlessShortwave(), shortwave, atmosphere, boundary, workspace)
+    @test reused.shortwave_up == allocating.shortwave_up
+    @test reused.shortwave_down == allocating.shortwave_down
+    @test all(>(0), reused.shortwave_up)                     # Rayleigh reflection reaches TOA
+    radiative_fluxes!(reused, CloudlessShortwave(), shortwave, atmosphere, boundary, workspace)   # warm up
+    @test (@allocated radiative_fluxes!(reused, CloudlessShortwave(), shortwave, atmosphere, boundary, workspace)) == 0
+
+    # workspace built from views of host arrays, and a size check
+    layers, interfaces = zeros(nlayers, 6), zeros(nlayers + 1, 4)
+    from_views = CloudlessShortwaveWorkspace(
+        reflectance = view(layers, :, 1), transmittance = view(layers, :, 2), ref_dir = view(layers, :, 3),
+        trans_dir_diff = view(layers, :, 4), trans_dir_dir = view(layers, :, 5), inv_denominator = view(layers, :, 6),
+        flux_direct = view(interfaces, :, 1), flux_diffuse = view(interfaces, :, 2),
+        source = view(interfaces, :, 3), stack_albedo = view(interfaces, :, 4))
+    again = make_fluxes()
+    radiative_fluxes!(again, CloudlessShortwave(), shortwave, atmosphere, boundary, from_views)
+    @test again.shortwave_down == allocating.shortwave_down
+    @test_throws DimensionMismatch CloudlessShortwaveWorkspace(
+        reflectance = zeros(nlayers), transmittance = zeros(nlayers + 1), ref_dir = zeros(nlayers),
+        trans_dir_diff = zeros(nlayers), trans_dir_dir = zeros(nlayers), inv_denominator = zeros(nlayers),
+        flux_direct = zeros(nlayers + 1), flux_diffuse = zeros(nlayers + 1),
+        source = zeros(nlayers + 1), stack_albedo = zeros(nlayers + 1))
+end
+
+@testset "shortwave two-stream near the direct-beam singularity k μ0 = 1" begin
+    # Rayleigh-free absorbing layer: k = sqrt(γ1² - γ2²) with γ2 = 0, γ1 = 2 - 1.25 ω.
+    for FT in (Float32, Float64), ω in (FT(6e-5), FT(0.3)), g in (FT(0), FT(0.5))
+        γ1, γ2, _ = NumericalRadiation.sw_two_stream_gammas(FT, FT(0.5), ω, g)
+        k = sqrt((γ1 - γ2) * (γ1 + γ2))
+        μ_singular = one(FT) / k
+        for δ in FT.((0, 1e-7, -1e-7, 1e-6, -1e-6, 2e-6, 1e-5, 1e-4, 1e-3)), τ in FT.((0.01, 0.5, 4.5))
+            μ0 = μ_singular + δ
+            out = NumericalRadiation.sw_two_stream_layer(FT, μ0, τ, ω, g)
+            @test all(isfinite, out)
+            reflectance, transmittance, ref_dir, trans_dir_diff, direct = out
+            @test 0 <= ref_dir <= 1
+            @test 0 <= trans_dir_diff <= 1 - ref_dir
+        end
+        # away from the band the perturbation is inactive: results are continuous
+        far = NumericalRadiation.sw_two_stream_layer(FT, μ_singular * (1 + FT(1e-2)), FT(0.5), ω, g)
+        near = NumericalRadiation.sw_two_stream_layer(FT, μ_singular * (1 + FT(2e-3)), FT(0.5), ω, g)
+        @test all(isapprox.(far[3:4], near[3:4]; atol = 0.05))
+    end
+end
+
 end # module TestHostInterface

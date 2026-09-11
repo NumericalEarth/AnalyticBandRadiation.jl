@@ -16,6 +16,7 @@ LongwaveBoundaryConditions
 ShortwaveOptics
 CloudlessShortwave
 ShortwaveBoundaryConditions
+CloudlessShortwaveWorkspace
 CloudOptics
 LayerCloudOpticsModel
 LayerLiquidIceCloudOpticsModel

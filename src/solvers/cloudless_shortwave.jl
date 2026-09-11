@@ -229,8 +229,14 @@ end
     alpha2 = gamma1 * gamma3 + gamma2 * gamma4
     k_exponent = sqrt(max((gamma1 - gamma2) * (gamma1 + gamma2), FT(1.0e-12)))
     μ0_local = FT(μ0)
-    if abs(one(FT) - k_exponent * μ0_local) < FT(1000) * eps(FT)
-        μ0_local *= one(FT) - FT(10) * eps(FT)
+    # The direct-beam terms below divide by 1 - (k μ0)²: a removable singularity
+    # at k μ0 = 1. Inside a band of 1000 ulps around it, move μ0 to the edge of
+    # the band. (A fixed nudge of a few ulps is not enough: in Float32 it landed
+    # exactly on the singularity and produced NaN fluxes in a coupled run.)
+    band = FT(1000) * eps(FT)
+    k_μ0_raw = k_exponent * μ0_local
+    if abs(one(FT) - k_μ0_raw) < band
+        μ0_local = (k_μ0_raw <= one(FT) ? one(FT) - band : one(FT) + band) / k_exponent
     end
 
     od = max(FT(optical_depth), zero(FT))
@@ -267,6 +273,78 @@ end
     return reflectance, transmittance, ref_dir, trans_dir_diff, direct
 end
 
+"""
+$(TYPEDEF)
+
+Caller-owned work arrays for the scattering (Rayleigh) path of
+[`CloudlessShortwave`](@ref): five layer vectors (length `nlayers`) and five
+interface vectors (length `nlayers + 1`). Build one with
+[`radiation_workspace`](@ref) or from host-model views with the keyword
+constructor, and pass it as the last argument of [`radiative_fluxes!`](@ref)
+to make the solver allocation-free.
+
+Fields are
+
+$(TYPEDFIELDS)
+"""
+struct CloudlessShortwaveWorkspace{L, I}
+    "Layer diffuse reflectance."
+    reflectance::L
+    "Layer diffuse transmittance."
+    transmittance::L
+    "Layer reflectance of the direct beam into diffuse."
+    ref_dir::L
+    "Layer transmittance of the direct beam into diffuse."
+    trans_dir_diff::L
+    "Layer direct-beam transmittance."
+    trans_dir_dir::L
+    "Inverse of the adding-method denominator per layer."
+    inv_denominator::L
+    "Direct flux at interfaces (normal to the beam)."
+    flux_direct::I
+    "Downward diffuse flux at interfaces."
+    flux_diffuse::I
+    "Upward diffuse source at interfaces."
+    source::I
+    "Albedo of the atmosphere below each interface."
+    stack_albedo::I
+end
+
+function CloudlessShortwaveWorkspace(; reflectance, transmittance, ref_dir, trans_dir_diff,
+                                     trans_dir_dir, inv_denominator, flux_direct, flux_diffuse,
+                                     source, stack_albedo)
+    nlayers = length(reflectance)
+    for (name, v) in ((:transmittance, transmittance), (:ref_dir, ref_dir),
+                      (:trans_dir_diff, trans_dir_diff), (:trans_dir_dir, trans_dir_dir),
+                      (:inv_denominator, inv_denominator))
+        length(v) == nlayers ||
+            throw(DimensionMismatch("$name must have length nlayers = $nlayers"))
+    end
+    for (name, v) in ((:flux_direct, flux_direct), (:flux_diffuse, flux_diffuse),
+                      (:source, source), (:stack_albedo, stack_albedo))
+        length(v) == nlayers + 1 ||
+            throw(DimensionMismatch("$name must have length nlayers + 1 = $(nlayers + 1)"))
+    end
+    return CloudlessShortwaveWorkspace{typeof(reflectance), typeof(flux_direct)}(
+        reflectance, transmittance, ref_dir, trans_dir_diff, trans_dir_dir, inv_denominator,
+        flux_direct, flux_diffuse, source, stack_albedo)
+end
+
+"""
+    radiation_workspace(::CloudlessShortwave, optics::ShortwaveOptics; backend=nothing)
+
+Allocate a [`CloudlessShortwaveWorkspace`](@ref) of the optics' element type and
+layer count.
+"""
+function radiation_workspace(::CloudlessShortwave, optics::ShortwaveOptics{FT};
+                             backend = nothing) where FT
+    nlayers = sw_nlayers(optics)
+    return CloudlessShortwaveWorkspace{Vector{FT}, Vector{FT}}(
+        (Vector{FT}(undef, nlayers) for _ in 1:6)...,
+        (Vector{FT}(undef, nlayers + 1) for _ in 1:4)...)
+end
+
+# Adds `weight` times this g point's fluxes to `up` and `down`.
 function ecrad_shortwave_column!(up::AbstractVector{FT},
                                   down::AbstractVector{FT},
                                   optics::ShortwaveOptics,
@@ -274,15 +352,15 @@ function ecrad_shortwave_column!(up::AbstractVector{FT},
                                   μ0,
                                   incoming_horizontal,
                                   surface_albedo,
-                                  surface_albedo_direct = surface_albedo) where FT
+                                  surface_albedo_direct,
+                                  weight,
+                                  workspace::CloudlessShortwaveWorkspace) where FT
     nlayers = sw_nlayers(optics)
     incoming_normal = incoming_horizontal / μ0
+    w = FT(weight)
 
-    reflectance = Vector{FT}(undef, nlayers)
-    transmittance = Vector{FT}(undef, nlayers)
-    ref_dir = Vector{FT}(undef, nlayers)
-    trans_dir_diff = Vector{FT}(undef, nlayers)
-    trans_dir_dir = Vector{FT}(undef, nlayers)
+    (; reflectance, transmittance, ref_dir, trans_dir_diff, trans_dir_dir,
+       inv_denominator, flux_direct, flux_diffuse, source, stack_albedo) = workspace
 
     for k in 1:nlayers
         absorption_tau = max(FT(sw_tau(optics, ig, k)), zero(FT))
@@ -293,12 +371,6 @@ function ecrad_shortwave_column!(up::AbstractVector{FT},
         reflectance[k], transmittance[k], ref_dir[k], trans_dir_diff[k],
             trans_dir_dir[k] = sw_two_stream_layer(FT, μ0, total_tau, ssa, asymmetry)
     end
-
-    flux_direct = Vector{FT}(undef, nlayers + 1)
-    flux_diffuse = Vector{FT}(undef, nlayers + 1)
-    source = Vector{FT}(undef, nlayers + 1)
-    stack_albedo = Vector{FT}(undef, nlayers + 1)
-    inv_denominator = Vector{FT}(undef, nlayers)
 
     flux_direct[1] = incoming_normal
     for k in 1:nlayers
@@ -320,34 +392,49 @@ function ecrad_shortwave_column!(up::AbstractVector{FT},
     end
 
     flux_diffuse[1] = zero(FT)
-    up[1] += source[1]
-    down[1] += flux_direct[1] * μ0
+    up[1] += w * source[1]
+    down[1] += w * (flux_direct[1] * μ0)
     for k in 1:nlayers
         flux_diffuse[k + 1] =
             (transmittance[k] * flux_diffuse[k] +
              reflectance[k] * source[k + 1] +
              trans_dir_diff[k] * flux_direct[k]) * inv_denominator[k]
-        up[k + 1] += stack_albedo[k + 1] * flux_diffuse[k + 1] + source[k + 1]
-        down[k + 1] += flux_diffuse[k + 1] + flux_direct[k + 1] * μ0
+        up[k + 1] += w * (stack_albedo[k + 1] * flux_diffuse[k + 1] + source[k + 1])
+        down[k + 1] += w * (flux_diffuse[k + 1] + flux_direct[k + 1] * μ0)
     end
 
     return nothing
 end
 
 """
-    radiative_fluxes!(fluxes, CloudlessShortwave(), optics, atmosphere, boundary_conditions)
+    radiative_fluxes!(fluxes, CloudlessShortwave(), optics, atmosphere, boundary_conditions[, workspace])
 
 Compute clear-sky shortwave interface fluxes from precomputed optical depth.
 Arrays in `fluxes.shortwave_up` and `fluxes.shortwave_down` are overwritten.
 When `atmosphere.geometry.cos_zenith` is present, optical depths are scaled by
 the direct-beam path length `1 / cos_zenith`; otherwise the solver preserves the
 historical vertical-path convention.
+
+Layers with Rayleigh scattering use an adding method that needs work arrays;
+pass a [`CloudlessShortwaveWorkspace`](@ref) to keep the call allocation-free,
+otherwise one is allocated when needed.
 """
+function radiative_fluxes!(fluxes::RadiativeFluxes,
+                           solver::CloudlessShortwave,
+                           optics::ShortwaveOptics{FT},
+                           atmosphere,
+                           boundary_conditions::ShortwaveBoundaryConditions{FT}) where FT
+    needs_workspace = any(ig -> has_rayleigh_scattering(optics, ig), 1:sw_ng(optics))
+    workspace = needs_workspace ? radiation_workspace(solver, optics) : nothing
+    return radiative_fluxes!(fluxes, solver, optics, atmosphere, boundary_conditions, workspace)
+end
+
 function radiative_fluxes!(fluxes::RadiativeFluxes,
                            ::CloudlessShortwave,
                            optics::ShortwaveOptics{FT},
                            atmosphere,
-                           boundary_conditions::ShortwaveBoundaryConditions{FT}) where FT
+                           boundary_conditions::ShortwaveBoundaryConditions{FT},
+                           workspace::Union{Nothing, CloudlessShortwaveWorkspace}) where FT
     nlayers = sw_nlayers(optics)
     length(fluxes.shortwave_up) == nlayers + 1 ||
         throw(DimensionMismatch("shortwave_up must have length nlayers + 1"))
@@ -373,20 +460,20 @@ function radiative_fluxes!(fluxes::RadiativeFluxes,
         surface_albedo_direct = surface_albedo_direct_at(boundary_conditions, ig)
 
         if has_rayleigh_scattering(optics, ig)
-            scratch_up = zeros(FT, nlayers + 1)
-            scratch_down = zeros(FT, nlayers + 1)
+            workspace === nothing &&
+                throw(ArgumentError("Rayleigh scattering needs a CloudlessShortwaveWorkspace"))
             ecrad_shortwave_column!(
-                scratch_up,
-                scratch_down,
+                fluxes.shortwave_up,
+                fluxes.shortwave_down,
                 optics,
                 ig,
                 μ0,
                 boundary_conditions.toa_shortwave_down,
                 surface_albedo,
                 surface_albedo_direct,
+                w,
+                workspace,
             )
-            fluxes.shortwave_up .+= w .* scratch_up
-            fluxes.shortwave_down .+= w .* scratch_down
             continue
         end
 

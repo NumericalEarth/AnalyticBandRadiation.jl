@@ -114,6 +114,27 @@ The scheme is the longwave half of SpeedyWeather's `Radiation` bundle
 (SpeedyWeather ≥ 0.23); pass `shortwave = nothing` to run it without any
 shortwave scheme.
 
+The same extension provides `EcCKDRadiation`, the clear-sky ecCKD gas optics
+with both streams as one SpeedyWeather radiation component. Loading the
+reference tables needs `NCDatasets`:
+
+```julia
+using SpeedyWeather, NumericalRadiation, NCDatasets
+const SpeedyExt = Base.get_extension(NumericalRadiation,
+                                     :NumericalRadiationSpeedyWeatherExt)
+
+spectral_grid = SpectralGrid(truncation = 32, nlayers = 8)
+radiation     = SpeedyExt.EcCKDRadiation(spectral_grid, "32x32")   # or "64x96", ...
+model         = PrimitiveWetModel(spectral_grid; radiation)
+simulation    = initialize!(model)
+run!(simulation, period = Day(5))
+simulation.variables.parameterizations.outgoing_longwave
+```
+
+CO₂ follows the model's `greenhouse_gases`, ozone comes from an analytic
+default profile (`ozone = p -> ...` to override), and further gases of the
+ecCKD model are given as `mole_fractions = (; ch4 = 1.8e-6)`.
+
 ## Schemes at a glance
 
 | Scheme | Purpose | References |
