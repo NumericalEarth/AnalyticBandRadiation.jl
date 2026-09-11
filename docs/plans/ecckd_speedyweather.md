@@ -81,14 +81,27 @@ Phase 1 does not depend on U1 and can start immediately.
 
 ## Phase 0. Port the extension to the post-U1 SpeedyWeather
 
-Depends on **U1** being released.
+Done 2026-09-11 against the local U1 branch (SpeedyWeather 0.23.0-DEV, developed
+via `Pkg.develop`). Depends on **U1** being *released* only for CI.
 
-- [ ] Bump compat in `Project.toml` to the SpeedyWeather release containing U1.
-- [ ] Port `SpeedyAnalyticBandLongwave` to 0.22+ accessors
-      (`get_prognostic_step`, `vars.parameterizations.surface_pressure`,
-      `land_sea_mask.land_fraction`, `vars.dynamics.geopotential`) and to
+- [x] Bump compat in `Project.toml` to `SpeedyWeather = "0.23"`. Pkg accepts the
+      developed `0.23.0-DEV` under this compat. Until 0.23 is registered,
+      `Pkg.test` in CI cannot resolve SpeedyWeather; run the extension tests in
+      an environment that develops the local SpeedyWeather checkout.
+- [x] Port `SpeedyAnalyticBandLongwave` to 0.22+ accessors
+      (`get_prognostic_step` / `get_tendency_step`, `vars.parameterizations.surface_pressure`,
+      `land_sea_mask.land_fraction`, `vars.dynamics.geopotential`, stepped SST) and to
       being used as `Radiation(spectral_grid; longwave = SpeedyAnalyticBandLongwave(...))`.
-- [ ] `test/test_with_speedyweather.jl` green as a baseline.
+      The kernel is `@propagate_inbounds`.
+- [x] Unplanned core change: `AtmosphereProfile` now has one array-type parameter
+      per vector (`VT`, `VQ`, `VG`). SpeedyWeather's temperature/humidity views come
+      from stepped 3D arrays and the geopotential view from a plain 2D field, so a
+      single `V` no longer fits. No other code depended on the two-parameter form.
+- [x] `test/test_with_speedyweather.jl` rewritten for the new API (longwave-only
+      model, CO₂ forcing, and a 4-step full `run!`); 16 tests pass with
+      `--check-bounds=yes`. Core solver (692) and misc (33) tests still pass.
+- [x] README "With SpeedyWeather.jl" updated; unused `RingGrids` dep and its
+      `=0.1.7` pin dropped from `test/Project.toml`.
 
 ## Phase 1. Prepare NumericalRadiation for a fused, allocation-free kernel
 
