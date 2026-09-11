@@ -321,6 +321,16 @@ Reading:
 - 64x96 is indistinguishable from 32x32 in this configuration (OLR within
   0.3 W m⁻², temperatures within 1 K) at twice the cost: 32x32 is the right
   default.
+- Antarctic OLR (checked 2026-09-11 because the example's zonal mean showed
+  245 W m⁻² at 85°S against 185 for one-band): after 5 days the ecCKD run's
+  Antarctic land is at 280 K (one-band: 251 K) because it receives 420 W m⁻²
+  of clear-sky shortwave in polar day against 237 under the one-band's
+  diagnostic clouds, and SpeedyWeather's bucket land has no ice-sheet albedo.
+  The radiation itself is consistent: spectral surface emission integrates to
+  0.98 σT⁴ of the soil temperature, downward longwave is 124 W m⁻² for a dry
+  210–245 K column (one-band: 132), and the upward flux is attenuated from
+  340 at the surface to 234 at the top. A host limitation (land albedo over
+  ice sheets, no clouds), not a coupling error.
 
 Per-column cost of `column_parameterizations!` with radiation as the only
 column parameterization (3168 columns, 8 layers):
