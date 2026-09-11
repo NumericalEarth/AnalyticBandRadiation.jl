@@ -7,20 +7,23 @@ The existing analytic-band solvers use [`AtmosphereProfile`](@ref),
 [`ColumnGrid`](@ref), and [`SurfaceState`](@ref) directly. `ColumnAtmosphere`
 is a host-model-facing container for newer gas-optics and solver paths where
 layer/interface pressure and temperature arrays need to be carried together.
+The four arrays may have different array types (host-model views into arrays
+of different shape); they need not share an element type either, `FT` is that
+of `temperature_layers`.
 
 Fields are
 
 $(TYPEDFIELDS)
 """
-struct ColumnAtmosphere{FT, A, G, S, Geo} <: AbstractAtmosphericState
+struct ColumnAtmosphere{FT, PL, PI, TL, TI, G, S, Geo} <: AbstractAtmosphericState
     "Layer pressures, indexed top-down."
-    pressure_layers::A
+    pressure_layers::PL
     "Interface pressures, indexed top-down."
-    pressure_interfaces::A
+    pressure_interfaces::PI
     "Layer temperatures, indexed top-down."
-    temperature_layers::A
+    temperature_layers::TL
     "Interface temperatures, indexed top-down."
-    temperature_interfaces::A
+    temperature_interfaces::TI
     "Symbol-keyed gas concentrations or host-model property view."
     gases::G
     "Lower-boundary state."
@@ -29,15 +32,15 @@ struct ColumnAtmosphere{FT, A, G, S, Geo} <: AbstractAtmosphericState
     geometry::Geo
 end
 
-function ColumnAtmosphere(; pressure_layers::A,
-                          pressure_interfaces::A,
-                          temperature_layers::A,
-                          temperature_interfaces::A,
+function ColumnAtmosphere(; pressure_layers::PL,
+                          pressure_interfaces::PI,
+                          temperature_layers::TL,
+                          temperature_interfaces::TI,
                           gases::G,
                           surface::S,
-                          geometry::Geo) where {A, G, S, Geo}
+                          geometry::Geo) where {PL, PI, TL, TI, G, S, Geo}
     FT = eltype(temperature_layers)
-    return ColumnAtmosphere{FT, A, G, S, Geo}(
+    return ColumnAtmosphere{FT, PL, PI, TL, TI, G, S, Geo}(
         pressure_layers,
         pressure_interfaces,
         temperature_layers,
