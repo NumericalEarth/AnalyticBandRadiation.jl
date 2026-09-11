@@ -231,6 +231,40 @@ end
 Base.eltype(::EcCKDTabulatedGasOpticsModel{FT}) where FT = FT
 gas_names(::EcCKDTabulatedGasOpticsModel{<:Any, GasNames}) where GasNames = GasNames
 
+"""
+    EcCKDTabulatedGasOpticsModel{FT}(model::EcCKDTabulatedGasOpticsModel)
+
+Convert every grid and table of `model` to element type `FT`, e.g. `Float32`
+for a host model running in single precision (`optical_properties!` requires
+the model and the optics arrays to share their element type). Arrays that
+already have element type `FT` are reused, not copied. The grids are
+re-validated by the keyword constructor.
+"""
+function EcCKDTabulatedGasOpticsModel{FT}(model::EcCKDTabulatedGasOpticsModel) where FT
+    convert_eltype(x::AbstractArray) = eltype(x) === FT ? x : FT.(x)
+    convert_eltype(::Nothing) = nothing
+    # the struct stores absent optional tables as empty arrays; the keyword
+    # constructor expects `nothing` for them
+    optional(x) = (x === nothing || isempty(x)) ? nothing : convert_eltype(x)
+    return EcCKDTabulatedGasOpticsModel(;
+        names = gas_names(model),
+        pressure_grid = convert_eltype(model.pressure_grid),
+        temperature_grid = convert_eltype(model.temperature_grid),
+        h2o_mole_fraction_grid = convert_eltype(model.h2o_mole_fraction_grid),
+        gas_reference_mole_fractions = convert_eltype(model.gas_reference_mole_fractions),
+        longwave_absorption = convert_eltype(model.longwave_absorption),
+        shortwave_absorption = convert_eltype(model.shortwave_absorption),
+        longwave_h2o_absorption = optional(model.longwave_h2o_absorption),
+        shortwave_h2o_absorption = optional(model.shortwave_h2o_absorption),
+        shortwave_rayleigh_molar_scattering = convert_eltype(model.shortwave_rayleigh_molar_scattering),
+        longwave_source_scale = convert_eltype(model.longwave_source_scale),
+        longwave_source_temperature_grid = convert_eltype(model.longwave_source_temperature_grid),
+        longwave_source_table = convert_eltype(model.longwave_source_table),
+        longwave_weights = convert_eltype(model.longwave_weights),
+        shortwave_weights = convert_eltype(model.shortwave_weights),
+    )
+end
+
 @inline function gas_value(gases::NamedTuple, name::Symbol, k)
     value = getproperty(gases, name)
     return value isa Number ? value : value[k]
@@ -500,17 +534,36 @@ For multi-g spectral models a scalar ``σT⁴`` boundary is a gray
 approximation: it does not reproduce the model's tabulated Planck spectrum
 across g points and may bias outgoing longwave fluxes.
 
-This is a host-side setup utility: it returns a host `Vector` and indexes
-the model's source table on the host. For device workflows, build the
-boundary before adapting arrays to the device.
+This method allocates a `Vector{FT}`; host models with per-column work arrays
+use the in-place [`surface_longwave_emission!`](@ref) instead.
 """
 function surface_longwave_emission(model::EcCKDTabulatedGasOpticsModel{FT},
                                    temperature;
                                    emissivity = one(FT)) where FT
+    out = Vector{FT}(undef, length(model.longwave_weights))
+    return surface_longwave_emission!(out, model, temperature; emissivity)
+end
+
+"""
+$(TYPEDSIGNATURES)
+
+In-place version of [`surface_longwave_emission`](@ref): fill the caller-owned
+`out` (length `ng_lw`) with the per-g-point surface emission at `temperature`
+scaled by `emissivity`. Allocation-free, for use inside host-model column
+kernels.
+"""
+function surface_longwave_emission!(out::AbstractVector,
+                                    model::EcCKDTabulatedGasOpticsModel{FT},
+                                    temperature;
+                                    emissivity = one(FT)) where FT
     ng = length(model.longwave_weights)
+    length(out) == ng ||
+        throw(DimensionMismatch("out must have length ng_lw = $ng, got $(length(out))"))
     source_bracket = source_table_bracket(model, temperature)
-    return FT[emissivity * longwave_source(model, ig, temperature, source_bracket)
-              for ig in 1:ng]
+    for ig in 1:ng
+        out[ig] = emissivity * longwave_source(model, ig, temperature, source_bracket)
+    end
+    return out
 end
 
 @generated function accumulate_tau(gases::NamedTuple,
