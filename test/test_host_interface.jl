@@ -1,7 +1,7 @@
 using Test
 using NumericalRadiation
 
-# Host-model facing preparations (plan Phase 1): in-place surface emission,
+# Host-model facing preparations: in-place surface emission,
 # element-type conversion of tabulated models, and ColumnAtmosphere built from
 # views of differently shaped host arrays.
 
