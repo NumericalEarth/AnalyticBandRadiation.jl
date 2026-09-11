@@ -170,6 +170,11 @@ per stream" item that was Phase 1.1 of the main plan.
 
 Issue: _todo_
 
+Measured 2026-09-11: with the analytic default ozone profile the global-mean
+top-layer temperature at T31 L8 is 213 K, without ozone 193 K (one-band
+model: 210 K). A real climatology is needed, but the placeholder is far better
+than none.
+
 ecCKD treats O3 as a linear gas that must be supplied; SpeedyWeather has no
 ozone field. Options, to be decided with maintainers:
 
@@ -187,6 +192,12 @@ CKDMIP / ecRad test data).
 
 Issue: _todo_
 
+Measured 2026-09-11 (T31 L8, Float32, one core): ecCKD 32x32 costs 24 μs per
+column per step versus 0.3 μs for the one-band pair, making the whole model
+3.3× slower (0.029 → 0.097 s per step, radiation ≈ 70 % of run time). Every
+third step would recover most of that. Medium priority: usable without it at
+T31, decisive for anything larger.
+
 A 32×32 g-point column per time step dominates cost at climate resolution.
 Add a general mechanism for parameterizations that run every `N` steps and
 hold their tendency and diagnostics in between:
@@ -203,15 +214,19 @@ hold their tendency and diagnostics in between:
 
 Issue: _todo_
 
+Resolved 2026-09-11 without an upstream change: the extension wraps the
+`(nlayers, ng)` column slice of a `Grid4D` work array in a `PermutedDimsArray`
+and the ecCKD component runs allocation-free at 24 μs per column (32x32),
+in line with the arithmetic it does. No layout change is needed unless a
+profile of a larger configuration says otherwise.
+
 Per-column optical properties are `(ng, nlayers)` in NumericalRadiation, but
 `Grid4D(n)` allocates `(npoints, nlayers, n)`, so a column view is
 `(nlayers, ng)` and needs a permuted view in the kernel. If that turns out to
 be awkward or slow inside kernels:
 
-- [ ] Add a dim type (`GridXNZ(n)` or similar) allocating
-      `(npoints, n, nlayers)`, or
-- [ ] make the ecCKD kernels in NumericalRadiation layout-agnostic via an
-      indexing accessor (then no upstream change is needed).
+- [x] ~~Add a dim type allocating `(npoints, n, nlayers)`~~ not needed, see above.
+- [x] ~~Make the ecCKD kernels layout-agnostic~~ not needed, see above.
 
 ## Already available upstream (no change needed)
 

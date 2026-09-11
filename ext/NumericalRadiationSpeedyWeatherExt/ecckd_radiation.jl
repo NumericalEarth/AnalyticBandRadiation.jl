@@ -145,16 +145,25 @@ end
 """$(TYPEDSIGNATURES)
 Interface temperatures from layer temperatures `T` at pressures `p`: linear in
 pressure between layer centres, the layer-1 temperature at the top of the
-atmosphere and `T_surface` at the surface (as ecRad/IFS use the skin
-temperature for the lowest half level)."""
-@inline function interface_temperatures!(T_half, T, p, p_half, T_surface)
+atmosphere, and the air temperature extrapolated in pressure from the two lowest
+layers at the surface. The skin temperature is deliberately *not* used for the
+lowest half level: with a lowest layer 100 hPa thick, that would make the whole
+layer radiate downward at skin temperature and feed back onto the surface
+(observed to run a land surface away to 400 K within a day). The surface itself
+emits at its skin temperature through the boundary condition."""
+@inline function interface_temperatures!(T_half, T, p, p_half)
     nlayers = length(T)
     T_half[1] = T[1]
     for k in 2:nlayers
         weight = (p_half[k] - p[k - 1]) / (p[k] - p[k - 1])
         T_half[k] = T[k - 1] + weight * (T[k] - T[k - 1])
     end
-    T_half[nlayers + 1] = T_surface
+    if nlayers > 1
+        weight = (p_half[nlayers + 1] - p[nlayers]) / (p[nlayers] - p[nlayers - 1])
+        T_half[nlayers + 1] = T[nlayers] + weight * (T[nlayers] - T[nlayers - 1])
+    else
+        T_half[nlayers + 1] = T[nlayers]
+    end
     return T_half
 end
 
@@ -246,7 +255,9 @@ end
 
 """$(TYPEDSIGNATURES)
 Fill the column's layer and interface pressures, interface temperatures and gas
-amounts in the work arrays `W` and return them as a `ColumnAtmosphere`. CO₂ is
+amounts in the work arrays `W` and return them as a `ColumnAtmosphere`. The
+blended skin temperature is carried in `surface.temperature` for the solvers'
+boundary conditions only. CO₂ is
 taken from the model's greenhouse gases when present, else from `rad.default_CO₂`."""
 Base.@propagate_inbounds function ecckd_column_atmosphere!(ij, W, rad::EcCKDRadiation{NF}, T, q, pₛ,
                                                            surface, vars, model) where NF
@@ -261,7 +272,7 @@ Base.@propagate_inbounds function ecckd_column_atmosphere!(ij, W, rad::EcCKDRadi
         p_half[k] = SpeedyWeather.pressure_half(k, pₛ, coordinates)
     end
     p_half[nlayers + 1] = SpeedyWeather.pressure_half(nlayers + 1, pₛ, coordinates)
-    interface_temperatures!(T_half, T, p, p_half, surface.temperature)
+    interface_temperatures!(T_half, T, p, p_half)
 
     CO₂ = let prognostic = vars.prognostic
         if hasproperty(prognostic, :greenhouse_gases) && haskey(prognostic.greenhouse_gases, :co2)

@@ -183,11 +183,12 @@ end
     p_half = W.pressure_interfaces[ij, :]
     T = Float64.(vars.grid.temperature[ij, :, 1])
     q = Float64.(vars.grid.humidity[ij, :, 1])
-    T_surface = 293.0   # no land at ij = 1? use the blended value from the land fraction instead
     f = model.land_sea_mask.land_fraction[ij]
     T_surface = (1 - f) * 293.0 + f * 288.0
     T_half = zeros(nlayers + 1)
-    SpeedyExt.interface_temperatures!(T_half, T, Float64.(p), Float64.(p_half), T_surface)
+    SpeedyExt.interface_temperatures!(T_half, T, Float64.(p), Float64.(p_half))
+    @test T_half[1] == T[1]
+    @test T_half[end] ≈ T[end] + (T[end] - T[end - 1]) * (p_half[end] - p[end]) / (p[end] - p[end - 1])
     gas_optics = read_reference_ecckd_gas_optics("32x32"; names = (:composite, :h2o, :o3, :co2))
     amounts = zeros(nlayers, 4)
     SpeedyExt.gas_amounts!(amounts, Val((:composite, :h2o, :o3, :co2)),

@@ -240,4 +240,25 @@ end
         source = zeros(nlayers + 1), stack_albedo = zeros(nlayers + 1))
 end
 
+@testset "shortwave two-stream near the direct-beam singularity k μ0 = 1" begin
+    # Rayleigh-free absorbing layer: k = sqrt(γ1² - γ2²) with γ2 = 0, γ1 = 2 - 1.25 ω.
+    for FT in (Float32, Float64), ω in (FT(6e-5), FT(0.3)), g in (FT(0), FT(0.5))
+        γ1, γ2, _ = NumericalRadiation.sw_two_stream_gammas(FT, FT(0.5), ω, g)
+        k = sqrt((γ1 - γ2) * (γ1 + γ2))
+        μ_singular = one(FT) / k
+        for δ in FT.((0, 1e-7, -1e-7, 1e-6, -1e-6, 2e-6, 1e-5, 1e-4, 1e-3)), τ in FT.((0.01, 0.5, 4.5))
+            μ0 = μ_singular + δ
+            out = NumericalRadiation.sw_two_stream_layer(FT, μ0, τ, ω, g)
+            @test all(isfinite, out)
+            reflectance, transmittance, ref_dir, trans_dir_diff, direct = out
+            @test 0 <= ref_dir <= 1
+            @test 0 <= trans_dir_diff <= 1 - ref_dir
+        end
+        # away from the band the perturbation is inactive: results are continuous
+        far = NumericalRadiation.sw_two_stream_layer(FT, μ_singular * (1 + FT(1e-2)), FT(0.5), ω, g)
+        near = NumericalRadiation.sw_two_stream_layer(FT, μ_singular * (1 + FT(2e-3)), FT(0.5), ω, g)
+        @test all(isapprox.(far[3:4], near[3:4]; atol = 0.05))
+    end
+end
+
 end # module TestHostInterface

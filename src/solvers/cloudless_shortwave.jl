@@ -229,8 +229,14 @@ end
     alpha2 = gamma1 * gamma3 + gamma2 * gamma4
     k_exponent = sqrt(max((gamma1 - gamma2) * (gamma1 + gamma2), FT(1.0e-12)))
     μ0_local = FT(μ0)
-    if abs(one(FT) - k_exponent * μ0_local) < FT(1000) * eps(FT)
-        μ0_local *= one(FT) - FT(10) * eps(FT)
+    # The direct-beam terms below divide by 1 - (k μ0)²: a removable singularity
+    # at k μ0 = 1. Inside a band of 1000 ulps around it, move μ0 to the edge of
+    # the band. (A fixed nudge of a few ulps is not enough: in Float32 it landed
+    # exactly on the singularity and produced NaN fluxes in a coupled run.)
+    band = FT(1000) * eps(FT)
+    k_μ0_raw = k_exponent * μ0_local
+    if abs(one(FT) - k_μ0_raw) < band
+        μ0_local = (k_μ0_raw <= one(FT) ? one(FT) - band : one(FT) + band) / k_exponent
     end
 
     od = max(FT(optical_depth), zero(FT))

@@ -15,6 +15,7 @@ here changes numerical results of existing code paths.
 | 4 | `EcCKDTabulatedGasOpticsModel{FT}(model)` element-type conversion | 1 | ~30 | no |
 | 5 | `CloudlessShortwaveWorkspace`; `radiative_fluxes!` accepts it; per-g accumulation written directly into the flux arrays | 2 | ~90 | no (bitwise) |
 | 6 | Exports and API-docs entries for 3 and 5, new test file in the runner | 1, 2 | ~5 | no |
+| 7 | Two-stream direct-beam singularity guard moved to the band edge | 4 | ~6 | only within 1000 ulps of k μ0 = 1 |
 
 ## 1. `AtmosphereProfile{NF, VT, VQ, VG}` (was `{NF, V}`)
 
@@ -156,6 +157,31 @@ caller-owned workspace": six-argument equals five-argument results exactly,
 zero allocations with a workspace, a workspace built from views works, the
 size check throws. `test/test_solvers.jl` (711 tests, including the ecRad
 shortwave reference comparisons) passes unchanged.
+
+## 7. Two-stream singularity guard (`sw_reflectance_transmittance`)
+
+*File:* `src/solvers/cloudless_shortwave.jl`.
+
+*What forced it.* Found in Phase 4: the coupled T31 L8 model produced NaN
+shortwave fluxes after two to four days and blew up. Traced with a per-step
+callback to one column with cos_zenith 0.50002 and one g-point/layer with
+diffusion exponent k = 1.99993, i.e. k·μ0 = 1.0000012: the removable
+singularity of the direct-beam two-stream terms, which divide by 1 - (kμ0)².
+The existing guard detected |1 - kμ0| < 1000 ulps but then nudged μ0 by only
+10 ulps, which in Float32 landed exactly on the singularity (0 × ∞ = NaN).
+
+*Alternative considered.* None in the extension; the singularity is inside
+the solver.
+
+*What changed.* Inside the band, μ0 is moved to the edge of the band,
+(1 ∓ 1000 ulps)/k, so the denominator is bounded away from zero by
+construction. Outside the band nothing changes; the reference comparisons in
+`test/test_solvers.jl` are unaffected.
+
+*Tests.* `test/test_host_interface.jl`: scan of μ0 around 1/k for two
+single-scattering albedos, two asymmetries, three optical depths, in Float32
+and Float64; all outputs finite and within the clamps, and continuity across
+the band edge.
 
 ## 6. Housekeeping
 

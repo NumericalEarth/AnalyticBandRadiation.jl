@@ -183,8 +183,12 @@ Implemented 2026-09-11 on `mg/adjust-to-speedy`, clear-sky, CPU.
       `composite` = dry air, `h2o` from `q`, `co2` from ppm, others from
       `mole_fractions`.
 - [x] Extension helper `interface_temperatures!`: linear in pressure between
-      layer centres, `T[1]` at the top, the land-fraction-blended surface
-      temperature at the bottom (skin temperature, as ecRad/IFS).
+      layer centres, `T[1]` at the top, air temperature extrapolated in
+      pressure at the bottom. The first version used the blended skin
+      temperature at the bottom half level (as IFS does with its metre-thin
+      lowest layer); with SpeedyWeather's 100 hPa lowest layer that made the
+      layer radiate downward at skin temperature, land surfaces ran away to
+      400 K and the model went NaN within a day (found in Phase 4).
 - [x] `variables(::EcCKDRadiation, model)`: standard shortwave and longwave
       diagnostics plus a `:ecckd` namespace of work arrays: layer pressure
       (`GridXYZ`), interface pressure and temperature, four interface fluxes,
@@ -245,15 +249,96 @@ Tracked in [speedyweather_upstream.md](speedyweather_upstream.md):
 
 ## Phase 4. Validation
 
-- [ ] Test: one SpeedyWeather column through `EcCKDRadiation` vs. the same
-      inputs through the staged API directly; fluxes agree to tolerance.
-- [ ] Aquaplanet run at low resolution with `radiation = EcCKDRadiation(...)`:
-      global-mean OLR ≈ 240 W m⁻², closed TOA budget, side-by-side against
-      the default `Radiation(OneBandShortwave, OneBandLongwave)`.
-- [ ] Per-column benchmark for the 32x32 and 64x96 pairs to size the
-      call-frequency decision (**U3**).
+Started 2026-09-11 on `mg/adjust-to-speedy`. Scripts in `validation/`
+(`speedyweather_ecckd_budget.jl`, `speedyweather_ecckd_benchmark.jl`,
+`speedyweather_nan_detector.jl`), to be
+run in an environment that develops NumericalRadiation and the U1 SpeedyWeather
+branch with NCDatasets and Statistics.
+
+- [x] Test: one SpeedyWeather column through `EcCKDRadiation` vs. the same
+      inputs through the staged API directly; fluxes agree to 2e-3 (Float32 vs
+      Float64). Done as part of the Phase 2 tests.
+- [x] **Stability.** The first 20-day comparison went NaN after 1 to 4 days.
+      Two causes, both fixed:
+      1. *Bottom interface temperature.* Using the skin temperature for the
+         lowest half level (as IFS does) makes SpeedyWeather's 100 hPa thick
+         lowest layer radiate downward at skin temperature; land ran away to
+         400 K within a day. Now the air temperature is extrapolated in
+         pressure; the skin temperature enters only through the surface
+         emission.
+      2. *Two-stream singularity (package bug, `src` change 7).* One column
+         with cos_zenith = 0.50002 hit k·μ0 = 1.0000012 in one g-point; the
+         guard's 10-ulp nudge was smaller than its 1000-ulp detection band and
+         landed on the singularity in Float32, giving NaN shortwave fluxes that
+         poisoned the state within one step. Found with a per-step callback
+         dumping the first non-finite column. The guard now moves μ0 to the
+         band edge. With both fixes a 12-day run with the detector shows no
+         non-finite value.
+      Control: SpeedyWeather's own one-band scheme without clouds runs 10 days
+      stably with land surfaces reaching 360 K, so the hot land under clear
+      skies is a host property (bucket land model, no clouds), not a coupling
+      error.
+- [x] Budget comparison at T31 L8, 10 days spin-up + 10 days of daily
+      snapshots (instantaneous global means of insolation are exact since the
+      global mean of cos_zenith is 1/4 at any instant): one-band default,
+      ecCKD 32x32, ecCKD 32x32 without ozone, ecCKD 64x96. Results below.
+- [x] Per-column benchmark of one-band, analytic-band longwave, ecCKD 32x32
+      and 64x96 inside `column_parameterizations!`. Results below.
+- [x] ~~GPU smoke test.~~ Not possible on this machine: SpeedyWeather itself
+      fails to compile for Metal (`initialize_hyperdiffusion_kernel!` uses
+      Float64 constants, "unsupported use of double value") before any
+      radiation code runs. Needs a CUDA machine; the known blockers on our
+      side (throwing shape checks, broadcasts in the solvers) are unchanged.
 - [ ] CI: gate ecCKD tests on the artifact download; reuse
       `RH_ECRAD_DATA_PATH`.
+- [x] `examples/speedyweather_ecckd.jl`: a five-plus-five-day version of the
+      budget comparison (one-band vs ecCKD 32x32) with a figure of zonal-mean
+      outgoing fluxes and the temperature profile; listed in `examples/README.md`,
+      not in the docs build.
+
+### Results (2026-09-11, T31 L8, Float32, Apple M3, single thread)
+
+Global means over days 11 to 20, W m⁻² unless noted:
+
+| config | OLR | OSR | TOA net ↓ | albedo | sfc SW ↓ | sfc LW ↓ | T(k=1) K | T(k=8) K | s/step |
+|---|---|---|---|---|---|---|---|---|---|
+| one-band default (with clouds) | 251.1 | 79.0 | 11.2 | 0.231 | 205.4 | 339.7 | 210.3 | 280.4 | 0.029 |
+| ecCKD 32x32 | 246.8 | 36.1 | 58.3 | 0.106 | 247.1 | 303.1 | 213.0 | 282.9 | 0.097 |
+| ecCKD 32x32, no ozone | 253.1 | 41.5 | 46.6 | 0.122 | 256.8 | 301.4 | 192.9 | 282.9 | 0.092 |
+| ecCKD 64x96 | 246.5 | 36.6 | 58.1 | 0.107 | 247.2 | 303.1 | 211.9 | 282.9 | 0.202 |
+
+TOA insolation 341.2 in all cases (S₀ = 1365).
+
+Reading:
+- The ecCKD numbers are what a clear-sky atmosphere should give: planetary
+  albedo 0.11 from Rayleigh scattering plus a mostly ocean surface, OLR
+  247. The +58 W m⁻² TOA imbalance is the missing cloud effect (clouds are
+  worth roughly −45 W m⁻² net in the real budget), not a coupling error; it is
+  the argument for the cloud follow-up.
+- Ozone matters at this vertical resolution: the top layer is 20 K colder
+  without it (193 vs 213 K, the one-band model sits at 210 K). The analytic
+  default profile is a placeholder, but leaving ozone out is worse (**U2**).
+- 64x96 is indistinguishable from 32x32 in this configuration (OLR within
+  0.3 W m⁻², temperatures within 1 K) at twice the cost: 32x32 is the right
+  default.
+
+Per-column cost of `column_parameterizations!` with radiation as the only
+column parameterization (3168 columns, 8 layers):
+
+| scheme | μs per column | allocations per call |
+|---|---|---|
+| one-band shortwave + longwave | 0.3 | 0 |
+| analytic-band longwave | 20.3 | 101 376 |
+| ecCKD 32x32 | 23.9 | 0 |
+| ecCKD 64x96 | 60.8 | 0 |
+
+ecCKD 32x32 makes the whole model 3.3× slower at T31 L8 (0.029 → 0.097 s per
+step), i.e. radiation is then ~70 % of the run time. Calling it every third
+step (**U3**) would bring the total back to roughly 0.05 s per step; at
+higher resolution the ratio stays similar since both dynamics and radiation
+scale with the number of columns. Side finding: the analytic-band longwave
+adapter allocates (~32 allocations per column, from `LongwaveDiagnostics` and
+the profile views); worth fixing separately.
 
 ## Open decisions
 
