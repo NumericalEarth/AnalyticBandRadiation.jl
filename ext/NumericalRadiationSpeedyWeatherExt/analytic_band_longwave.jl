@@ -1,15 +1,5 @@
-module NumericalRadiationSpeedyWeatherExt
-
-using NumericalRadiation
-using SpeedyWeather
-using Adapt
-
-import NumericalRadiation: AtmosphereProfile, ColumnGrid, SurfaceState,
-    PhysicalConstants, LongwaveDiagnostics, solve_longwave!, AnalyticBandLongwave
-
-# -----------------------------------------------------------------------------
-# Longwave adapter
-# -----------------------------------------------------------------------------
+# SpeedyAnalyticBandLongwave: NumericalRadiation's analytic-band longwave scheme as a
+# SpeedyWeather longwave component, to be used as Radiation(spectral_grid; longwave = ...).
 
 """
     SpeedyAnalyticBandLongwave{NF} <: SpeedyWeather.AbstractLongwave
@@ -104,5 +94,3 @@ Base.@propagate_inbounds function SpeedyWeather.parameterization!(ij, vars,
 
     return nothing
 end
-
-end # module

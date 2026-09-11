@@ -15,7 +15,7 @@ export AtmosphereProfile, ColumnGrid, SurfaceState
 export ColumnAtmosphere, RadiativeFluxes
 export LongwaveOptics, CloudlessLongwave, LongwaveBoundaryConditions
 export LongwaveCloudOverlapOptics, CloudOverlapLongwave
-export ShortwaveOptics, CloudlessShortwave, ShortwaveBoundaryConditions
+export ShortwaveOptics, CloudlessShortwave, ShortwaveBoundaryConditions, CloudlessShortwaveWorkspace
 export ShortwaveCloudOverlapOptics, CloudOverlapShortwave
 export CloudOptics, CloudyRegionCloudOptics
 export LayerCloudOpticsModel, LayerLiquidIceCloudOpticsModel

@@ -10,6 +10,9 @@ SpeedyWeather 0.22.x plus the upstream changes tracked in
 Changes that land in SpeedyWeather itself are planned in that companion
 file and only referenced here as **U1 … U4**.
 
+Every change made to this package's `src/` for the coupling is listed and
+justified in [src_changes_for_speedyweather.md](src_changes_for_speedyweather.md).
+
 ## Background
 
 **What exists.** NumericalRadiation already has a complete, host-neutral
@@ -154,55 +157,79 @@ remains the working precision. Deferred items unchanged.
 
 ## Phase 2. `EcCKDRadiation` SpeedyWeather component in the extension
 
-Depends on Phase 0 and Phase 1.
+Implemented 2026-09-11 on `mg/adjust-to-speedy`, clear-sky, CPU.
 
-- [ ] `EcCKDRadiation <: SpeedyWeather.AbstractRadiation`, one component for
-      both streams, holding the gas-optics model, with
-      `Adapt.@adapt_structure`. Options: model pair (default `"32x32"`),
-      gas names, default CO2 when the model has no `greenhouse_gases`,
-      prescribed ozone profile (until **U2**), ocean and land emissivity.
-      Passed as `PrimitiveWetModel(spectral_grid; radiation = EcCKDRadiation(...))`.
-- [ ] Optionally also thin `EcCKDLongwave <: AbstractLongwave` /
-      `EcCKDShortwave <: AbstractShortwave` wrappers for mixed setups such as
-      `Radiation(spectral_grid; longwave = EcCKDLongwave(...))`. Lower
-      priority; they redo gas optics per stream.
-- [ ] Load tables in `initialize!`, not the constructor, and convert to the
-      grid's `NF` there (keeps NCDatasets out of the hot path, one download).
-- [ ] Extension helper: specific humidity + layer Δp + gravity + CO2 mole
-      fraction → `composite`, `h2o`, `co2` molar amounts (mol m⁻²), written
-      into per-column work arrays (moved here from Phase 1).
-- [ ] Extension helper: interface temperatures from layer temperatures and
-      surface temperature (top interface = T[1], bottom = T_surface), written
-      into a per-column work array (moved here from Phase 1).
-- [ ] `variables(::EcCKDRadiation, model)`: the standard shortwave and longwave
-      diagnostics (as declared by `variables(::AbstractShortwave)` /
-      `variables(::AbstractLongwave)`) plus work arrays: LW optical
-      depth, layer source, top/bottom interface sources as
-      `Grid4D(n = ng_lw)`; SW optical depth, Rayleigh optical depth,
-      asymmetry as `Grid4D(n = ng_sw)`; interface fluxes (4) and interface
-      pressures / temperatures as `Grid3D(n = nlayers + 1)`; per-g surface
-      emission as `Grid3D(n = ng_lw)`. Column views of these give
-      `LongwaveOptics`, `ShortwaveOptics`, `RadiativeFluxes`,
-      `ColumnAtmosphere` without allocation.
-- [ ] `parameterization!(ij, vars, ::EcCKDRadiation, model)`:
-      1. pressures from vertical coordinates, gas amounts via the Phase 1
-         helper, CO2 from `vars.prognostic.greenhouse_gases.co2` when present,
-         interface temperatures via the Phase 1 helper;
-      2. `optical_properties!` once for both streams;
-      3. longwave: blended surface emission from SST and soil temperature
-         weighted by land fraction, `radiative_fluxes!(CloudlessLongwave)`,
-         write `outgoing_longwave`, `surface_longwave_down`,
-         `surface_longwave_up` and the ocean / land splits;
-      4. shortwave: skip when `cos_zenith == 0`, TOA down =
-         `solar_constant * cos_zenith`, blended ocean / land albedo,
-         `radiative_fluxes!(CloudlessShortwave)`, write surface down / up,
-         `outgoing_shortwave`, `albedo` and the ocean / land splits;
-      5. total net flux convergence → `dTdt[ij, k]` via SpeedyWeather's
-         `flux_to_tendency`.
-- [ ] Clear-sky only in this version. Cloud coupling (package has
-      cloud-overlap solvers, SpeedyWeather has no cloud state) is a
-      follow-up.
-- [ ] Update README "With SpeedyWeather.jl" section and docs.
+- [x] `EcCKDRadiation{NF} <: SpeedyWeather.AbstractRadiation` in
+      `ext/NumericalRadiationSpeedyWeatherExt/ecckd_radiation.jl` (the extension
+      is now a directory: module file, `analytic_band_longwave.jl`,
+      `ecckd_radiation.jl`): one component for both
+      streams holding the tabulated gas optics (converted to the grid's `NF` at
+      construction), `Adapt.@adapt_structure`. Options: `CO₂` default [ppm]
+      (used when the model has no `greenhouse_gases.co2`), `ozone` (function of
+      pressure or constant; crude Chapman-layer default), `mole_fractions` for
+      any further gas of the ecCKD model (required, checked at construction),
+      ocean / land emissivity, molar masses. Constructors take a gas-optics
+      model, a reference pair name (`"32x32"`, loads via NCDatasets), or nothing
+      (default pair). Used as `PrimitiveWetModel(spectral_grid; radiation = EcCKDRadiation(spectral_grid))`.
+- [ ] ~~Thin `EcCKDLongwave` / `EcCKDShortwave` wrappers.~~ Not done; low
+      priority, they would redo gas optics per stream.
+- [x] ~~Load tables in `initialize!`.~~ Changed: tables are loaded and
+      converted in the constructor instead. Keeps the struct immutable and
+      GPU-adaptable, and `variables` needs the g-point counts before
+      `initialize!` runs. NCDatasets stays out of the hot path either way.
+- [x] Extension helper `gas_amounts!`: specific humidity, layer Δp, gravity and
+      the CO₂ mole fraction → per-layer molar amounts of every gas of the
+      model, unrolled over the gas names with a `@generated` function;
+      `composite` = dry air, `h2o` from `q`, `co2` from ppm, others from
+      `mole_fractions`.
+- [x] Extension helper `interface_temperatures!`: linear in pressure between
+      layer centres, `T[1]` at the top, the land-fraction-blended surface
+      temperature at the bottom (skin temperature, as ecRad/IFS).
+- [x] `variables(::EcCKDRadiation, model)`: standard shortwave and longwave
+      diagnostics plus a `:ecckd` namespace of work arrays: layer pressure
+      (`GridXYZ`), interface pressure and temperature, four interface fluxes,
+      two per-g surface-emission vectors (`Grid3D`), gas amounts and the seven
+      optical-property arrays (`Grid4D(n = ngas | ng)`), and ten shortwave
+      adding-method work arrays. Column views of these build
+      `ColumnAtmosphere`, `LongwaveOptics`, `ShortwaveOptics`, `RadiativeFluxes`
+      and `CloudlessShortwaveWorkspace` without allocation; the `(nlayers, ng)`
+      column slice is wrapped in a `PermutedDimsArray` for `[ig, k]` indexing.
+- [x] `parameterization!(ij, vars, ::EcCKDRadiation, model)`, split into
+      `ecckd_surface_state`, `ecckd_column_atmosphere!`, `ecckd_column_optics`,
+      `ecckd_longwave!`, `ecckd_shortwave!`, `ecckd_heating!`: pressures from
+      the vertical coordinates, gas amounts, CO₂ from the greenhouse-gas
+      variable, interface temperatures; `optical_properties!` once; longwave
+      with spectral surface emission blended over ocean and land (in place, two
+      `surface_longwave_emission!` calls); shortwave only for `cos_zenith > 0`
+      with TOA down = `solar_constant * cos_zenith` and blended albedo;
+      diagnostics including the ocean / land splits; net flux convergence of
+      both streams into `dTdt` via SpeedyWeather's `flux_to_tendency`.
+- [x] Unplanned package change: the Rayleigh (scattering) path of
+      `CloudlessShortwave` allocated twelve vectors per g-point per column, i.e.
+      ~400 allocations per column per step, which cannot be avoided from the
+      extension without dropping Rayleigh scattering. `radiative_fluxes!` now
+      takes an optional `CloudlessShortwaveWorkspace` (ten caller-owned
+      vectors; `radiation_workspace(CloudlessShortwave(), optics)` allocates
+      one, the keyword constructor accepts host views), and the per-g flux
+      accumulation writes directly into the flux arrays instead of through
+      scratch vectors. The 5-argument call allocates a workspace only when
+      scattering is present. Results are unchanged (checked bitwise in
+      `test/test_host_interface.jl`; `test/test_solvers.jl` still passes).
+- [x] Clear-sky only in this version. Cloud coupling (package has
+      cloud-overlap solvers, SpeedyWeather has no cloud state) is a follow-up.
+- [x] Tests in `test/test_with_speedyweather.jl`: construction and work-array
+      sizes on the reference 32x32 model, missing-gas error; a realistic column
+      (OLR range, surface budget signs, shortwave transmission, moderate heating
+      rates, column energy conservation to 1e-3, night = zero shortwave with
+      unchanged longwave, 4×CO₂ reduces OLR by a few W/m²); fluxes of one
+      column agree with the staged API called directly on the same inputs; a
+      4-step full model run.
+- [x] README "With SpeedyWeather.jl" updated.
+
+Known limitations of this first version: clear sky; ozone from an analytic
+default profile (**U2**); the package's shape checks and broadcasts inside
+`optical_properties!` / `radiative_fluxes!` are not yet GPU-safe (Phase 4);
+`co2` is a single global value from `greenhouse_gases`.
 
 ## Phase 3. Upstream SpeedyWeather changes
 
