@@ -108,29 +108,49 @@ via `Pkg.develop`). Depends on **U1** being *released* only for CI.
 
 ## Phase 1. Prepare NumericalRadiation for a fused, allocation-free kernel
 
-Independent of SpeedyWeather; can start now.
+Re-scoped 2026-09-11: keep changes to the package small. Only what cannot live
+in the extension goes into `src/`; host glue moves to Phase 2. Done on
+`mg/adjust-to-speedy`, tests in `test/test_host_interface.jl`.
 
 - [x] ~~Split `optical_properties!` per stream.~~ Not needed: with **U1** a
       single `EcCKDRadiation` component consumes both streams from one call,
       which is exactly what `optical_properties!` produces today.
-- [ ] Add in-place `surface_longwave_emission!(out, model, T; emissivity)`;
-      the current version allocates a `Vector` per call.
-- [ ] Add an element-type conversion for `EcCKDTabulatedGasOpticsModel`
+- [x] In-place `surface_longwave_emission!(out, model, T; emissivity)`
+      (exported, allocation-free); the allocating method now calls it.
+- [x] Element-type conversion `EcCKDTabulatedGasOpticsModel{FT}(model)`
       (Float64 tables from the loader → Float32 for SpeedyWeather's default
       `NF`; `optical_properties!` requires optics and model to share `FT`).
-- [ ] Guard `check_ecckd_optics_shapes` behind `@boundscheck` so the checks
-      compile away inside `@inbounds` kernels. Keep the no-scattering
-      longwave path allocation-free (it already is); the scattering path
-      allocates and is out of scope.
-- [ ] Helper: specific humidity + layer Δp + gravity + CO2 mole fraction →
-      `composite`, `h2o`, `co2` molar amounts (mol m⁻²).
-- [ ] Helper: interface temperatures from layer temperatures and surface
-      temperature (top interface = T[1], bottom = T_surface).
-- [ ] Optional, see **U4**: make the ecCKD kernels layout-agnostic via an
-      indexing accessor so a `(nlayers, ng)` column view works without a
-      permuted wrapper.
-- [ ] Unit tests for all of the above against `examples/ecckd_column.jl`
-      results (unchanged fluxes).
+      Reuses arrays already of type `FT`; absent optional tables stay absent.
+- [x] `ColumnAtmosphere` with one array-type parameter per array (as done for
+      `AtmosphereProfile` in Phase 0): a host's layer and interface views come
+      from arrays of different shape and, for stepped prognostics, different
+      rank. No other code depended on the single parameter.
+- [ ] ~~Guard `check_ecckd_optics_shapes` behind `@boundscheck`.~~ Deferred:
+      the checks are O(1) size comparisons, negligible on CPU, and
+      `@boundscheck` would only elide them if `optical_properties!` were
+      inlined into the `@inbounds` caller, which it is not. A GPU run needs a
+      kernel-safe variant of the `throw` paths anyway; revisit with the first
+      GPU test in Phase 4.
+- [ ] ~~Layout-agnostic accessor (U4).~~ Deferred to Phase 2: a permuted view
+      of the `(nlayers, ng)` column slice keeps the package's `[ig, k]`
+      indexing without any package change; only if that costs measurably do
+      we revisit.
+- [x] Unit tests: in-place emission equals the allocating one and does not
+      allocate; converted Float32 model reproduces Float64 optics to 1e-4;
+      `ColumnAtmosphere` from views of a 2D/3D host layout gives results
+      identical to plain vectors through optics, fluxes and heating rates.
+
+Moved to Phase 2 (extension, host glue): gas amounts from specific humidity,
+interface temperatures from layer temperatures.
+
+Re-audit 2026-09-11: no defects found in the committed code. Verified that
+reference-sized grids (53-point pressure grid over five decades, 12-point H2O
+grid) pass the constructor's 1e-5 log-uniform re-validation after the Float32
+round trip with about a threefold margin, and added that as a regression
+test. Wrapped the test file in a module like the other consolidated tests, and
+corrected the `ColumnAtmosphere` docstring, which overstated that the arrays
+"need not share an element type": the kernels do convert on read, but `FT`
+remains the working precision. Deferred items unchanged.
 
 ## Phase 2. `EcCKDRadiation` SpeedyWeather component in the extension
 
@@ -148,6 +168,12 @@ Depends on Phase 0 and Phase 1.
       priority; they redo gas optics per stream.
 - [ ] Load tables in `initialize!`, not the constructor, and convert to the
       grid's `NF` there (keeps NCDatasets out of the hot path, one download).
+- [ ] Extension helper: specific humidity + layer Δp + gravity + CO2 mole
+      fraction → `composite`, `h2o`, `co2` molar amounts (mol m⁻²), written
+      into per-column work arrays (moved here from Phase 1).
+- [ ] Extension helper: interface temperatures from layer temperatures and
+      surface temperature (top interface = T[1], bottom = T_surface), written
+      into a per-column work array (moved here from Phase 1).
 - [ ] `variables(::EcCKDRadiation, model)`: the standard shortwave and longwave
       diagnostics (as declared by `variables(::AbstractShortwave)` /
       `variables(::AbstractLongwave)`) plus work arrays: LW optical
